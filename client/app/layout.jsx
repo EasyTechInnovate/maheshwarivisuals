@@ -1,12 +1,14 @@
-import { Montserrat } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 
 import { Toaster } from "sonner";
 
-const montserrat = Montserrat({
+const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
 });
+
+
 
 export const metadata = {
   title: "EasyTech Innovate",
@@ -17,7 +19,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${montserrat.className} antialiased`}
+        className={`${poppins.className} antialiased`}
       >
  
         {children}
