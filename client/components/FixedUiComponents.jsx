@@ -1,6 +1,8 @@
+"use client";
 import React from 'react'
 import { Anton } from 'next/font/google';
 import Image from 'next/image';
+import { motion } from 'motion/react';
 
 const anton = Anton({
     weight: ["400",],
@@ -21,7 +23,7 @@ export const HeadingText = ({ text , className }) => {
     )
 }
 
-export const MainHeadingText = ({ text , text2, className }) => {
+export const MainHeadingText = ({ text , text2, text3 , className }) => {
     return (
         <div>
             <h1
@@ -30,18 +32,19 @@ export const MainHeadingText = ({ text , text2, className }) => {
                     backgroundImage: `radial-gradient(circle at center -20%  , rgba(249, 244, 237, 1) 40% ,rgba(234,228,255,0.6) 70%`,
                 }}
             >
-                {text} <br /> {text2}
+                {text} <br /> {text2} <br /> {text3}
             </h1>
         </div>
     )
 }
 
 export const TwoHalfBoxes = ({item1 , item2})=>{
+    
     return(
         <div className='w-full p-20 flex justify-between items-top gap-[50px] max-md:flex-col max-md:gap-8 '>
 
-            <div className='w-[50%] h-auto shadow-custom bg-gradient-to-b from-[#1d2334] bg-[#151A27]  rounded-t-3xl px-14 py-10 text-white space-y-6'>
-                <div style={{boxShadow : `0 0 30px 0px ${item1.iconbg} `}} className={`w-[60px] h-[60px] p-2  bg-[${item1.iconbg}] rounded-xl `}>
+            <motion.div initial={{x: -200 , opacity:0}} whileInView={{ x: 0 , opacity: 1 }} transition={{ duration: 0.4, delay: 0.05}} viewport={{ once: true }} className='w-[50%] h-auto shadow-custom bg-gradient-to-b from-[#1d2334] bg-[#151A27]  rounded-t-3xl px-14 py-10 text-white space-y-6'>
+                <div style={{boxShadow : `0 0 30px 0px ${item1.iconbg} `, backgroundColor : item1.iconbg}} className={`w-[60px] h-[60px] p-2   rounded-xl `}>
                     <Image src={item1.icon} alt={item1.title} className='w-full h-full'/>
                 </div>
                 <h1 className={`${anton.className} text-4xl`}>{item1.title}</h1>
@@ -52,9 +55,9 @@ export const TwoHalfBoxes = ({item1 , item2})=>{
 
                     </div>
                 ))}
-            </div>
-            <div className='w-[50%] h-auto shadow-custom bg-gradient-to-b from-[#1d2334] bg-[#151A27]  rounded-t-3xl px-14 py-10 text-white space-y-6'>
-                <div style={{boxShadow : `0 0 30px 0px ${item2.iconbg} `}} className={`w-[60px] h-[60px] p-2 bg-[${item2.iconbg}] rounded-xl `}>
+            </motion.div>
+            <motion.div  initial={{x: 200 , opacity:0}} whileInView={{ x: 0 , opacity: 1 }} transition={{ duration: 0.4, delay: 0.05}} viewport={{ once: true }} className='w-[50%] h-auto shadow-custom bg-gradient-to-b from-[#1d2334] bg-[#151A27]  rounded-t-3xl px-14 py-10 text-white space-y-6'>
+                <div style={{boxShadow : `0 0 30px 0px ${item2.iconbg} ` ,backgroundColor : item2.iconbg}} className={`w-[60px] h-[60px] p-2  rounded-xl `}>
                     <Image src={item2.icon} alt={item1.title} className='w-full h-full'/>
                 </div>
                 <h1 className={`${anton.className} text-4xl`}>{item2.title}</h1>
@@ -65,14 +68,14 @@ export const TwoHalfBoxes = ({item1 , item2})=>{
 
                     </div>
                 ))}
-            </div>
+            </motion.div>
         </div>
     )
 }
 
 export const FullBox = ({item1 })=>{
     return(
-        <div className='w-full p-20 py-10 flex justify-between items-top gap-[50px] max-md:flex-col max-md:gap-8 '>
+        <motion.div  initial={{y: 200 , opacity:0}} whileInView={{ y: 0 , opacity: 1 }} transition={{ duration: 0.4, delay: 0.05}} viewport={{ once: true }} className='w-full p-20 py-10 flex justify-between items-top gap-[50px] max-md:flex-col max-md:gap-8 '>
 
             <div className='w-full h-auto shadow-custom bg-gradient-to-b from-[#1d2334] bg-[#151A27]  rounded-t-3xl px-14 py-10 text-white space-y-6 flex gap-4 '>
                 <div className='w-[50%] space-y-6'>
@@ -94,6 +97,6 @@ export const FullBox = ({item1 })=>{
                  </div>
             </div>
            
-        </div>
+        </motion.div>
     )
 }

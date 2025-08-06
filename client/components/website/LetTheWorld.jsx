@@ -16,8 +16,8 @@ const LetTheWorld = () => {
 
             <p className='text-gray-300 text-base mb-6'>Join us in our mission to share your story with the world.</p>
             <div className='flex space-x-4 flex-wrap '>
-                <Button variant="blue" size="lg">Get Started</Button>
-                <Button variant="outline" size="lg">Learn More</Button>
+                <Button variant="blue">Get Started</Button>
+                <Button variant="transparent">Explore Features</Button>
             </div>
         </div>
         <div className='rounded  w-[100%] md:w-[50%] '>

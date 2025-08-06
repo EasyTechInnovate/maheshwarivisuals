@@ -48,7 +48,7 @@ const images = [
 const HomePage = () => {
 
     return (
-        <div className='overflow-x-hidden '>
+        <div className='overflow-x-hidden'>
 
             <div className=' h-screen relative'>
                 <div style={{ backgroundImage: `url(${herobg.src})` }} className={`w-screen h-screen  bg-cover bg-top relative text-white`}>

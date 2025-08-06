@@ -15,7 +15,7 @@ import brandandmerch from '@/public/images/forartist/brandandmerch.png'
 
 const page = () => {
   return (
-    <div>
+    <div className='overflow-x-hidden '>
       <div style={{ backgroundImage: `url(${herobg.src})` }} className='bg-cover bg-center min-h-screen w-full flex flex-col justify-center items-center pt-[150px]'>
         <MainHeadingText text='Features offered' text2='to Artist' />
         <h1 className='w-[60%] max-md:w-[90%] my-5 text-gray-300 text-center'>Maheshwari Visuals, where passion meets global reach, and every note has the potential to resonate worldwide. As a leading force in the music distribution industry, we take pride in empowering artists and labels to share their creations with the world.</h1>

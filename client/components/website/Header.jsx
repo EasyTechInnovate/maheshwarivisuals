@@ -7,9 +7,9 @@ import logo from '@/public/images/maheshwarilogo.png';
 import Image from 'next/image';
 
 const features = [
-  { name: 'For Artists', href: '/features/for-artist' },
-  { name: 'For Labels', href: '/features/labels' },
-  { name: 'MV Advertisement', href: '/features/advertisement' },
+  { name: 'For Artists', href: '/features/for-artists' },
+  { name: 'For Labels', href: '/features/for-labels' },
+  { name: 'MV Advertisement', href: '/features/mv-advertisement' },
   { name: 'Mahi', href: '/features/mahi' },
   { name: 'Music Marketing', href: '/features/music-marketing' },
 ];
