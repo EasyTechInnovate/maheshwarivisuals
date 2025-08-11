@@ -1,4 +1,3 @@
-
 import Footer from '@/components/website/Footer'
 import WebsiteHeader from '@/components/website/Header'
 import React from 'react'

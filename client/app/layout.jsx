@@ -11,7 +11,7 @@ const poppins = Poppins({
 
 
 export const metadata = {
-  title: "EasyTech Innovate",
+  title: "Maheshwari Visuals",
   description: "Natural skincare products for healthy, glowing skin",
 };
 

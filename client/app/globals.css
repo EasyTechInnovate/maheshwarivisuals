@@ -55,6 +55,7 @@
   --color-brand-teal-800: #115e59;
   --color-brand-teal-900: #134e4a;
   --shadow-custom:  0 -4px 2px -1px rgba(187, 155, 255, 0.15), 6px -5px 6px -1px rgba(187, 155, 255, 0.15), -6px -5px 3px -1px rgba(187, 155, 255, 0.15), 0 0px 0px 0px rgba(21, 26, 39, 1);
+  --shadow-custom-nav:  0 -6px 6px 0px rgba(187, 155, 255, 0.15), 6px -5px 8px 0px rgba(187, 155, 255, 0.15), -6px -5px 5px 0px rgba(187, 155, 255, 0.15), 0 0px 0px 0px rgba(21, 26, 39, 1);
    
 
 }

@@ -8,37 +8,37 @@ import Image from 'next/image';
 const Footer = () => {
   
   const exploreLinks = [
-    { title: 'MV Advertisement', href: '#' },
-    { title: 'Features for Artists', href: '#' },
-    { title: 'Features for Labels', href: '#' },
-    { title: 'MV Marketing', href: '#' },
-    { title: 'MV Distribution', href: '#' },
-    { title: 'MV Production', href: '#' },
-    { title: 'Mohi', href: '#' },
-    { title: 'Pricing', href: '#' },
-    { title: 'Sync', href: '#' },
-    { title: 'Playlist Pitching', href: '#' },
+    { title: 'MV Advertisement', href: '/features/mv-advertisement' },
+    { title: 'Features for Artists', href: '/features/for-artists' },
+    { title: 'Features for Labels', href: 'features/for-labels' },
+    { title: 'MV Marketing', href: '/brands/mv-marketing' },
+    { title: 'MV Distribution', href: '/brands/mv-distribution' },
+    { title: 'MV Production', href: '/brands/mv-production' },
+    { title: 'Mohi', href: '/features/mahi' },
+    { title: 'Pricing', href: '/pricing/everyone' },
+    { title: 'Sync', href: '/sync' },
+    { title: 'Playlist Pitching', href: '/pitch-playing' },
   ];
 
   const moreLinks = [
-    { title: 'About', href: '#' },
-    { title: 'Careers', href: '#' },
-    { title: 'Contact', href: '#' },
+    { title: 'About', href: '/about-us' },
+    { title: 'Careers', href: '/careere' },
+    { title: 'Contact', href: '/contact-us' },
     { title: 'Blog', href: '#' },
-    { title: 'Sign up', href: '#' },
-    { title: 'Log in', href: '#' },
+    { title: 'Sign up', href: '/signin' },
+    { title: 'Log in', href: '/signin' },
   ];
 
   const countriesLinks = [
-    { title: 'Japan', href: '#' },
-    { title: 'South Korea', href: '#' },
-    { title: 'Brazil', href: '#' },
-    { title: 'Nigeria', href: '#' },
-    { title: 'United Kingdom', href: '#' },
-    { title: 'France', href: '#' },
-    { title: 'United States', href: '#' },
-    { title: 'Singapore', href: '#' },
-    { title: 'Netherlands', href: '#' },
+    { title: 'Japan', href: '/country/japan' },
+    { title: 'South Korea', href: '/country/south-korea' },
+    { title: 'Brazil', href: '/country/brazil' },
+    { title: 'Nigeria', href: '/country/nigeria' },
+    { title: 'United Kingdom', href: '/country/uk' },
+    { title: 'France', href: '/country/france' },
+    { title: 'United States', href: '/country/usa' },
+    { title: 'Singapore', href: '/country/singapore' },
+    { title: 'Netherlands', href: '/country/netherlands' },
   ];
 
   const legalLinks = [
@@ -50,7 +50,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-[#1C1F2B] text-white ">
+    <footer className="bg-[#151A27] text-white ">
       <div className="container mx-auto px-4 py-12 lg:py-16">
         
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
