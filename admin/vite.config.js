@@ -14,4 +14,12 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"), // <-- this is the alias shadcn expects
     },
   },
+  base: '/admin',
+  server: {
+    host: true,
+    port: 8001,
+    watch: {
+      usePolling: true,
+    },
+  },
 });
