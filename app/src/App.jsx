@@ -2,6 +2,8 @@ import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Index from './pages/Index'
 import Dashboard from './pages/dashboard/Dashboard'
+import UploadRelease from './pages/uploadRelease/UploadRelease'
+import CatalogPage from './pages/catalog/Catalog'
 
 const App = () => {
   return (
@@ -9,6 +11,8 @@ const App = () => {
       <Routes>
         <Route path='/user' element={<Index/>}>
           <Route index element={<Dashboard/>}/>
+          <Route path='upload-release' element={<UploadRelease/>}/>
+          <Route path='catalog' element={<CatalogPage/>}/>
         </Route>
       </Routes>
     </div>

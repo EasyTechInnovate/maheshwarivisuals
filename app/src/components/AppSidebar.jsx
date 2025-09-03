@@ -1,48 +1,57 @@
 import React from 'react'
-import {  Music,  Home,  User,  Calendar,  Upload,  Grid3x3,  Users,  BarChart3,  DollarSign,  Wallet, Megaphone, Video, Wrench, Store, Bot, HelpCircle, Settings, Sun, Moon, Bell, ChevronUp} from 'lucide-react';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger,} from '@/components/ui/sidebar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from '@/components/ui/dropdown-menu';
+import {  
+  Music, Home, User, Calendar, Upload, Grid3x3, Users, BarChart3, DollarSign, 
+  Wallet, Megaphone, Video, Wrench, Store, Bot, HelpCircle, Settings
+} from 'lucide-react';
+import { 
+  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, 
+  SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem
+} from '@/components/ui/sidebar';
+import { useLocation, Link } from 'react-router-dom';
 
 const AppSidebar = () => {
-    const sidebarSections = [
+  const sidebarSections = [
     {
       title: "MAIN",
       items: [
-        { icon: Home, label: "Dashboard", url: "#", active: true },
-        { icon: User, label: "Profile", url: "#" },
-        { icon: Calendar, label: "My Plan", url: "#" },
-        { icon: Upload, label: "Upload Release", url: "#" },
-        { icon: Grid3x3, label: "Catalog", url: "#" }
+        { icon: Home, label: "Dashboard", url: "/user" },
+        { icon: User, label: "Profile", url: "/user/profile" },
+        { icon: Calendar, label: "My Plan", url: "/user/plan" },
+        { icon: Upload, label: "Upload Release", url: "/user/upload-release" },
+        { icon: Grid3x3, label: "Catalog", url: "/user/catalog" }
       ]
     },
     {
       title: "BUSINESS", 
       items: [
-        { icon: Users, label: "Join MCN", url: "#" },
-        { icon: BarChart3, label: "Analytics", url: "#" },
-        { icon: DollarSign, label: "Royalties", url: "#" },
-        { icon: Wallet, label: "Finance & Wallet", url: "#" }
+        { icon: Users, label: "Join MCN", url: "/user/mcn" },
+        { icon: BarChart3, label: "Analytics", url: "/user/analytics" },
+        { icon: DollarSign, label: "Royalties", url: "/user/royalties" },
+        { icon: Wallet, label: "Finance & Wallet", url: "/user/wallet" }
       ]
     },
     {
       title: "MARKETING",
       items: [
-        { icon: Megaphone, label: "MV Marketing", url: "#" },
-        { icon: Megaphone, label: "Advertisement", url: "#" },
-        { icon: Video, label: "MV Production", url: "#" },
-        { icon: Wrench, label: "Fan Links Builder", url: "#" },
-        { icon: Store, label: "Merch Store", url: "#" }
+        { icon: Megaphone, label: "MV Marketing", url: "/user/mv-marketing" },
+        { icon: Megaphone, label: "Advertisement", url: "/user/advertisement" },
+        { icon: Video, label: "MV Production", url: "/user/mv-production" },
+        { icon: Wrench, label: "Fan Links Builder", url: "/user/fan-links" },
+        { icon: Store, label: "Merch Store", url: "/user/merch" }
       ]
     },
     {
       title: "TOOLS",
       items: [
-        { icon: Bot, label: "AI Mastering", url: "#" },
-        { icon: HelpCircle, label: "Help & Support", url: "#" },
-        { icon: Settings, label: "Settings", url: "#" }
+        { icon: Bot, label: "AI Mastering", url: "/user/ai-mastering" },
+        { icon: HelpCircle, label: "Help & Support", url: "/user/help" },
+        { icon: Settings, label: "Settings", url: "/user/settings" }
       ]
     }
   ];
+
+  const location = useLocation();
+
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="p-4">
@@ -57,9 +66,7 @@ const AppSidebar = () => {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2" style={{
-    scrollbars: "none", // for IE
-  }}>
+      <SidebarContent className="px-2">
         {sidebarSections.map((section) => (
           <SidebarGroup key={section.title}>
             <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-2">
@@ -69,17 +76,17 @@ const AppSidebar = () => {
               <SidebarMenu>
                 {section.items.map((item) => {
                   const Icon = item.icon;
+                  const isActive = location.pathname === item.url;
                   return (
                     <SidebarMenuItem key={item.label}>
                       <SidebarMenuButton 
                         asChild 
-                        isActive={item.active}
-                        className="w-full"
+                        className={`w-full ${isActive ? "bg-muted/90" : ""}`}
                       >
-                        <a href={item.url} className="flex items-center gap-3 px-3 py-2">
+                        <Link to={item.url} className="flex items-center gap-3 px-3 py-2 rounded-lg">
                           <Icon className="w-4 h-4" />
                           <span>{item.label}</span>
-                        </a>
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );
@@ -89,10 +96,8 @@ const AppSidebar = () => {
           </SidebarGroup>
         ))}
       </SidebarContent>
-
-     
     </Sidebar>
   )
 }
 
-export default AppSidebar
+export default AppSidebar;
