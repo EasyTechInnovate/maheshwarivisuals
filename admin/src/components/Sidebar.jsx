@@ -35,7 +35,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
 {!isCollapsed && (
   <div className="mb-4">
     <Link
-      to="/dashboard"
+      to="/admin/dashboard"
       className={`flex items-center gap-2 w-full px-2 py-2 rounded-lg transition ${
         isDark ? "hover:bg-[#334155] text-gray-300" : "hover:bg-gray-200 text-gray-900"
       }`}
@@ -154,7 +154,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
                 {section.links.map((link) => (
                   <Link
                     key={link}
-                    to={`/${link.toLowerCase().replace(/\s+/g, "-")}`}
+                    to={`admin/${link.toLowerCase().replace(/\s+/g, "-")}`}
                     className={`block px-2 py-1 rounded-md transition ${
                       isDark
                         ? "hover:bg-gray-800 text-gray-300"

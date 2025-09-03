@@ -4,6 +4,11 @@ import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./components/Dashboard.jsx";
 import UserManagement from "./components/UserManagement"; 
+import ReleaseManagement from "./components/ReleaseManagent";
+import BonusManagement from "./components/BonusManagement";
+import KycManagement from "./components/KYCManagement";
+import AnalyticsManagement from "./components/AnalyticsManagement";
+import MonthManagement from "./components/MonthManagement";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -48,8 +53,13 @@ function App() {
         />
         <main className={`flex-1 p-4 overflow-y-auto ${theme === "dark" ? "bg-[#151F28]" : "bg-white"}`}>
           <Routes>
-  <Route path="/dashboard" element={<Dashboard theme={theme} />} />
-  <Route path="/user-management" element={<UserManagement theme={theme} />} />
+  <Route path="/admin/dashboard" element={<Dashboard theme={theme} />} />
+  <Route path="/admin/user-management" element={<UserManagement theme={theme} />} />
+  <Route path="/admin/release-management" element={<ReleaseManagement theme={theme} />} />
+  <Route path="/admin/bonus-management" element={<BonusManagement theme={theme} />} />
+  <Route path="/admin/kyc-management" element={<KycManagement theme={theme} />} />
+  <Route path="/admin/analytics-management" element={<AnalyticsManagement theme={theme} />} />
+  <Route path="/admin/month-management" element={<MonthManagement theme={theme} />} />
 </Routes>
 
         </main>

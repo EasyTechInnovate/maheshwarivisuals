@@ -202,27 +202,27 @@ export default function UserManagement({ theme }) {
                 <td className="px-4 py-3 flex flex-wrap gap-2">
                   <Button
                     size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-1 rounded-full px-5"
+                    className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-1 rounded-full px-3"
                   >
                     <Music className="h-4 w-4" /> Manage Release
                   </Button>
                   <Button
                     size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-5"
+                    className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-3"
                   >
                     Manage Label
                   </Button>
                   <Button
                     size="sm"
 
-                    className="bg-purple-600 hover:bg-purple-700 flex items-center gap-1 rounded-full px-5 text-white"
+                    className="bg-purple-600 hover:bg-purple-700 flex items-center gap-1 rounded-full px-3 text-white"
                   >
                     <Lock className="h-4 w-4" /> Reset Password
                   </Button>
                   <Button
                     size="sm"
 
-                    className="bg-purple-600 hover:bg-purple-700 flex items-center gap-1 rounded-full px-5 text-white"
+                    className="bg-purple-600 hover:bg-purple-700 flex items-center gap-1 rounded-full px-3 text-white"
                   >
                     <Upload className="h-4 w-4" /> Upload Catalog
                   </Button>
