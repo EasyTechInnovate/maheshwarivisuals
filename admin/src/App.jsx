@@ -2,16 +2,23 @@ import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
-import Dashboard from "./components/Dashboard.jsx";
-import UserManagement from "./components/UserManagement"; 
-import ReleaseManagement from "./components/ReleaseManagent";
-import BonusManagement from "./components/BonusManagement";
-import KycManagement from "./components/KYCManagement";
-import AnalyticsManagement from "./components/AnalyticsManagement";
-import MonthManagement from "./components/MonthManagement";
+import Dashboard from "./pages/dashboard/Dashboard";
+import UserManagement from "./pages/user-management/UserManagement";
+import ReleaseManagement from "./pages/release-management/ReleaseManagement";
+import BonusManagement from "./pages/bonus-management/BonusManagement";
+import KycManagement from "./pages/kyc-management/KycManagement";
+import AnalyticsManagement from "./pages/analytics-management/AnalyticsManagement";
+import MonthManagement from "./pages/month-management/MonthManagement";
+import RoyaltyManagement from "./pages/royalty-management/RoyaltyManagement";
+import WalletTransactions from "./pages/wallet-&-transactions/WalletTransactions";
+import MCNManagement from "./pages/mcn-management/MCNManagement";
+import TeamManagement from "./pages/team-management/TeamManagement";
+import SubscriptionPlans from "./pages/subscription-plans/SubscriptionPlans";
+import PlaylistPitching from "./pages/playlist-pitching/PlaylistPitching";
+
 
 function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [theme, setTheme] = useState("dark"); // default dark mode
 
   const toggleTheme = () => {
@@ -51,7 +58,7 @@ function App() {
           onToggleTheme={toggleTheme}
           theme={theme}
         />
-        <main className={`flex-1 p-4 overflow-y-auto ${theme === "dark" ? "bg-[#151F28]" : "bg-white"}`}>
+        <main className={`flex-1 p-4 overflow-y-auto ${theme === "dark" ? "bg-gray-900" : "bg-white"}`}>
           <Routes>
   <Route path="/admin/dashboard" element={<Dashboard theme={theme} />} />
   <Route path="/admin/user-management" element={<UserManagement theme={theme} />} />
@@ -60,6 +67,12 @@ function App() {
   <Route path="/admin/kyc-management" element={<KycManagement theme={theme} />} />
   <Route path="/admin/analytics-management" element={<AnalyticsManagement theme={theme} />} />
   <Route path="/admin/month-management" element={<MonthManagement theme={theme} />} />
+  <Route path="/admin/royalty-management" element={<RoyaltyManagement theme={theme} />} />
+  <Route path="/admin/wallet-&-transactions" element={<WalletTransactions theme={theme} />} />
+  <Route path="/admin/mcn-management" element={<MCNManagement theme={theme} />} />
+  <Route path="/admin/team-management" element={<TeamManagement theme={theme} />} />
+  <Route path="/admin/subscription-plans" element={<SubscriptionPlans theme={theme} />} />
+  <Route path="/admin/playlist-pitching" element={<PlaylistPitching theme={theme} />} />
 </Routes>
 
         </main>

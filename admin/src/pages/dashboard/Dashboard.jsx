@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchDashboardData } from "../components/DashboardData";
+import { fetchDashboardData } from "./DashboardData";
 import {
   Users,
   Music,
@@ -68,7 +68,7 @@ export default function Dashboard({ theme }) {
       className={
         getThemeClasses(
           theme,
-          "bg-gray-900 text-white",
+          "bg-[#151F28] text-white",
           "bg-white text-black"
         ) + " p-5 rounded-2xl shadow-lg relative"
       }
@@ -107,7 +107,7 @@ export default function Dashboard({ theme }) {
   return (
     <div
       className={
-        getThemeClasses(theme, "bg-[#151F28] text-white", "bg-gray-100 text-black") +
+        getThemeClasses(theme, "bg-gray-900 text-white", "bg-gray-100 text-black") +
         " min-h-screen p-4 sm:p-6 rounded-2xl"
       }
     >
@@ -127,7 +127,7 @@ export default function Dashboard({ theme }) {
         {/* Charts */}
         <div
           className={
-            getThemeClasses(theme, "bg-gray-900", "bg-white") +
+            getThemeClasses(theme, "bg-[#151F28]", "bg-white") +
             " p-4 sm:p-5 rounded-2xl shadow-lg col-span-1 sm:col-span-2"
           }
         >
@@ -148,7 +148,7 @@ export default function Dashboard({ theme }) {
 
         <div
           className={
-            getThemeClasses(theme, "bg-gray-900", "bg-white") +
+            getThemeClasses(theme, "bg-[#151F28]", "bg-white") +
             " p-4 sm:p-5 rounded-2xl shadow-lg"
           }
         >
@@ -173,7 +173,7 @@ export default function Dashboard({ theme }) {
         {/* User Type Distribution */}
         <div
           className={
-            getThemeClasses(theme, "bg-gray-900", "bg-white") +
+            getThemeClasses(theme, "bg-[#151F28]", "bg-white") +
             " p-4 sm:p-5 rounded-2xl shadow-lg"
           }
         >
@@ -211,7 +211,7 @@ export default function Dashboard({ theme }) {
         {/* Recent Activities */}
         <div
           className={
-            getThemeClasses(theme, "bg-gray-900", "bg-white") +
+            getThemeClasses(theme, "bg-[#151F28]", "bg-white") +
             " p-4 sm:p-5 rounded-2xl shadow-lg"
           }
         >
@@ -257,7 +257,7 @@ export default function Dashboard({ theme }) {
       {/* System Health & Status */}
       <div
         className={
-          getThemeClasses(theme, "bg-gray-900", "bg-white") +
+          getThemeClasses(theme, "bg-[#151F28]", "bg-white") +
           " p-4 sm:p-5 rounded-2xl shadow-lg w-full mt-6"
         }
       >

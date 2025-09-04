@@ -14,7 +14,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
     <div
       className={[
         "h-screen overflow-y-auto overflow-x-hidden pb-20 flex flex-col p-3 text-sm transition-all duration-300 custom-scrollbar",
-        isDark ? "bg-[#151F28] text-gray-300" : "bg-white text-gray-900",
+        isDark ? "bg-gray-900 text-gray-300" : "bg-white text-gray-900",
       ].join(" ")}
     >
       {/* Header */}

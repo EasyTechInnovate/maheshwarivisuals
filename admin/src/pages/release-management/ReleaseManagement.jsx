@@ -41,7 +41,7 @@ export default function ReleaseManagement({ theme }) {
   return (
     <div
       className={`p-4 md:p-6 space-y-6 transition-colors duration-300 ${
-        isDark ? "bg-[#151F28] text-gray-200" : "bg-gray-50 text-gray-900"
+        isDark ? "bg-gray-900 text-gray-200" : "bg-gray-50 text-[#151F28]"
       }`}
     >
       {/* Header */}
@@ -71,7 +71,7 @@ export default function ReleaseManagement({ theme }) {
           <div
             key={i}
             className={`rounded-lg p-4 shadow-md ${
-              isDark ? "bg-[#111A22]" : "bg-white"
+              isDark ? "bg-[#151F28]" : "bg-white"
             }`}
           >
             <p
@@ -94,7 +94,7 @@ export default function ReleaseManagement({ theme }) {
           onChange={(e) => setSearch(e.target.value)}
           className={`w-full md:w-1/3 ${
             isDark
-              ? "bg-[#111A22] border-gray-700 text-gray-200"
+              ? "bg-[#151F28] border-gray-700 text-gray-200"
               : "bg-white"
           }`}
         />
@@ -102,7 +102,7 @@ export default function ReleaseManagement({ theme }) {
           <select
             className={`rounded-md px-3 py-2 text-sm ${
               isDark
-                ? "bg-[#111A22] border border-gray-700 text-gray-200"
+                ? "bg-[#151F28] border border-gray-700 text-gray-200"
                 : "bg-white border border-gray-300"
             }`}
           >
@@ -114,7 +114,7 @@ export default function ReleaseManagement({ theme }) {
           <select
             className={`rounded-md px-3 py-2 text-sm ${
               isDark
-                ? "bg-[#111A22] border border-gray-700 text-gray-200"
+                ? "bg-[#151F28] border border-gray-700 text-gray-200"
                 : "bg-white border border-gray-300"
             }`}
           >
@@ -141,7 +141,7 @@ export default function ReleaseManagement({ theme }) {
       {/* Table */}
       <div
         className={`rounded-lg overflow-x-auto shadow-md ${
-          isDark ? "bg-[#111A22]" : "bg-white"
+          isDark ? "bg-[#151F28]" : "bg-white"
         }`}
       >
         <table className="w-full text-sm min-w-[700px]">

@@ -51,7 +51,7 @@ export default function BonusManagement({ theme }) {
   return (
     <div
       className={`p-4 md:p-6 space-y-6 transition-colors duration-300 ${
-        isDark ? "bg-[#151F28] text-gray-200" : "bg-gray-50 text-gray-900"
+        isDark ? "bg-gray-900 text-gray-200" : "bg-gray-50 text-[#151F28]"
       }`}
     >
       {/* Header */}
@@ -80,7 +80,7 @@ export default function BonusManagement({ theme }) {
         {stats.map((stat, i) => (
           <div
             key={i}
-            className={`rounded-lg p-4 shadow-md ${isDark ? "bg-[#111A22]" : "bg-white"}`}
+            className={`rounded-lg p-4 shadow-md ${isDark ? "bg-[#151F28]" : "bg-white"}`}
           >
             <p className={`text-sm mb-1 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
               {stat.label}
@@ -97,7 +97,7 @@ export default function BonusManagement({ theme }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className={`w-full md:w-1/3 ${
-            isDark ? "bg-[#111A22] border-gray-700 text-gray-200" : "bg-white"
+            isDark ? "bg-[#151F28] border-gray-700 text-gray-200" : "bg-white"
           }`}
         />
         <div className="flex flex-wrap gap-2 items-center">
@@ -106,7 +106,7 @@ export default function BonusManagement({ theme }) {
               key={label}
               className={`rounded-md px-3 py-2 text-sm ${
                 isDark
-                  ? "bg-[#111A22] border border-gray-700 text-gray-200"
+                  ? "bg-[#151F28] border border-gray-700 text-gray-200"
                   : "bg-white border border-gray-300"
               }`}
             >
@@ -119,7 +119,7 @@ export default function BonusManagement({ theme }) {
   <Button variant="outline"
     className={`rounded-2x px-5 ${
       isDark
-        ? "bg-gray-900 text-red-500"
+        ? "bg-[#151F28] text-red-500"
         : "bg-red-100 text-red-600 hover:bg-red-200"
     }`}
     onClick={() => setShowDropdown(!showDropdown)}
@@ -130,7 +130,7 @@ export default function BonusManagement({ theme }) {
     <div
       className={`absolute top-12 right-0 w-36 rounded-md shadow-md border z-20 ${
         isDark
-          ? "bg-[#111A22] text-gray-200 border-gray-700"
+          ? "bg-[#151F28] text-gray-200 border-gray-700"
           : "bg-white text-gray-800 border-gray-200"
       }`}
     >
@@ -158,7 +158,7 @@ export default function BonusManagement({ theme }) {
       </div>
 
       {/* Table */}
-      <div className={`rounded-lg overflow-x-auto shadow-md ${isDark ? "bg-[#111A22]" : "bg-white"}`}>
+      <div className={`rounded-lg overflow-x-auto shadow-md ${isDark ? "bg-[#151F28]" : "bg-white"}`}>
         <table className="w-full text-sm min-w-[500px]">
           <thead className={`${isDark ? "text-gray-400" : "text-gray-600"} text-left`}>
             <tr>

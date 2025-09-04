@@ -49,7 +49,7 @@ export default function KycManagement({ theme }) {
   };
 
   return (
-    <div className={`p-4 md:p-6 space-y-6 transition-colors duration-300 ${isDark ? "bg-[#151F28] text-gray-200" : "bg-gray-50 text-gray-900"}`}>
+    <div className={`p-4 md:p-6 space-y-6 transition-colors duration-300 ${isDark ? "bg-gray-900 text-gray-200" : "bg-gray-50 text-[#151F28]"}`}>
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
         <div>
@@ -76,7 +76,7 @@ export default function KycManagement({ theme }) {
           { label: "Artists", value: artists },
           { label: "Labels", value: labels },
         ].map((stat, i) => (
-          <div key={i} className={`rounded-lg p-4 shadow-md ${isDark ? "bg-[#111A22]" : "bg-white"}`}>
+          <div key={i} className={`rounded-lg p-4 shadow-md ${isDark ? "bg-[#151F28]" : "bg-white"}`}>
             <p className={`text-sm mb-1 ${isDark ? "text-gray-400" : "text-gray-600"}`}>{stat.label}</p>
             <p className={`text-2xl font-semibold ${stat.color || ""}`}>{stat.value}</p>
           </div>
@@ -89,13 +89,13 @@ export default function KycManagement({ theme }) {
           placeholder="Search users by name, ID, or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className={`w-full md:w-1/3 ${isDark ? "bg-[#111A22] border-gray-700 text-gray-200" : "bg-white"}`}
+          className={`w-full md:w-1/3 ${isDark ? "bg-[#151F28] border-gray-700 text-gray-200" : "bg-white"}`}
         />
         <div className="flex flex-wrap gap-2">
-          <select className={`rounded-md px-3 py-2 text-sm ${isDark ? "bg-[#111A22] border border-gray-700 text-gray-200" : "bg-white border border-gray-300"}`}>
+          <select className={`rounded-md px-3 py-2 text-sm ${isDark ? "bg-[#151F28] border border-gray-700 text-gray-200" : "bg-white border border-gray-300"}`}>
             <option>All Status</option>
           </select>
-          <select className={`rounded-md px-3 py-2 text-sm ${isDark ? "bg-[#111A22] border border-gray-700 text-gray-200" : "bg-white border border-gray-300"}`}>
+          <select className={`rounded-md px-3 py-2 text-sm ${isDark ? "bg-[#151F28] border border-gray-700 text-gray-200" : "bg-white border border-gray-300"}`}>
             <option>All Types</option>
           </select>
           <Button variant={isDark ? "outline" : "secondary"} className="flex items-center gap-2 rounded-full px-5">
@@ -105,7 +105,7 @@ export default function KycManagement({ theme }) {
       </div>
 
       {/* Table */}
-      <div className={`rounded-lg overflow-x-auto shadow-md ${isDark ? "bg-[#111A22]" : "bg-white"}`}>
+      <div className={`rounded-lg overflow-x-auto shadow-md ${isDark ? "bg-[#151F28]" : "bg-white"}`}>
         <table className="w-full text-sm min-w-[900px]">
           <thead className={`${isDark ? "text-gray-400" : "text-gray-600"} text-left`}>
             <tr>

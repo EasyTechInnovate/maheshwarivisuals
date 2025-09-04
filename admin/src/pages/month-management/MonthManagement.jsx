@@ -22,7 +22,7 @@ export default function MonthManagement({ theme }) {
   );
 
   return (
-    <div className={`p-4 md:p-6 space-y-6 transition-colors duration-300 ${isDark ? "bg-[#151F28] text-gray-200" : "bg-gray-50 text-gray-900"}`}>
+    <div className={`p-4 md:p-6 space-y-6 transition-colors duration-300 ${isDark ? "bg-gray-900 text-gray-200" : "bg-gray-50 text-[#151F28]"}`}>
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
         <div>
@@ -39,7 +39,7 @@ export default function MonthManagement({ theme }) {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((stat, idx) => (
-          <div key={idx} className={`rounded-lg p-4 shadow-md flex items-center justify-between ${isDark ? "bg-[#111A22]" : "bg-white"}`}>
+          <div key={idx} className={`rounded-lg p-4 shadow-md flex items-center justify-between ${isDark ? "bg-[#151F28]" : "bg-white"}`}>
             <div>
               <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>{stat.label}</p>
               <p className={`text-2xl font-semibold ${stat.color || ""}`}>{stat.value}</p>
@@ -54,11 +54,11 @@ export default function MonthManagement({ theme }) {
         placeholder="Search months and years..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className={`w-full ${isDark ? "bg-[#111A22] border-gray-700 text-gray-200" : "bg-white"}`}
+        className={`w-full ${isDark ? "bg-[#151F28] border-gray-700 text-gray-200" : "bg-white"}`}
       />
 
       {/* Month List */}
-      <div className={`rounded-lg shadow-md p-4 ${isDark ? "bg-[#111A22]" : "bg-white"}`}>
+      <div className={`rounded-lg shadow-md p-4 ${isDark ? "bg-[#151F28]" : "bg-white"}`}>
         <h2 className="text-sm font-semibold mb-3">Month Management</h2>
         <ul className="space-y-2">
           {filteredMonths.map((month) => (
