@@ -24,10 +24,10 @@ const AppSidebar = () => {
     {
       title: "BUSINESS", 
       items: [
-        { icon: Users, label: "Join MCN", url: "/user/mcn" },
+        { icon: Users, label: "Join MCN", url: "/user/youtube-mcn" },
         { icon: BarChart3, label: "Analytics", url: "/user/analytics" },
         { icon: DollarSign, label: "Royalties", url: "/user/royalties" },
-        { icon: Wallet, label: "Finance & Wallet", url: "/user/wallet" }
+        { icon: Wallet, label: "Finance & Wallet", url: "/user/finance-and-wallet" }
       ]
     },
     {
