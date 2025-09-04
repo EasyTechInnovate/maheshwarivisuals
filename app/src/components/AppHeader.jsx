@@ -5,7 +5,7 @@ import { Button } from './ui/button'
 import { useTheme } from '@/contextapi/TheamContext'
 
 const AppHeader = () => {
-    const {theme , toggleTheme } = useTheme()
+  const {theme , toggleTheme } = useTheme()
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
             <div className="flex h-16 items-center justify-between px-6">
