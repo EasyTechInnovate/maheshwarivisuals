@@ -103,7 +103,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
               label: "MCN & BUSINESS",
               links: [
                 "MCN Management",
-                "MCN Royalty",
+                "MCN Month Management",
                 "Team Management",
                 "Subscription Plans",
               ],
@@ -114,14 +114,16 @@ export default function Sidebar({ isCollapsed = false, theme }) {
               links: [
                 "Playlist Pitching",
                 "Advertisement Plans",
-                "Synchronization (ZYNC)",
+                "Synchronization (SYNC)",
                 "Merch Store Management",
               ],
             },
             {
               value: "communications",
               label: "COMMUNICATIONS",
-              links: ["Notifications", "Newsletter", "Help & Support"],
+              links: ["Notifications",
+                 "Newsletter",
+                  "Help & Support"],
             },
             {
               value: "content",

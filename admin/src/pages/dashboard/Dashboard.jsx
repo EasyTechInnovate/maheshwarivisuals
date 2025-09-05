@@ -124,48 +124,81 @@ export default function Dashboard({ theme }) {
           />
         ))}
 
-        {/* Charts */}
-        <div
-          className={
-            getThemeClasses(theme, "bg-[#151F28]", "bg-white") +
-            " p-4 sm:p-5 rounded-2xl shadow-lg col-span-1 sm:col-span-2"
-          }
-        >
-          <h3
-            className={getThemeClasses(theme, "text-gray-400", "text-gray-600") + " text-xs sm:text-sm font-medium mb-2 sm:mb-3"}
-          >
-            Platform Usage (24h)
-          </h3>
-          <ResponsiveContainer width="100%" height={180}>
-            <LineChart data={data.platformUsage24h}>
-              <XAxis dataKey="time" stroke={theme === "dark" ? "#aaa" : "#555"} />
-              <YAxis stroke={theme === "dark" ? "#aaa" : "#555"} />
-              <Tooltip />
-              <Line type="monotone" dataKey="value" stroke="#8b5cf6" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
 
-        <div
-          className={
-            getThemeClasses(theme, "bg-[#151F28]", "bg-white") +
-            " p-4 sm:p-5 rounded-2xl shadow-lg"
-          }
-        >
-          <h3
-            className={getThemeClasses(theme, "text-gray-400", "text-gray-600") + " text-xs sm:text-sm font-medium mb-2 sm:mb-3"}
-          >
-            Revenue & User Growth
-          </h3>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={data.revenueGrowth}>
-              <XAxis dataKey="month" stroke={theme === "dark" ? "#aaa" : "#555"} />
-              <YAxis stroke={theme === "dark" ? "#aaa" : "#555"} />
-              <Tooltip />
-              <Bar dataKey="value" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+{/* Charts */}
+<div
+  className={
+    getThemeClasses(theme, "bg-[#151F28]", "bg-white") +
+    " p-4 sm:p-5 rounded-2xl shadow-lg col-span-1 sm:col-span-2"
+  }
+>
+  <h3
+    className={
+      getThemeClasses(theme, "text-gray-400", "text-gray-600") +
+      " text-xs sm:text-sm font-medium mb-2 sm:mb-3"
+    }
+  >
+    Platform Usage (24h)
+  </h3>
+  <div className="w-full overflow-x-auto">
+    <div className="min-w-[280px]">
+      <ResponsiveContainer width="100%" height={220}>
+  <LineChart
+    data={data.platformUsage24h}
+    margin={{ top: 10, right: 10, left: 5, bottom: 0 }}
+  >
+    <XAxis dataKey="time" stroke={theme === "dark" ? "#aaa" : "#555"} />
+    <YAxis 
+      stroke={theme === "dark" ? "#aaa" : "#555"} 
+      width={35} // ✅ tight Y axis for mobile
+    />
+    <Tooltip />
+    <Line
+      type="monotone"
+      dataKey="value"
+      stroke="#8b5cf6"
+      strokeWidth={2}
+      dot={{ r: 4, fill: "#8b5cf6" }}
+    />
+  </LineChart>
+</ResponsiveContainer>
+
+    </div>
+  </div>
+</div>
+
+
+<div
+  className={
+    getThemeClasses(theme, "bg-[#151F28]", "bg-white") +
+    " p-4 sm:p-5 rounded-2xl shadow-lg"
+  }
+>
+  <h3
+    className={
+      getThemeClasses(theme, "text-gray-400", "text-gray-600") +
+      " text-xs sm:text-sm font-medium mb-2 sm:mb-3"
+    }
+  >
+    Revenue & User Growth
+  </h3>
+
+  
+  <div className="w-full overflow-x-auto custom-scrollbar">
+    <div className="min-w-[280px]">
+      <ResponsiveContainer width="100%" height={220}>
+        <BarChart data={data.revenueGrowth}>
+          <XAxis dataKey="month" stroke={theme === "dark" ? "#aaa" : "#555"} />
+          <YAxis stroke={theme === "dark" ? "#aaa" : "#555"} />
+          <Tooltip />
+          <Bar dataKey="value" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  </div>
+</div>
+
+
       </div>
 
       {/* Row 1: Two side-by-side cards */}

@@ -15,6 +15,12 @@ import MCNManagement from "./pages/mcn-management/MCNManagement";
 import TeamManagement from "./pages/team-management/TeamManagement";
 import SubscriptionPlans from "./pages/subscription-plans/SubscriptionPlans";
 import PlaylistPitching from "./pages/playlist-pitching/PlaylistPitching";
+import SyncManagement from "./pages/synchronization-(sync)/Synchronization(SYNC)";
+import MCNMonthManagement from "./pages/mcn-month-management/MCNMonthManagement";
+import AdvertisementRequests from "./pages/advertisment-plans/AdvertisementPlans";
+import MerchStoreManagement from "./pages/merch-store-management/MerchStoreManagement";
+import NotificationPage from "./pages/notifications/NotificaionsPage";
+import Newsletter from "./pages/newsletter/Newsletter";
 
 
 function App() {
@@ -70,9 +76,15 @@ function App() {
   <Route path="/admin/royalty-management" element={<RoyaltyManagement theme={theme} />} />
   <Route path="/admin/wallet-&-transactions" element={<WalletTransactions theme={theme} />} />
   <Route path="/admin/mcn-management" element={<MCNManagement theme={theme} />} />
+  <Route path="/admin/mcn-month-management" element={<MCNMonthManagement theme={theme} />} />
   <Route path="/admin/team-management" element={<TeamManagement theme={theme} />} />
   <Route path="/admin/subscription-plans" element={<SubscriptionPlans theme={theme} />} />
   <Route path="/admin/playlist-pitching" element={<PlaylistPitching theme={theme} />} />
+  <Route path="/admin/advertisement-plans" element={<AdvertisementRequests theme={theme} />} />
+  <Route path="/admin/synchronization-(sync)" element={<SyncManagement theme={theme} />} />
+  <Route path="/admin/merch-store-management" element={<MerchStoreManagement theme={theme} />} />
+  <Route path="/admin/notifications" element={<NotificationPage theme={theme} />} />
+  <Route path="/admin/newsletter" element={<Newsletter theme={theme} />} />
 </Routes>
 
         </main>
