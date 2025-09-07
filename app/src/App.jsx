@@ -10,6 +10,7 @@ import FinanceWallet from './pages/financeAndWallet/FinanceWallet'
 import WithdrawFund from './pages/financeAndWallet/WithdrawFund'
 import YouTubeMCN from './pages/youtubeMCN/YoutubeMCN'
 import YouTubeMCNRequest from './pages/youtubeMCN/YoutubeMCNRequest'
+import MVProduction from './pages/mvProduction/MVProduction'
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
           <Route path='finance-and-wallet/withdraw-fund' element={<WithdrawFund/>}/>
           <Route path='youtube-mcn' element={<YouTubeMCN/>}/>
           <Route path='youtube-mcn/new-request' element={<YouTubeMCNRequest/>}/>
+          <Route path='mv-production' element={<MVProduction/>}/>
         </Route>
       </Routes>
     </div>
