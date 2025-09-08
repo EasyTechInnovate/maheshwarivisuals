@@ -21,6 +21,11 @@ import AdvertisementRequests from "./pages/advertisment-plans/AdvertisementPlans
 import MerchStoreManagement from "./pages/merch-store-management/MerchStoreManagement";
 import NotificationPage from "./pages/notifications/NotificaionsPage";
 import Newsletter from "./pages/newsletter/Newsletter";
+import HelpSupport from "./pages/help-&-support/HelpSupportPage";
+import TestimonialManager from "./pages/testimonials/Testimonials";
+import TrendingArtistsManager from "./pages/trending-artists/TrendingArtists";
+import TrendingLabelsManager from "./pages/trending-labels/TrendingLabels";
+import FaqManager from "./pages/faq-management/FAQManagement";
 
 
 function App() {
@@ -85,6 +90,11 @@ function App() {
   <Route path="/admin/merch-store-management" element={<MerchStoreManagement theme={theme} />} />
   <Route path="/admin/notifications" element={<NotificationPage theme={theme} />} />
   <Route path="/admin/newsletter" element={<Newsletter theme={theme} />} />
+  <Route path="/admin/help-&-support" element={<HelpSupport theme={theme} />} />
+  <Route path="/admin/testimonials" element={<TestimonialManager theme={theme} />} />
+  <Route path="/admin/trending-artists" element={<TrendingArtistsManager theme={theme} />} />
+  <Route path="/admin/trending-labels" element={<TrendingLabelsManager theme={theme} />} />
+  <Route path="/admin/faq-management" element={<FaqManager theme={theme} />} />
 </Routes>
 
         </main>

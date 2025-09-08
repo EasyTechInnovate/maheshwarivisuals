@@ -7,30 +7,53 @@ import {
 import ComposeNotification from "../../components/ComposeNotification";
 import NotificationPreview from "../../components/NotificationPreview";
 import AllUsers from "../../components/NotificationAllUsers";
+import { Bell, Users, Eye, MousePointer } from "lucide-react";
 
-export default function NotificationPage({ theme }) {
+export default function NotificationPage({ theme = "dark" }) {
   const [notification, setNotification] = useState(mockNotification);
 
   const cardClass = `${
     theme === "dark" ? "bg-[#151F28]" : "bg-white"
-  } p-4 rounded-2xl shadow text-center`;
+  } p-5 rounded-2xl shadow flex flex-col justify-between`;
 
-  // utility to render a stat box with badge
-  const StatBox = ({ label, value, change, color }) => (
+  const StatBox = ({ label, value, change, icon, color }) => (
     <div className={cardClass}>
-      <p className="text-gray-400 text-sm">{label}</p>
-      <p className="text-2xl font-bold">{value}</p>
-      {change && (
+      <div className="flex items-center justify-between">
+        <p
+          className={`${
+            theme === "dark" ? "text-gray-400" : "text-gray-600"
+          } text-sm`}
+        >
+          {label}
+        </p>
         <span
-          className={`mt-2 inline-block text-xs font-medium px-2.5 py-1 rounded-full ${
-            String(change).trim().startsWith("+")
-              ? color // dynamic badge color per box
-              : "bg-red-900/30 text-red-400"
+          className={`p-2 rounded-lg ${
+            theme === "dark" ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-900"
           }`}
         >
-          {change}
+          {icon}
         </span>
-      )}
+      </div>
+      <div className="mt-3">
+        <p
+          className={`${
+            theme === "dark" ? "text-white" : "text-gray-900"
+          } text-2xl font-bold`}
+        >
+          {value}
+        </p>
+        {change && (
+          <span
+            className={`mt-2 inline-block text-xs font-medium px-2.5 py-1 rounded-full ${
+              change > 0
+                ? color
+                : "bg-red-900/30 text-red-400"
+            }`}
+          >
+            {change > 0 ? `+${change}%` : `${change}%`}
+          </span>
+        )}
+      </div>
     </div>
   );
 
@@ -45,51 +68,45 @@ export default function NotificationPage({ theme }) {
         Manage platform notifications, announcements, and user communications
       </p>
 
-      {/* Two-column layout */}
+      {/* Stats - All 4 in one place */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <StatBox
+          label="Total Sent"
+          value={notificationStats.totalSent.value}
+          change={notificationStats.totalSent.change}
+          icon={<Bell className="w-5 h-5" />}
+          color="bg-green-900/30 text-green-400"
+        />
+        <StatBox
+          label="Active Users"
+          value={notificationStats.activeUsers.value}
+          change={notificationStats.activeUsers.change}
+          icon={<Users className="w-5 h-5" />}
+          color="bg-blue-900/30 text-blue-400"
+        />
+        <StatBox
+          label="Open Rate"
+          value={`${notificationStats.openRate.value}%`}
+          change={notificationStats.openRate.change}
+          icon={<Eye className="w-5 h-5" />}
+          color="bg-purple-900/30 text-purple-400"
+        />
+        <StatBox
+          label="Click Rate"
+          value={`${notificationStats.clickRate.value}%`}
+          change={notificationStats.clickRate.change}
+          icon={<MousePointer className="w-5 h-5" />}
+          color="bg-orange-900/30 text-orange-400"
+        />
+      </div>
+
+      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Left: Stats + Compose */}
-        <div className="space-y-6">
-          {/* Stats (Total Sent + Active Users) */}
-          <div className="grid grid-cols-2 gap-4">
-            <StatBox
-              label="Total Sent"
-              value={notificationStats.totalSent.value}
-              change={notificationStats.totalSent.change}
-              color="bg-green-900/30 text-green-400"
-            />
-            <StatBox
-              label="Active Users"
-              value={notificationStats.activeUsers.value}
-              change={notificationStats.activeUsers.change}
-              color="bg-blue-900/30 text-blue-400"
-            />
-          </div>
+       
+        <ComposeNotification theme={theme} onCompose={setNotification} />
 
-          {/* Compose box */}
-          <ComposeNotification theme={theme} onCompose={setNotification} />
-        </div>
-
-        {/* Right: Stats + Preview */}
-        <div className="space-y-6">
-          {/* Stats (Open Rate + Click Rate) */}
-          <div className="grid grid-cols-2 gap-4">
-            <StatBox
-              label="Open Rate"
-              value={notificationStats.openRate.value}
-              change={notificationStats.openRate.change}
-              color="bg-purple-900/30 text-purple-400"
-            />
-            <StatBox
-              label="Click Rate"
-              value={notificationStats.clickRate.value}
-              change={notificationStats.clickRate.change}
-              color="bg-orange-900/30 text-orange-400"
-            />
-          </div>
-
-          {/* Preview box */}
-          <NotificationPreview theme={theme} notification={notification} />
-        </div>
+        {/* Right: Preview */}
+        <NotificationPreview theme={theme} notification={notification} />
       </div>
 
       {/* All Users */}

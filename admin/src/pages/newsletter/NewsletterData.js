@@ -1,10 +1,10 @@
 // Mock data for now, replace with API calls later
 const NewsletterData = {
   stats: {
-    totalSubscribers: 28400,
-    openRate: 68.7,
-    clickRate: 12.4,
-    newslettersSent: 127,
+    totalSubscribers: { value: 28400, change: 14.2 },
+    openRate: { value: 68.7, change: 8.3 },
+    clickRate: { value: 12.4, change: 51.1 },
+    newslettersSent: { value: 127, change: 23 },
   },
   users: [
     {

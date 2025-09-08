@@ -1,0 +1,32 @@
+export const trendingArtists = [
+  {
+    id: "1",
+    artistNo: "ART001",
+    name: "Rajesh Kumar",
+    designation: "Bollywood Playback Singer",
+    totalReleases: 25,
+    monthlyStreams: "1,500,000",
+    displayStatus: "Active",
+    lastUpdated: "2024-03-15",
+  },
+  {
+    id: "2",
+    artistNo: "ART002",
+    name: "Priya Sharma",
+    designation: "Classical Vocalist",
+    totalReleases: 18,
+    monthlyStreams: "850,000",
+    displayStatus: "Active",
+    lastUpdated: "2024-03-12",
+  },
+  {
+    id: "3",
+    artistNo: "ART003",
+    name: "Mahesh Patel",
+    designation: "Folk Music Artist",
+    totalReleases: 12,
+    monthlyStreams: "650,000",
+    displayStatus: "Inactive",
+    lastUpdated: "2024-03-10",
+  },
+];
