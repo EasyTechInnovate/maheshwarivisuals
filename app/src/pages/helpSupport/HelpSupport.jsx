@@ -191,7 +191,7 @@ const HelpSupport = () => {
       </DialogTrigger>
       <DialogContent className="max-lg:min-w-[90vw] lg:min-w-6xl max-h-[90vh] overflow-y-auto  border-slate-700">
         <DialogHeader>
-          <DialogTitle className="text-white">{title}</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
           {children}
@@ -202,7 +202,7 @@ const HelpSupport = () => {
 
   const FormField = ({ label, children, required = false }) => (
     <div className="space-y-2">
-      <label className="text-sm font-medium text-gray-300">
+      <label className="text-sm font-medium">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       {children}
@@ -213,39 +213,39 @@ const HelpSupport = () => {
     <Dialog open={isTicketModalOpen} onOpenChange={setIsTicketModalOpen}>
       <DialogContent className="max-w-2xl  border-slate-700">
         <DialogHeader>
-          <DialogTitle className="text-white">Ticket Details</DialogTitle>
+          <DialogTitle>Ticket Details</DialogTitle>
         </DialogHeader>
         {ticket && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-400">Ticket ID</p>
-                <p className="text-white">{ticket.id}</p>
+                <p className="text-sm">Ticket ID</p>
+                <p>{ticket.id}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-400">Status</p>
+                <p className="text-sm">Status</p>
                 <Badge className={getStatusColor(ticket.status)}>
                   {ticket.status}
                 </Badge>
               </div>
               <div>
-                <p className="text-sm text-gray-400">Priority</p>
+                <p className="text-sm">Priority</p>
                 <Badge className={getPriorityColor(ticket.priority)}>
                   {ticket.priority}
                 </Badge>
               </div>
               <div>
-                <p className="text-sm text-gray-400">Created</p>
-                <p className="text-white">{ticket.created}</p>
+                <p className="text-sm">Created</p>
+                <p>{ticket.created}</p>
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Subject</p>
-              <p className="text-white">{ticket.subject}</p>
+              <p className="text-sm mb-2">Subject</p>
+              <p>{ticket.subject}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Description</p>
-              <p className="text-gray-300">{ticket.description}</p>
+              <p className="text-sm mb-2">Description</p>
+              <p>{ticket.description}</p>
             </div>
             <div className="flex gap-2 pt-4">
               <Button className="bg-purple-600 text-white hover:bg-purple-700">
@@ -263,14 +263,14 @@ const HelpSupport = () => {
   );
 
   return (
-    <div className="min-h-screen text-white p-6">
+    <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold">Help & Support</h1>
-              <p className="text-gray-400">Get help and submit support tickets</p>
+              <p>Get help and submit support tickets</p>
             </div>
             <Button 
               className="bg-purple-600 text-white hover:bg-purple-700"
@@ -339,7 +339,7 @@ const HelpSupport = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id="confirm-meta" className="rounded" />
-                <label htmlFor="confirm-meta" className="text-sm text-gray-300">
+                <label htmlFor="confirm-meta" className="text-sm">
                   I confirm that all submitted designs are original and do not infringe on third-party rights.
                 </label>
               </div>
@@ -404,7 +404,7 @@ const HelpSupport = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id="confirm-youtube" className="rounded" />
-                <label htmlFor="confirm-youtube" className="text-sm text-gray-300">
+                <label htmlFor="confirm-youtube" className="text-sm">
                   I confirm that all submitted designs are original and do not infringe on third-party rights.
                 </label>
               </div>
@@ -475,7 +475,7 @@ const HelpSupport = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id="confirm-manual" className="rounded" />
-                <label htmlFor="confirm-manual" className="text-sm text-gray-300">
+                <label htmlFor="confirm-manual" className="text-sm">
                   I confirm that all submitted designs are original and do not infringe on third-party rights.
                 </label>
               </div>
@@ -550,7 +550,7 @@ const HelpSupport = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id="confirm-meta-profile" className="rounded" />
-                <label htmlFor="confirm-meta-profile" className="text-sm text-gray-300">
+                <label htmlFor="confirm-meta-profile" className="text-sm">
                   I confirm that all submitted designs are original and do not infringe on third-party rights.
                 </label>
               </div>
@@ -610,7 +610,7 @@ const HelpSupport = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id="confirm-meta-manual" className="rounded" />
-                <label htmlFor="confirm-meta-manual" className="text-sm text-gray-300">
+                <label htmlFor="confirm-meta-manual" className="text-sm">
                   I confirm that all submitted designs are original and do not infringe on third-party rights.
                 </label>
               </div>
@@ -686,7 +686,7 @@ const HelpSupport = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id="confirm-oac" className="rounded" />
-                <label htmlFor="confirm-oac" className="text-sm text-gray-300">
+                <label htmlFor="confirm-oac" className="text-sm">
                   I confirm that all submitted designs are original and do not infringe on third-party rights.
                 </label>
               </div>
@@ -700,10 +700,10 @@ const HelpSupport = () => {
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-4">
-            <TabsTrigger value="faq" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">FAQ</TabsTrigger>
-            <TabsTrigger value="tickets" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">My Tickets</TabsTrigger>
-            <TabsTrigger value="contact" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Contact</TabsTrigger>
-            <TabsTrigger value="resources" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Resources</TabsTrigger>
+            <TabsTrigger value="faq" >FAQ</TabsTrigger>
+            <TabsTrigger value="tickets" >My Tickets</TabsTrigger>
+            <TabsTrigger value="contact" >Contact</TabsTrigger>
+            <TabsTrigger value="resources" >Resources</TabsTrigger>
           </TabsList>
 
           {/* FAQ Tab */}
@@ -718,11 +718,11 @@ const HelpSupport = () => {
             {faqData.map((category, categoryIndex) => (
               <Card key={categoryIndex} className=" border-slate-700">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
-                      {categoryIndex === 0 && <Play className="w-4 h-4" />}
-                      {categoryIndex === 1 && <FileText className="w-4 h-4" />}
-                      {categoryIndex === 2 && <AlertCircle className="w-4 h-4" />}
+                      {categoryIndex === 0 && <Play className="w-4 h-4 text-white" />}
+                      {categoryIndex === 1 && <FileText className="w-4 h-4 text-white" />}
+                      {categoryIndex === 2 && <AlertCircle className="w-4 h-4 text-white" />}
                     </div>
                     {category.category}
                   </CardTitle>
@@ -730,11 +730,11 @@ const HelpSupport = () => {
                 <CardContent className="space-y-2">
                   {category.questions.map((faq) => (
                     <Collapsible key={faq.id} open={openFAQ === faq.id} onOpenChange={() => setOpenFAQ(openFAQ === faq.id ? null : faq.id)}>
-                      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 text-left rounded-lg transition-colors hover:bg-slate-800">
-                        <span className="text-white">{faq.question}</span>
+                      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 text-left rounded-lg transition-colors hover:bg-muted-foreground/10">
+                        <span>{faq.question}</span>
                         <ChevronDown className={`h-4 w-4 transition-transform ${openFAQ === faq.id ? 'rotate-180' : ''}`} />
                       </CollapsibleTrigger>
-                      <CollapsibleContent className="p-3 text-gray-300 bg-slate-800 rounded-lg mt-1">
+                      <CollapsibleContent className="p-3 bg-slate-800 rounded-lg mt-1">
                         {faq.answer}
                       </CollapsibleContent>
                     </Collapsible>
@@ -752,10 +752,10 @@ const HelpSupport = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-gray-400 text-sm">Total Tickets</p>
-                      <p className="text-2xl font-bold text-white">{ticketData.length}</p>
+                      <p className="text-sm">Total Tickets</p>
+                      <p className="text-2xl font-bold">{ticketData.length}</p>
                     </div>
-                    <Ticket className="w-8 h-8 text-white" />
+                    <Ticket className="w-8 h-8" />
                   </div>
                 </CardContent>
               </Card>
@@ -763,8 +763,8 @@ const HelpSupport = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-gray-400 text-sm">Open</p>
-                      <p className="text-2xl font-bold text-white">
+                      <p className="text-sm">Open</p>
+                      <p className="text-2xl font-bold">
                         {ticketData.filter(t => t.status === 'Open').length}
                       </p>
                     </div>
@@ -776,8 +776,8 @@ const HelpSupport = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-gray-400 text-sm">In Progress</p>
-                      <p className="text-2xl font-bold text-white">
+                      <p className="text-sm">In Progress</p>
+                      <p className="text-2xl font-bold">
                         {ticketData.filter(t => t.status === 'In Progress').length}
                       </p>
                     </div>
@@ -789,8 +789,8 @@ const HelpSupport = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-gray-400 text-sm">Resolved</p>
-                      <p className="text-2xl font-bold text-white">
+                      <p className="text-sm">Resolved</p>
+                      <p className="text-2xl font-bold">
                         {ticketData.filter(t => t.status === 'Resolved').length}
                       </p>
                     </div>
@@ -803,14 +803,14 @@ const HelpSupport = () => {
             {/* Ticket List (as cards) */}
             <Card className=" border-slate-700">
               <CardHeader>
-                <CardTitle className="text-white">Recent Tickets</CardTitle>
+                <CardTitle>Recent Tickets</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {ticketData.map((ticket) => (
                   <div key={ticket.id} className="p-4 border border-slate-800 rounded-lg space-y-2">
                     <div className="flex flex-wrap gap-2 justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <span className="text-white font-semibold">{ticket.subject}</span>
+                        <span className="font-semibold">{ticket.subject}</span>
                         <Badge className={getStatusColor(ticket.status)}>
                           {ticket.status}
                         </Badge>
@@ -821,7 +821,7 @@ const HelpSupport = () => {
                       <div className="flex gap-2">
                         <Button
                           size="sm"
-                          className="text-white bg-purple-600 hover:bg-purple-700"
+                          className="bg-purple-600 text-white hover:bg-purple-700"
                         >
                           <MessageCircle className="w-4 h-4 mr-1" />
                           Reply
@@ -833,14 +833,14 @@ const HelpSupport = () => {
                             setSelectedTicket(ticket);
                             setIsTicketModalOpen(true);
                           }}
-                          className="border-slate-600 text-white hover:bg-slate-700"
+                          className="border-slate-600"
                         >
                           <Eye className="w-4 h-4 mr-1" />
                           View Details
                         </Button>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-400">
+                    <div className="text-sm">
                       <span>ID: {ticket.id}</span>
                       <span className="mx-2">•</span>
                       <span>Category: {ticket.category}</span>
@@ -857,7 +857,7 @@ const HelpSupport = () => {
             {/* Submit New Support Ticket */}
             <Card className=" border-slate-700">
               <CardHeader>
-                <CardTitle className="text-white">Submit New Support Ticket</CardTitle>
+                <CardTitle>Submit New Support Ticket</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -914,9 +914,9 @@ const HelpSupport = () => {
                   <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <MessageCircle className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">Live Chat</h3>
-                  <p className="text-gray-400 mb-3">Get instant help from our support team</p>
-                  <p className="text-sm text-gray-500 mb-4">Mon-Fri: 9 AM - 6 PM IST</p>
+                  <h3 className="text-xl font-semibold mb-2">Live Chat</h3>
+                  <p className="mb-3">Get instant help from our support team</p>
+                  <p className="text-sm mb-4">Mon-Fri: 9 AM - 6 PM IST</p>
                   <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
                     Start Chat
                   </Button>
@@ -928,9 +928,9 @@ const HelpSupport = () => {
                   <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Mail className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">Email Support</h3>
-                  <p className="text-gray-400 mb-3">Send us a detailed message</p>
-                  <p className="text-sm text-gray-500 mb-4">Response within 24 hours</p>
+                  <h3 className="text-xl font-semibold mb-2">Email Support</h3>
+                  <p className="mb-3">Send us a detailed message</p>
+                  <p className="text-sm mb-4">Response within 24 hours</p>
                   <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
                     Send Email
                   </Button>
@@ -942,9 +942,9 @@ const HelpSupport = () => {
                   <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Phone className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">Phone Support</h3>
-                  <p className="text-gray-400 mb-3">Speak directly with our team</p>
-                  <p className="text-sm text-gray-500 mb-4">Premium members only</p>
+                  <h3 className="text-xl font-semibold mb-2">Phone Support</h3>
+                  <p className="mb-3">Speak directly with our team</p>
+                  <p className="text-sm mb-4">Premium members only</p>
                   <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
                     Schedule Call
                   </Button>
@@ -955,41 +955,41 @@ const HelpSupport = () => {
             {/* Support Hours & Response Times */}
             <Card className=" border-slate-700">
               <CardHeader>
-                <CardTitle className="text-white">Support Hours & Response Times</CardTitle>
+                <CardTitle>Support Hours & Response Times</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <h4 className="text-lg font-semibold text-white mb-4">Support Hours</h4>
+                    <h4 className="text-lg font-semibold mb-4">Support Hours</h4>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-gray-300">Monday - Friday:</span>
-                        <span className="text-white">9:00 AM - 6:00 PM IST</span>
+                        <span>Monday - Friday:</span>
+                        <span>9:00 AM - 6:00 PM IST</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-300">Saturday:</span>
-                        <span className="text-white">10:00 AM - 4:00 PM IST</span>
+                        <span>Saturday:</span>
+                        <span>10:00 AM - 4:00 PM IST</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-300">Sunday:</span>
-                        <span className="text-white">Closed</span>
+                        <span>Sunday:</span>
+                        <span>Closed</span>
                       </div>
                     </div>
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold text-white mb-4">Response Times</h4>
+                    <h4 className="text-lg font-semibold mb-4">Response Times</h4>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-gray-300">Live Chat:</span>
-                        <span className="text-white">Instant - 5 minutes</span>
+                        <span>Live Chat:</span>
+                        <span>Instant - 5 minutes</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-300">Email Support:</span>
-                        <span className="text-white">Within 24 hours</span>
+                        <span>Email Support:</span>
+                        <span>Within 24 hours</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-300">Phone Support:</span>
-                        <span className="text-white">Scheduled calls</span>
+                        <span>Phone Support:</span>
+                        <span>Scheduled calls</span>
                       </div>
                     </div>
                   </div>
@@ -1005,8 +1005,8 @@ const HelpSupport = () => {
                     <AlertCircle className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-white mb-2">Emergency Support</h3>
-                    <p className="text-gray-300 mb-4">
+                    <h3 className="text-xl font-semibold mb-2">Emergency Support</h3>
+                    <p className="mb-4">
                       For urgent issues affecting your releases or payments, contact our emergency support line.
                     </p>
                     <div className="flex gap-3">
@@ -1034,9 +1034,9 @@ const HelpSupport = () => {
                   <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <FileText className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">User Guides</h3>
-                  <p className="text-gray-400 mb-4">Step-by-step tutorials and documentation</p>
-                  <Button className="w-full hover:">
+                  <h3 className="text-xl font-semibold mb-2">User Guides</h3>
+                  <p className="mb-4">Step-by-step tutorials and documentation</p>
+                  <Button className="w-full">
                     View Guides
                   </Button>
                 </CardContent>
@@ -1047,9 +1047,9 @@ const HelpSupport = () => {
                   <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Play className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">Quick Start</h3>
-                  <p className="text-gray-400 mb-4">Get started with your first release in minutes</p>
-                  <Button className="w-full hover:">
+                  <h3 className="text-xl font-semibold mb-2">Quick Start</h3>
+                  <p className="mb-4">Get started with your first release in minutes</p>
+                  <Button className="w-full">
                     Get Started
                   </Button>
                 </CardContent>
@@ -1060,9 +1060,9 @@ const HelpSupport = () => {
                   <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Users className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">Community</h3>
-                  <p className="text-gray-400 mb-4">Connect with other artists and creators</p>
-                  <Button className="w-full hover:">
+                  <h3 className="text-xl font-semibold mb-2">Community</h3>
+                  <p className="mb-4">Connect with other artists and creators</p>
+                  <Button className="w-full">
                     Join Community
                   </Button>
                 </CardContent>
@@ -1072,7 +1072,7 @@ const HelpSupport = () => {
             {/* Popular Resources */}
             <Card className=" border-slate-700">
               <CardHeader>
-                <CardTitle className="text-white">Popular Resources</CardTitle>
+                <CardTitle>Popular Resources</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {[
@@ -1083,9 +1083,9 @@ const HelpSupport = () => {
                   "Technical requirements for audio uploads",
                   "Getting your music on editorial playlists"
                 ].map((resource, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-800 transition-colors">
-                    <span className="text-white">{resource}</span>
-                    <Button size="sm" variant="ghost" className="text-purple-400 hover:text-purple-300">
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted-foreground/10 transition-colors">
+                    <span>{resource}</span>
+                    <Button size="sm" variant="ghost">
                       <FileText className="w-4 h-4 mr-1" />
                       Read
                     </Button>
@@ -1097,7 +1097,7 @@ const HelpSupport = () => {
             {/* Video Tutorials */}
             <Card className=" border-slate-700">
               <CardHeader>
-                <CardTitle className="text-white">Video Tutorials</CardTitle>
+                <CardTitle>Video Tutorials</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -1109,11 +1109,11 @@ const HelpSupport = () => {
                   ].map((video, index) => (
                     <div key={index} className="border p-4 rounded-lg overflow-hidden hover:transition-colors cursor-pointer">
                       <div className="aspect-[21/6] bg-muted-foreground/10 rounded-lg flex items-center justify-center">
-                        <Play className="w-12 h-12  text-purple-400" />
+                        <Play className="w-12 h-12 text-purple-400" />
                       </div>
                       <div className="py-2">
-                        <h4 className="font-semibold text-white mb-1">{video.title}</h4>
-                        <div className="flex items-center justify-between text-sm text-gray-400">
+                        <h4 className="font-semibold mb-1">{video.title}</h4>
+                        <div className="flex items-center justify-between text-sm">
                           <span>{video.duration}</span>
                           <span>{video.views}</span>
                         </div>
