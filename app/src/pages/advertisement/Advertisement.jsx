@@ -274,7 +274,7 @@ const Step1CampaignDetails = ({ formData, handleInputChange, isViewOnly }) => {
         <div className="flex justify-between items-center w-full mt-20 flex-wrap space-y-6">
             <div className='bg-gradient-to-r from-[#711CE9] h-fit to-[#252E37] p-[2px] rounded-xl'>
 
-            <div className="bg-muted rounded-xl p-2 flex justify-between items-center sticky top-24"> <img className='h-14 w-14  rounded-full overflow-hidden ' src="public/shortlogo.png" alt="" /> <h1 className='font-bold uppercase'>MAHI AI <span className="text-xs ml-20 font-bold text-white bg-gradient-to-r to-[#711CE9] h-fit from-[#6403ec] px-2 py-0.5 rounded-md ">BETA </span> </h1></div>
+            <div className="bg-muted rounded-xl p-2 flex justify-between items-center sticky top-24"> <img className='h-14 w-14  rounded-full overflow-hidden mr-2 ' src="shortlogo.png" alt="" /> <h1 className='font-bold text-xl uppercase'>MAHI AI <span className="text-base ml-20 font-bold text-white bg-gradient-to-r to-[#711CE9] h-fit from-[#6403ec] px-2 py-0.5 rounded-md ">BETA </span> </h1></div>
             </div>
             <Card className="bg-muted/20 w-full md:w-[400px] sticky top-60"><CardHeader><CardTitle>Campaign Overview</CardTitle></CardHeader>
                 <CardContent className="space-y-2 text-sm">
