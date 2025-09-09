@@ -14,6 +14,7 @@ import MVProduction from './pages/mvProduction/MVProduction'
 import MVMarketing from './pages/mvMarketing/MVMarketing'
 import Advertisement from './pages/advertisement/Advertisement'
 import MerchStore from './pages/merchStore/MerchStore'
+import HelpSupport from './pages/helpSupport/HelpSupport'
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
           <Route path='mv-marketing' element={<MVMarketing/>}/>
           <Route path='advertisement' element={<Advertisement/>}/>
           <Route path='merch' element={<MerchStore/>}/>
+          <Route path='help' element={<HelpSupport/>}/>
         </Route>
       </Routes>
     </div>
