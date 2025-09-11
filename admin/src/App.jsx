@@ -26,6 +26,11 @@ import TestimonialManager from "./pages/testimonials/Testimonials";
 import TrendingArtistsManager from "./pages/trending-artists/TrendingArtists";
 import TrendingLabelsManager from "./pages/trending-labels/TrendingLabels";
 import FaqManager from "./pages/faq-management/FAQManagement";
+import BlogManagement from "./pages/blog-management/BlogManagement";
+import NewsManagement from "./pages/news-management/NewsManagement";
+import SocialLinksEditor from "./pages/social-links/SocialLinks";
+import ContactDetailsManager from "./pages/contact-details/ContactDetails";
+import ContactPage from "./pages/contact-details/ContactDetails";
 
 
 function App() {
@@ -71,31 +76,35 @@ function App() {
         />
         <main className={`flex-1 p-4 overflow-y-auto ${theme === "dark" ? "bg-gray-900" : "bg-white"}`}>
           <Routes>
-  <Route path="/admin/dashboard" element={<Dashboard theme={theme} />} />
-  <Route path="/admin/user-management" element={<UserManagement theme={theme} />} />
-  <Route path="/admin/release-management" element={<ReleaseManagement theme={theme} />} />
-  <Route path="/admin/bonus-management" element={<BonusManagement theme={theme} />} />
-  <Route path="/admin/kyc-management" element={<KycManagement theme={theme} />} />
-  <Route path="/admin/analytics-management" element={<AnalyticsManagement theme={theme} />} />
-  <Route path="/admin/month-management" element={<MonthManagement theme={theme} />} />
-  <Route path="/admin/royalty-management" element={<RoyaltyManagement theme={theme} />} />
-  <Route path="/admin/wallet-&-transactions" element={<WalletTransactions theme={theme} />} />
-  <Route path="/admin/mcn-management" element={<MCNManagement theme={theme} />} />
-  <Route path="/admin/mcn-month-management" element={<MCNMonthManagement theme={theme} />} />
-  <Route path="/admin/team-management" element={<TeamManagement theme={theme} />} />
-  <Route path="/admin/subscription-plans" element={<SubscriptionPlans theme={theme} />} />
-  <Route path="/admin/playlist-pitching" element={<PlaylistPitching theme={theme} />} />
-  <Route path="/admin/advertisement-plans" element={<AdvertisementRequests theme={theme} />} />
-  <Route path="/admin/synchronization-(sync)" element={<SyncManagement theme={theme} />} />
-  <Route path="/admin/merch-store-management" element={<MerchStoreManagement theme={theme} />} />
-  <Route path="/admin/notifications" element={<NotificationPage theme={theme} />} />
-  <Route path="/admin/newsletter" element={<Newsletter theme={theme} />} />
-  <Route path="/admin/help-&-support" element={<HelpSupport theme={theme} />} />
-  <Route path="/admin/testimonials" element={<TestimonialManager theme={theme} />} />
-  <Route path="/admin/trending-artists" element={<TrendingArtistsManager theme={theme} />} />
-  <Route path="/admin/trending-labels" element={<TrendingLabelsManager theme={theme} />} />
-  <Route path="/admin/faq-management" element={<FaqManager theme={theme} />} />
-</Routes>
+            <Route path="/admin/dashboard" element={<Dashboard theme={theme} />} />
+            <Route path="/admin/user-management" element={<UserManagement theme={theme} />} />
+            <Route path="/admin/release-management" element={<ReleaseManagement theme={theme} />} />
+            <Route path="/admin/bonus-management" element={<BonusManagement theme={theme} />} />
+            <Route path="/admin/kyc-management" element={<KycManagement theme={theme} />} />
+            <Route path="/admin/analytics-management" element={<AnalyticsManagement theme={theme} />} />
+            <Route path="/admin/month-management" element={<MonthManagement theme={theme} />} />
+            <Route path="/admin/royalty-management" element={<RoyaltyManagement theme={theme} />} />
+            <Route path="/admin/wallet-&-transactions" element={<WalletTransactions theme={theme} />} />
+            <Route path="/admin/mcn-management" element={<MCNManagement theme={theme} />} />
+            <Route path="/admin/mcn-month-management" element={<MCNMonthManagement theme={theme} />} />
+            <Route path="/admin/team-management" element={<TeamManagement theme={theme} />} />
+            <Route path="/admin/subscription-plans" element={<SubscriptionPlans theme={theme} />} />
+            <Route path="/admin/playlist-pitching" element={<PlaylistPitching theme={theme} />} />
+            <Route path="/admin/advertisement-plans" element={<AdvertisementRequests theme={theme} />} />
+            <Route path="/admin/synchronization-(sync)" element={<SyncManagement theme={theme} />} />
+            <Route path="/admin/merch-store-management" element={<MerchStoreManagement theme={theme} />} />
+            <Route path="/admin/notifications" element={<NotificationPage theme={theme} />} />
+            <Route path="/admin/newsletter" element={<Newsletter theme={theme} />} />
+            <Route path="/admin/help-&-support" element={<HelpSupport theme={theme} />} />
+            <Route path="/admin/testimonials" element={<TestimonialManager theme={theme} />} />
+            <Route path="/admin/trending-artists" element={<TrendingArtistsManager theme={theme} />} />
+            <Route path="/admin/trending-labels" element={<TrendingLabelsManager theme={theme} />} />
+            <Route path="/admin/faq-management" element={<FaqManager theme={theme} />} />
+            <Route path="/admin/blog-management" element={<BlogManagement theme={theme} />} />
+            <Route path="/admin/news-management" element={<NewsManagement theme={theme} />} />
+            <Route path="/admin/social-links" element={<SocialLinksEditor theme={theme} />} />
+            <Route path="/admin/contact-details" element={<ContactPage theme={theme} />} />
+          </Routes>
 
         </main>
       </div>

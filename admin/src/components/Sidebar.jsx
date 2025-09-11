@@ -134,6 +134,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
                 "Trending Labels",
                 "FAQ Management",
                 "Blog Management",
+                "News Management",
               ],
             },
             {
