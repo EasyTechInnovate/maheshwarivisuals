@@ -734,7 +734,7 @@ const HelpSupport = () => {
                         <span>{faq.question}</span>
                         <ChevronDown className={`h-4 w-4 transition-transform ${openFAQ === faq.id ? 'rotate-180' : ''}`} />
                       </CollapsibleTrigger>
-                      <CollapsibleContent className="p-3 bg-slate-800 rounded-lg mt-1">
+                      <CollapsibleContent className="p-3 bg-muted-foreground/10 rounded-lg mt-1">
                         {faq.answer}
                       </CollapsibleContent>
                     </Collapsible>

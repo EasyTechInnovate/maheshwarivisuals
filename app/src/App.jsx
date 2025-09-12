@@ -15,6 +15,7 @@ import MVMarketing from './pages/mvMarketing/MVMarketing'
 import Advertisement from './pages/advertisement/Advertisement'
 import MerchStore from './pages/merchStore/MerchStore'
 import HelpSupport from './pages/helpSupport/HelpSupport'
+import SettingsPage from './pages/setting/Setting'
 
 const App = () => {
   return (
@@ -35,6 +36,7 @@ const App = () => {
           <Route path='advertisement' element={<Advertisement/>}/>
           <Route path='merch' element={<MerchStore/>}/>
           <Route path='help' element={<HelpSupport/>}/>
+          <Route path='settings' element={<SettingsPage/>}/>
         </Route>
       </Routes>
     </div>
