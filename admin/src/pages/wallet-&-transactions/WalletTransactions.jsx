@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Download, Search, ChevronDown, Info } from "lucide-react";
-
+import WithdrawalRow from "./WalletRequestTab";
 import {
   walletStats as mockStats,
   walletTransactions as mockRows,
@@ -11,10 +11,10 @@ import {
   monthOptions as mockMonthOptions,
   accountOptions as mockAccountOptions,
 } from "./WalletTransactionsData";
+import UserWalletPage from "./WalletDetailsComp";
 
 export default function WalletTransactions({ theme }) {
   const isDark = theme === "dark";
-
 
   const [stats, setStats] = useState(mockStats);
   const [rows, setRows] = useState(mockRows);
@@ -26,9 +26,23 @@ export default function WalletTransactions({ theme }) {
   const [licenceFilter, setLicenceFilter] = useState("All Licences");
   const [monthFilter, setMonthFilter] = useState("All Months");
   const [accountFilter, setAccountFilter] = useState("All Accounts");
-
+  const [searchQuery, setSearchQuery] = useState(""); 
   const [activeTab, setActiveTab] = useState("history");
 
+
+   // NEW: withdrawal requests filtered from mock data
+
+ const [withdrawalRequests, setWithdrawalRequests] = useState(
+   mockRows.filter((r) => r.description.toLowerCase().includes("withdrawal") || r.status === "Pending")
+ );
+
+
+
+
+
+  // --- NEW: SPA selection state ---
+  // selectedUser will hold { user: {...}, transactions: [...] } when a row is opened
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const [showBulk, setShowBulk] = useState(false);
   const dropdownRef = useRef(null);
@@ -40,8 +54,6 @@ export default function WalletTransactions({ theme }) {
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
-
-
 
   const formatINR = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
   const formatINRShort = (n) => {
@@ -71,8 +83,7 @@ export default function WalletTransactions({ theme }) {
   const TypeDot = ({ type }) => (
     <span className="inline-flex items-center gap-2">
       <span
-        className={`inline-block h-2 w-2 rounded-full ${type === "credit" ? "bg-green-500" : "bg-red-500"
-          }`}
+        className={`inline-block h-2 w-2 rounded-full ${type === "credit" ? "bg-green-500" : "bg-red-500"}`}
       />
       <span className="capitalize">{type}</span>
     </span>
@@ -96,9 +107,9 @@ export default function WalletTransactions({ theme }) {
     return rows.filter((r) => {
       const textHit =
         !q ||
-        r.id.toLowerCase().includes(q) ||
-        r.user.toLowerCase().includes(q) ||
-        r.description.toLowerCase().includes(q);
+        (r.id && r.id.toLowerCase().includes(q)) ||
+        (r.user && r.user.toLowerCase().includes(q)) ||
+        (r.description && r.description.toLowerCase().includes(q));
       const statusHit = statusFilter === "All Status" || r.status === statusFilter;
       const licenceHit = licenceFilter === "All Licences" || r.licence === licenceFilter;
       const monthHit = monthFilter === "All Months" || r.month === monthFilter;
@@ -107,10 +118,118 @@ export default function WalletTransactions({ theme }) {
     });
   }, [rows, globalSearch, topSearch, statusFilter, licenceFilter, monthFilter, accountFilter]);
 
+  const filteredRequests = useMemo(() => {
+  const q = (globalSearch + " " + topSearch).trim().toLowerCase();
+  return withdrawalRequests.filter((r) => {
+    const textHit =
+      !q ||
+      (r.id && r.id.toLowerCase().includes(q)) ||
+      (r.user && r.user.toLowerCase().includes(q)) ||
+      (r.description && r.description.toLowerCase().includes(q));
+    return textHit;
+  });
+}, [withdrawalRequests, globalSearch, topSearch]);
+
 
   const handleBulkDelete = () => setShowBulk(false);
   const handleBulkEdit = () => setShowBulk(false);
 
+  // --- NEW: open user wallet (map the transaction row -> user object used by subcomponent)
+  const openUserWallet = (row) => {
+    if (!row) return;
+    const userObj = {
+      name: row.user,
+      // map possible field names to the subcomponent's expected props
+      availableBalance: row.availableBalance ?? row.available_balance ?? row.available ?? 0,
+      thisMonthEarnings: row.monthEarnings ?? row.month_earnings ?? row.monthEarning ?? 0,
+      type: row.type ?? "Artist",
+      walletStatus: row.walletStatus ?? row.wallet_status ?? "Active",
+      bankAccount: row.bankAccount ?? row.bank_account ?? "",
+      irfcCode: row.ifsc ?? row.ifscCode ?? row.irfc ?? "",
+    };
+
+    // assemble the full transaction list for this user (all rows that share the same user name)
+    const transactionsForUser = rows.filter((r) => r.user === row.user);
+
+    setSelectedUser({ user: userObj, transactions: transactionsForUser });
+  };
+
+  // --- NEW: save handler when subcomponent calls onSave(updatedUser)
+  const handleSaveUser = (updatedUser) => {
+    // reflect changes back into rows array for display consistency
+    setRows((prev) =>
+      prev.map((r) => {
+        if (r.user === updatedUser.name) {
+          return {
+            ...r,
+            // update fields that exist in mock data shape
+            availableBalance: updatedUser.availableBalance,
+            monthEarnings: updatedUser.thisMonthEarnings,
+            walletStatus: updatedUser.walletStatus,
+            bankAccount: updatedUser.bankAccount,
+            ifsc: updatedUser.irfcCode ?? r.ifsc,
+          };
+        }
+        return r;
+      })
+    );
+
+    // keep the subcomponent open and update selectedUser.user as well
+    setSelectedUser((prev) => (prev ? { ...prev, user: updatedUser } : prev));
+  };
+
+  // If a user is selected, render the subcomponent (SPA-style)
+  if (selectedUser) {
+    return (
+      <UserWalletPage
+        theme={theme}
+        user={selectedUser.user}
+        transactions={selectedUser.transactions}
+        onBack={() => setSelectedUser(null)}
+        onSave={handleSaveUser}
+      />
+    );
+  }
+
+
+    // --- Handlers for Approve / Reject ---
+  const handleApprove = (id) => {
+    setWithdrawalRequests((prev) =>
+      prev.map((req) =>
+        req.id === id ? { ...req, status: "Approved" } : req
+      )
+    );
+
+     setRows((prev) =>
+    prev.map((r) =>
+     r.id === id ? { ...r, status: "Approved" } : r
+   )
+   );
+
+
+  };
+
+  const handleReject = (id) => {
+    setWithdrawalRequests((prev) =>
+      prev.map((req) =>
+        req.id === id ? { ...req, status: "Rejected" } : req
+      )
+    );
+   
+   setRows((prev) =>
+     prev.map((r) =>
+       r.id === id ? { ...r, status: "Rejected" } : r
+     )
+   );
+
+
+  };
+
+
+
+
+
+  // ---- Main Wallet Transactions UI (unchanged layout) ----
   return (
     <div
       className={`p-4 md:p-6 space-y-6 transition-colors duration-300 ${isDark ? "bg-gray-900 text-gray-200" : "bg-gray-50 text-[#151F28]"
@@ -272,51 +391,38 @@ export default function WalletTransactions({ theme }) {
         ))}
       </div>
 
-
-
-
-<div className="w-full flex justify-center">
-  <div
-    className={`inline-flex rounded-full overflow-hidden border ${
-      isDark ? "border-gray-700" : "border-gray-300"
-    } w-[500px]`} 
-  >
-    <button
-      onClick={() => setActiveTab("history")}
-      className={`flex-1 py-2 text-sm font-medium text-center transition-colors duration-200 ${
-        activeTab === "history"
-          ? isDark
-            ? "bg-[#151F28] text-white"   
-            : "bg-gray-100 text-black"
-          : isDark
-            ? "bg-gray-800 text-gray-300" 
-            : "bg-gray-200 text-gray-600"
-      }`}
-    >
-      Transaction History
-    </button>
-    <button
-      onClick={() => setActiveTab("request")}
-      className={`flex-1 py-2 text-sm font-medium text-center transition-colors duration-200 ${
-        activeTab === "request"
-          ? isDark
-            ? "bg-[#151F28] text-white"  
-            : "bg-gray-100 text-black"
-          : isDark
-            ? "bg-gray-800 text-gray-300" 
-            : "bg-gray-200 text-gray-600"
-      }`}
-    >
-      Request
-    </button>
-  </div>
-</div>
-
-
-
-
-
-
+      <div className="w-full flex justify-center">
+        <div
+          className={`inline-flex rounded-full overflow-hidden border ${isDark ? "border-gray-700" : "border-gray-300"} w-[500px]`}
+        >
+          <button
+            onClick={() => setActiveTab("history")}
+            className={`flex-1 py-2 text-sm font-medium text-center transition-colors duration-200 ${activeTab === "history"
+              ? isDark
+                ? "bg-[#151F28] text-white"
+                : "bg-gray-100 text-black"
+              : isDark
+                ? "bg-gray-800 text-gray-300"
+                : "bg-gray-200 text-gray-600"
+              }`}
+          >
+            Transaction History
+          </button>
+          <button
+            onClick={() => setActiveTab("request")}
+            className={`flex-1 py-2 text-sm font-medium text-center transition-colors duration-200 ${activeTab === "request"
+              ? isDark
+                ? "bg-[#151F28] text-white"
+                : "bg-gray-100 text-black"
+              : isDark
+                ? "bg-gray-800 text-gray-300"
+                : "bg-gray-200 text-gray-600"
+              }`}
+          >
+            Request
+          </button>
+        </div>
+      </div>
 
       {/* Table / Request placeholder */}
       <div className={`rounded-lg overflow-x-auto shadow-md ${isDark ? "bg-[#151F28]" : "bg-white"}`}>
@@ -341,8 +447,24 @@ export default function WalletTransactions({ theme }) {
                   <td className="px-5 py-3">{r.date}</td>
                   <td className="px-5 py-3">
                     <div className="flex gap-2">
-                      <Button size="sm" variant={isDark ? "outline" : "secondary"} className="rounded-full px-3">View</Button>
-                      <Button size="sm" variant={isDark ? "outline" : "secondary"} className="rounded-full px-3">Edit</Button>
+                      {/* wired View/Edit to open subcomponent */}
+                      <Button
+                        size="sm"
+                        variant={isDark ? "outline" : "secondary"}
+                        className="rounded-full px-3"
+                        onClick={() => openUserWallet(r)}
+                      >
+                        View
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant={isDark ? "outline" : "secondary"}
+                        className="rounded-full px-3"
+                        onClick={() => openUserWallet(r)}
+                      >
+                        Edit
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -350,11 +472,35 @@ export default function WalletTransactions({ theme }) {
             </tbody>
           </table>
         ) : (
-          <div className="p-6 text-sm">
-            <p className={isDark ? "text-gray-400" : "text-gray-600"}>
-              Request tab placeholder — connect to payout/withdraw requests API here.
-            </p>
-          </div>
+          <table className="w-full text-sm min-w-[800px]">
+  <thead className={`${isDark ? "text-gray-400" : "text-gray-600"} text-left`}>
+    <tr>
+      {["User", "Withdrawal Amount", "Description", "Date", "Actions"].map((h) => (
+        <th key={h} className="px-5 py-3 font-medium">{h}</th>
+      ))}
+    </tr>
+  </thead>
+ <tbody>
+  {filteredRequests.length === 0 ? (
+    <tr>
+      <td colSpan={6} className="text-center py-5 text-gray-500">
+        No withdrawal requests found
+      </td>
+    </tr>
+  ) : (
+    filteredRequests.map((req) => (
+      <WithdrawalRow
+        key={req.id}
+        withdrawal={req}
+        onApprove={handleApprove}
+        onReject={handleReject}
+        theme={theme}
+      />
+    ))
+  )}
+</tbody>
+</table>
+
         )}
       </div>
     </div>

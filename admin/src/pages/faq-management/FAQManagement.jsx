@@ -38,7 +38,7 @@ export default function FaqManager({ theme }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">FAQ Manager</h1>
+          <h1 className="text-2xl font-bold">FAQ Manager</h1>
           <p className="text-sm text-gray-500">
             Manage frequently asked questions for Maheshwari Visuals platform
           </p>

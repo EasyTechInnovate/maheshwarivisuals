@@ -95,7 +95,7 @@ export default function PlaylistPitching({ theme }) {
         >
             {/* Header */}
             <div>
-                <h1 className="text-xl font-semibold">Playlist Pitching</h1>
+                <h1 className="text-2xl font-semibold">Playlist Pitching</h1>
                 <p
                     className={`${isDark ? "text-gray-400" : "text-gray-600"
                         } text-sm`}

@@ -42,7 +42,7 @@ export default function TestimonialManager({ theme }) {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-xl font-bold">Testimonial Manager</h1>
+                    <h1 className="text-2xl font-bold">Testimonial Manager</h1>
                     <p className="text-sm text-gray-500">
                         Manage customer testimonials and reviews for Maheshwari Visuals
                     </p>

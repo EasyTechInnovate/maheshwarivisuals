@@ -6,6 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Users, Rocket, IdCard, DollarSign, ChartColumnIncreasing, CalendarDays, Wallet , ShoppingBag , CreditCard ,Megaphone , BookOpen, Globe, Database , Bell, Headset, FileText, Package, Newspaper, Settings, Mail    } from "lucide-react";
 
 export default function Sidebar({ isCollapsed = false, theme }) {
   const isDark = theme === "dark";
@@ -21,10 +22,18 @@ export default function Sidebar({ isCollapsed = false, theme }) {
       <div className="mb-4 pb-2">
         {!isCollapsed && (
           <>
-            <h1 className={`text-base font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+            <h1
+              className={`text-base font-bold ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
               Admin Panel
             </h1>
-            <p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"} hidden sm:block`}>
+            <p
+              className={`text-xs ${
+                isDark ? "text-gray-400" : "text-gray-500"
+              } hidden sm:block`}
+            >
               Master Control Dashboard
             </p>
           </>
@@ -32,35 +41,40 @@ export default function Sidebar({ isCollapsed = false, theme }) {
       </div>
 
       {/* Dashboard link */}
-{!isCollapsed && (
-  <div className="mb-4">
-    <Link
-      to="/admin/dashboard"
-      className={`flex items-center gap-2 w-full px-2 py-2 rounded-lg transition ${
-        isDark ? "hover:bg-[#334155] text-gray-300" : "hover:bg-gray-200 text-gray-900"
-      }`}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 shrink-0"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z"
-        />
-      </svg>
-      <span className={`font-medium text-sm ${isDark ? "text-gray-100" : "text-gray-900"}`}>
-        Dashboard
-      </span>
-    </Link>
-  </div>
-)}
-
+      {!isCollapsed && (
+        <div className="mb-4">
+          <Link
+            to="/admin/dashboard"
+            className={`flex items-center gap-2 w-full px-2 py-2 rounded-lg transition ${
+              isDark
+                ? "hover:bg-[#334155] text-gray-300"
+                : "hover:bg-gray-200 text-gray-900"
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z"
+              />
+            </svg>
+            <span
+              className={`font-medium text-sm ${
+                isDark ? "text-gray-100" : "text-gray-900"
+              }`}
+            >
+              Dashboard
+            </span>
+          </Link>
+        </div>
+      )}
 
       {/* Accordion sections */}
       {!isCollapsed && (
@@ -80,67 +94,100 @@ export default function Sidebar({ isCollapsed = false, theme }) {
           {[
             {
               value: "user-release",
-              label: "USER & RELEASE MANAGEMENT",
+              label: (
+                <span className="flex items-center gap-2">
+                  <Users className="w-5 h-5" /> USER & RELEASE MANAGEMENT
+                </span>
+              ),
               links: [
-                "User Management",
-                "Release Management",
-                "Bonus Management",
-                "KYC Management",
+                { label: "User Management", icon: <Users className="w-4 h-4" /> },
+                { label: "Release Management", icon: <Rocket className="w-4 h-4" /> },
+                { label: "Bonus Management", icon: <DollarSign className="w-4 h-4" /> },
+                { label: "KYC Management", icon: <IdCard className="w-4 h-4" /> },
               ],
             },
             {
               value: "analytics",
-              label: "DATA & ANALYTICS",
+              label:(
+                <span className="flex items-center gap-2">
+                  <ChartColumnIncreasing className="w-5 h-5" /> DATA & ANALYTICS
+                </span>
+              ),
               links: [
-                "Analytics Management",
-                "Month Management",
-                "Royalty Management",
-                "Wallet & Transactions",
+                { label: "Analytics Management", icon: <ChartColumnIncreasing className="w-4 h-4" /> },
+                { label: "Month Management", icon: <CalendarDays className="w-4 h-4" /> },
+                { label: "Royalty Management", icon: <DollarSign className="w-4 h-4" /> },
+                { label: "Wallet & Transactions", icon: <Wallet className="w-4 h-4" /> },
               ],
             },
             {
               value: "mcn",
-              label: "MCN & BUSINESS",
+              label: (
+                <span className="flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5" /> MCN & BUSINESS
+                </span>
+              ),
               links: [
-                "MCN Management",
-                "MCN Month Management",
-                "Team Management",
-                "Subscription Plans",
+                { label: "MCN Management", icon: <ShoppingBag className="w-4 h-4" /> },
+                { label: "MCN Royality", icon: <CalendarDays className="w-4 h-4" /> },
+                { label: "Team Management", icon: <Users className="w-4 h-4" /> },
+                { label: "Subscription Plans", icon: <CreditCard className="w-4 h-4" /> },
               ],
             },
             {
               value: "marketing",
-              label: "MARKETING",
+              label: (
+                <span className="flex items-center gap-2">
+                  <Megaphone className="w-5 h-5" /> MARKETING
+                </span>
+              ),
               links: [
-                "Playlist Pitching",
-                "Advertisement Plans",
-                "Synchronization (SYNC)",
-                "Merch Store Management",
+                { label: "Playlist Pitching", icon: <BookOpen className="w-4 h-4" /> },
+                { label: "Advertisement Plans", icon: <Globe className="w-4 h-4" /> },
+                { label: "Synchronization (SYNC)", icon: <Database className="w-4 h-4" /> },
+                { label: "Merch Store Management", icon: <ShoppingBag className="w-4 h-4" /> },
               ],
             },
             {
               value: "communications",
-              label: "COMMUNICATIONS",
-              links: ["Notifications",
-                 "Newsletter",
-                  "Help & Support"],
+              label: (
+                <span className="flex items-center gap-2">
+                  <Bell className="w-5 h-5" /> COMMUNICATIONS
+                </span>
+              ),
+              links: [
+                { label: "Notifications", icon: <Bell className="w-4 h-4" /> },
+                { label: "Newsletter", icon: <Bell className="w-4 h-4" /> },
+                { label: "Help & Support", icon: <Headset className="w-4 h-4" /> },
+                ],
             },
             {
               value: "content",
-              label: "CONTENT MANAGEMENT",
+              label: (
+                <span className="flex items-center gap-2">
+                  <FileText className="w-5 h-5" /> CONTENT MANAGEMENT
+                </span>
+              ),
               links: [
-                "Testimonials",
-                "Trending Artists",
-                "Trending Labels",
-                "FAQ Management",
-                "Blog Management",
-                "News Management",
+                { label: "Testimonials", icon: <FileText className="w-4 h-4" /> },
+                { label: "Trending Artists", icon: <Users className="w-4 h-4" /> },
+                { label: "Trending Labels", icon: <Package className="w-4 h-4" /> },
+                { label: "FAQ Management", icon: <FileText className="w-4 h-4" /> },
+                { label: "Blog Management", icon: <BookOpen className="w-4 h-4" /> },
+                { label: "News Management", icon: <Newspaper  className="w-4 h-4" /> },
               ],
             },
             {
               value: "config",
-              label: "CONFIGURATION",
-              links: ["Social Links", "Contact Details"],
+              label: (
+                <span className="flex items-center gap-2">
+                  <Settings className="w-5 h-5" /> CONFIGURATION
+                </span>
+              ),
+              links: [
+                { label: "Social Links", icon: <Globe  className="w-4 h-4" /> },
+                { label: "Contact Details", icon: <Mail  className="w-4 h-4" /> },
+                ],
             },
           ].map((section) => (
             <AccordionItem key={section.value} value={section.value}>
@@ -154,19 +201,26 @@ export default function Sidebar({ isCollapsed = false, theme }) {
                 {section.label}
               </AccordionTrigger>
               <AccordionContent className="space-y-1 mt-1 pl-2">
-                {section.links.map((link) => (
-                  <Link
-                    key={link}
-                    to={`admin/${link.toLowerCase().replace(/\s+/g, "-")}`}
-                    className={`block px-2 py-1 rounded-md transition ${
-                      isDark
-                        ? "hover:bg-gray-800 text-gray-300"
-                        : "hover:bg-gray-200 text-gray-800"
-                    }`}
-                  >
-                    {link}
-                  </Link>
-                ))}
+                {section.links.map((link, i) => {
+                  const isObject = typeof link === "object";
+                  const linkLabel = isObject ? link.label : link;
+                  const linkIcon = isObject ? link.icon : null;
+
+                  return (
+                    <Link
+                      key={i}
+                      to={`admin/${linkLabel.toLowerCase().replace(/\s+/g, "-")}`}
+                      className={`flex items-center gap-2 px-2 py-1 rounded-md transition ${
+                        isDark
+                          ? "hover:bg-gray-800 text-gray-300"
+                          : "hover:bg-gray-200 text-gray-800"
+                      }`}
+                    >
+                      {linkIcon}
+                      <span>{linkLabel}</span>
+                    </Link>
+                  );
+                })}
               </AccordionContent>
             </AccordionItem>
           ))}
@@ -175,3 +229,4 @@ export default function Sidebar({ isCollapsed = false, theme }) {
     </div>
   );
 }
+ 

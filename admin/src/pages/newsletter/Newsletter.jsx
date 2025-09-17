@@ -64,7 +64,7 @@ export default function Newsletter({ theme = "dark" }) {
       {/* Top Heading + Button */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold">Newsletter</h1>
+          <h1 className="text-2xl sm:text-2xl font-bold">Newsletter</h1>
           <p className="text-sm text-gray-400">
             Create, manage, and analyze email newsletters for your subscribers
           </p>

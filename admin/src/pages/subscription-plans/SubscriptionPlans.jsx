@@ -7,12 +7,14 @@ import {
 } from "./SubscriptionPlansData";
 import SubscriptionCard from "@/components/SubscriptionCard";
 import SubscriberTable from "@/components/SubscriberTable";
+import CreateSubscriptionPlanModal from "./SubscriptionPlanModal"; // Import the modal component
 
 export default function SubscriptionPlans({ theme }) {
   const isDark = theme === "dark";
   const [plans, setPlans] = useState(subscriptionPlans);
   const [activeTab, setActiveTab] = useState("Everyone");
   const [editingPlanId, setEditingPlanId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDelete = (id) => {
     setPlans((prev) => prev.filter((p) => p.id !== id));
@@ -40,7 +42,7 @@ export default function SubscriptionPlans({ theme }) {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
         <div>
-          <h1 className="text-xl font-semibold">Subscription Plans</h1>
+          <h1 className="text-2xl font-semibold">Subscription Plans</h1>
           <p
             className={`${
               isDark ? "text-gray-400" : "text-gray-600"
@@ -49,7 +51,10 @@ export default function SubscriptionPlans({ theme }) {
             Manage pricing tiers and subscription offerings
           </p>
         </div>
-        <Button className="bg-purple-600 hover:bg-purple-700 text-white px-4 flex items-center gap-2">
+        <Button
+          className="bg-purple-600 hover:bg-purple-700 text-white px-4 flex items-center gap-2"
+          onClick={() => setIsModalOpen(true)} // Open modal on click
+        >
           <Plus className="h-4 w-4" /> Create New Plan
         </Button>
       </div>
@@ -103,27 +108,38 @@ export default function SubscriptionPlans({ theme }) {
 
       {/* Content Switch */}
       {activeTab === "Subscribers" ? (
-  <SubscriberTable isDark={isDark} />
-) : (
-       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-  {plans.map((plan) => (
-    <div key={plan.id} className="max-w-sm w-full">
-      <SubscriptionCard
-        plan={plan}
-        isDark={isDark}
-        editingPlanId={editingPlanId}
-        setEditingPlanId={setEditingPlanId}
-        handleEdit={handleEdit}
-        handleDelete={handleDelete}
-        handleToggle={handleToggle}
-      />
-    </div>
-  ))}
-</div>
-
-
-
+        <SubscriberTable isDark={isDark} />
+      ) : (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+          {plans.map((plan) => (
+            <div key={plan.id} className="max-w-sm w-full">
+              <SubscriptionCard
+                plan={plan}
+                isDark={isDark}
+                editingPlanId={editingPlanId}
+                setEditingPlanId={setEditingPlanId}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
+                handleToggle={handleToggle}
+              />
+            </div>
+          ))}
+        </div>
       )}
+
+      {/* Create Plan Modal */}
+     <CreateSubscriptionPlanModal
+  isOpen={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+  theme={theme}
+  categories={[
+    { id: 1, name: "Everyone" },
+    { id: 2, name: "Artists" },
+    { id: 3, name: "Labels" },
+    { id: 4, name: "Subscribers" },
+  ]}
+/>
+
     </div>
   );
 }

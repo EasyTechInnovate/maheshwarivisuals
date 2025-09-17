@@ -96,15 +96,15 @@ export default function NewsManagement({ theme = "dark" }) {
                                         onBlur={() => updateItem(it.id, { editingUrl: false })}
                                         autoFocus
                                         className={`w-full rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 ${isDark
-                                                ? "bg-gray-800 text-gray-200"
-                                                : "bg-gray-100 text-gray-800"
+                                            ? "bg-[#151F28] text-gray-200"
+                                            : "bg-gray-100 text-gray-800"
                                             }`}
                                     />
                                 ) : (
                                     <div
                                         className={`flex items-center justify-between w-full rounded-md px-3 py-2 text-sm ${isDark
-                                                ? "bg-gray-800 text-gray-200"
-                                                : "bg-gray-100 text-gray-800"
+                                            ? "bg-gray-800 text-gray-200"
+                                            : "bg-gray-100 text-gray-800"
                                             } cursor-pointer`}
                                         onClick={() =>
                                             updateItem(it.id, { editingUrl: true })
@@ -119,8 +119,8 @@ export default function NewsManagement({ theme = "dark" }) {
                                     <a href={it.url} target="_blank" rel="noopener noreferrer">
                                         <button
                                             className={`p-2 rounded-md ${isDark
-                                                    ? "bg-gray-700 hover:bg-gray-600"
-                                                    : "bg-gray-200 hover:bg-gray-300"
+                                                ? "bg-gray-700 hover:bg-gray-600"
+                                                : "bg-gray-200 hover:bg-gray-300"
                                                 }`}
                                         >
                                             <ExternalLink size={16} />
@@ -144,21 +144,25 @@ export default function NewsManagement({ theme = "dark" }) {
                                         onChange={(e) => handleFileChange(it.id, e.target.files[0])}
                                     />
                                 </label>
+
                                 {it.imageName ? (
                                     <div
-                                        className={`w-[220px] text-sm px-3 py-2 rounded-md bg-gray-800 text-gray-200 truncate`}
+                                        className={`w-[220px] text-sm px-3 py-2 rounded-md truncate ${isDark ? "bg-gray-800 text-gray-200" : "bg-gray-100 text-gray-800"
+                                            }`}
                                     >
                                         {it.imageName}
                                     </div>
                                 ) : (
                                     <div
-                                        className={`w-[220px] text-sm px-3 py-2 rounded-md bg-gray-800 text-gray-400`}
+                                        className={`w-[220px] text-sm px-3 py-2 rounded-md ${isDark ? "bg-gray-800 text-gray-400" : "bg-gray-100 text-gray-400"
+                                            }`}
                                     >
                                         No file chosen
                                     </div>
                                 )}
                             </div>
                         </div>
+
 
 
 

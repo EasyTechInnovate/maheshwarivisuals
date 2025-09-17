@@ -63,7 +63,7 @@ export default function NotificationPage({ theme = "dark" }) {
         theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
       } min-h-screen p-6 rounded-2xl`}
     >
-      <h2 className="text-xl font-bold mb-1">Notifications</h2>
+      <h1 className="text-2xl font-bold mb-1">Notifications</h1>
       <p className="text-gray-400 text-sm mb-6">
         Manage platform notifications, announcements, and user communications
       </p>

@@ -30,7 +30,7 @@ export default function TeamManagement({ theme }) {
       {/* Header */}
       <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
         <div>
-          <h1 className="text-xl font-semibold">Team Management</h1>
+          <h1 className="text-2xl font-semibold">Team Management</h1>
           <p className={`${isDark ? "text-gray-400" : "text-gray-600"} text-sm`}>
             Manage team members, roles, permissions, and departments
           </p>

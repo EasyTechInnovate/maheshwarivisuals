@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -16,7 +16,7 @@ import TeamManagement from "./pages/team-management/TeamManagement";
 import SubscriptionPlans from "./pages/subscription-plans/SubscriptionPlans";
 import PlaylistPitching from "./pages/playlist-pitching/PlaylistPitching";
 import SyncManagement from "./pages/synchronization-(sync)/Synchronization(SYNC)";
-import MCNMonthManagement from "./pages/mcn-month-management/MCNMonthManagement";
+import MCNMonthManagement from "./pages/mcn-royality/MCNMonthManagement";
 import AdvertisementRequests from "./pages/advertisment-plans/AdvertisementPlans";
 import MerchStoreManagement from "./pages/merch-store-management/MerchStoreManagement";
 import NotificationPage from "./pages/notifications/NotificaionsPage";
@@ -29,13 +29,12 @@ import FaqManager from "./pages/faq-management/FAQManagement";
 import BlogManagement from "./pages/blog-management/BlogManagement";
 import NewsManagement from "./pages/news-management/NewsManagement";
 import SocialLinksEditor from "./pages/social-links/SocialLinks";
-import ContactDetailsManager from "./pages/contact-details/ContactDetails";
 import ContactPage from "./pages/contact-details/ContactDetails";
 
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [theme, setTheme] = useState("dark"); // default dark mode
+  const [theme, setTheme] = useState("dark");
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -43,7 +42,7 @@ function App() {
 
   return (
     <div className={`flex h-screen overflow-hidden ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-100 text-black"}`}>
-      {/* Mobile overlay */}
+      {/* Sidebar overlay */}
       {sidebarOpen && (
         <button
           className="fixed inset-0 bg-black/50 z-30 md:hidden"
@@ -76,6 +75,16 @@ function App() {
         />
         <main className={`flex-1 p-4 overflow-y-auto ${theme === "dark" ? "bg-gray-900" : "bg-white"}`}>
           <Routes>
+            {/* Redirect `/` to `/admin/dashboard` */}
+            <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+
+            {/* Redirect `/admin` to `/admin/dashboard` */}
+            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+
+            {/* Your other routes */}
+            <Route path="/admin/dashboard" element={<Dashboard theme={theme} />} />
+
+            {/* Your other routes */}
             <Route path="/admin/dashboard" element={<Dashboard theme={theme} />} />
             <Route path="/admin/user-management" element={<UserManagement theme={theme} />} />
             <Route path="/admin/release-management" element={<ReleaseManagement theme={theme} />} />
@@ -86,7 +95,7 @@ function App() {
             <Route path="/admin/royalty-management" element={<RoyaltyManagement theme={theme} />} />
             <Route path="/admin/wallet-&-transactions" element={<WalletTransactions theme={theme} />} />
             <Route path="/admin/mcn-management" element={<MCNManagement theme={theme} />} />
-            <Route path="/admin/mcn-month-management" element={<MCNMonthManagement theme={theme} />} />
+            <Route path="/admin/mcn-royality" element={<MCNMonthManagement theme={theme} />} />
             <Route path="/admin/team-management" element={<TeamManagement theme={theme} />} />
             <Route path="/admin/subscription-plans" element={<SubscriptionPlans theme={theme} />} />
             <Route path="/admin/playlist-pitching" element={<PlaylistPitching theme={theme} />} />
@@ -105,7 +114,6 @@ function App() {
             <Route path="/admin/social-links" element={<SocialLinksEditor theme={theme} />} />
             <Route path="/admin/contact-details" element={<ContactPage theme={theme} />} />
           </Routes>
-
         </main>
       </div>
     </div>

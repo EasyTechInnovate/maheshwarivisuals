@@ -53,7 +53,7 @@ export default function KycManagement({ theme }) {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
         <div>
-          <h1 className="text-xl font-semibold">KYC Management</h1>
+          <h1 className="text-2xl font-semibold">KYC Management</h1>
           <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
             Manage artists, labels, and aggregators in Maheshwari Visuals
           </p>

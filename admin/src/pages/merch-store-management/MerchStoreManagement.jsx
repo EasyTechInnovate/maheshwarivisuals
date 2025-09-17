@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchMerchData } from "./MerchStoreManagementData";
-import { Search, Download, Check, X, Eye } from "lucide-react";
+import { Search, Download, Check, X, Eye, Users, Clock, CheckCircle, } from "lucide-react";
 import DesignRequestTable from "../../components/MerchRequestTable";
 
 const statusColors = {
@@ -57,30 +57,49 @@ export default function MerchStoreManagement({ theme }) {
           : "bg-gray-100 text-black"
       } min-h-screen p-4 sm:p-6 rounded-2xl`}
     >
-      <h2 className="text-lg sm:text-xl font-bold mb-1">Merch Store Management</h2>
+      <h1 className="text-2xl sm:text-2xl font-semibold mb-1">Merch Store Management</h1>
       <p className="text-gray-400 text-xs sm:text-sm mb-6">
         Manage merchandise store requests and approvals from users
       </p>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className={`${boxBg} p-4 rounded-2xl shadow text-center`}>
-          <p className="text-gray-400 text-sm">Total Requests</p>
-          <p className="text-2xl font-bold">{data.stats.totalRequests}</p>
-        </div>
-        <div className={`${boxBg} p-4 rounded-2xl shadow text-center`}>
-          <p className="text-gray-400 text-sm">Pending</p>
-          <p className="text-2xl font-bold text-yellow-400">{data.stats.pending}</p>
-        </div>
-        <div className={`${boxBg} p-4 rounded-2xl shadow text-center`}>
-          <p className="text-gray-400 text-sm">Approved</p>
-          <p className="text-2xl font-bold text-green-400">{data.stats.approved}</p>
-        </div>
-        <div className={`${boxBg} p-4 rounded-2xl shadow text-center`}>
-          <p className="text-gray-400 text-sm">Under Review</p>
-          <p className="text-2xl font-bold text-blue-400">{data.stats.underReview}</p>
-        </div>
-      </div>
+{/* Stats */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  {/* Total Requests */}
+  <div className={`${boxBg} p-4 rounded-2xl shadow relative`}>
+    <span className="absolute top-4 right-4 text-gray-400">
+      <Users className="h-5 w-5" />
+    </span>
+    <p className="text-gray-400 text-sm">Total Requests</p>
+    <p className="text-2xl font-bold">{data.stats.totalRequests}</p>
+  </div>
+
+  {/* Pending */}
+  <div className={`${boxBg} p-4 rounded-2xl shadow relative`}>
+    <span className="absolute top-4 right-4 text-yellow-400">
+      <Clock className="h-5 w-5" />
+    </span>
+    <p className="text-gray-400 text-sm">Pending</p>
+    <p className="text-2xl font-bold text-yellow-400">{data.stats.pending}</p>
+  </div>
+
+  {/* Approved */}
+  <div className={`${boxBg} p-4 rounded-2xl shadow relative`}>
+    <span className="absolute top-4 right-4 text-green-400">
+      <CheckCircle className="h-5 w-5" />
+    </span>
+    <p className="text-gray-400 text-sm">Approved</p>
+    <p className="text-2xl font-bold text-green-400">{data.stats.approved}</p>
+  </div>
+
+  {/* Under Review */}
+  <div className={`${boxBg} p-4 rounded-2xl shadow relative`}>
+    <span className="absolute top-4 right-4 text-blue-400">
+      <Search className="h-5 w-5" />
+    </span>
+    <p className="text-gray-400 text-sm">Under Review</p>
+    <p className="text-2xl font-bold text-blue-400">{data.stats.underReview}</p>
+  </div>
+</div>
 
       {/* Search + Filters */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">

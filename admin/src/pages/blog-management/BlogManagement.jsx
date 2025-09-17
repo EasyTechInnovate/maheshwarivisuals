@@ -58,7 +58,7 @@ export default function BlogManagement({ theme = "dark" }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">Blog Management</h1>
+          <h1 className="text-2xl font-bold">Blog Management</h1>
           <p className="text-sm text-gray-500">
             Create, edit, and manage your blog content
           </p>

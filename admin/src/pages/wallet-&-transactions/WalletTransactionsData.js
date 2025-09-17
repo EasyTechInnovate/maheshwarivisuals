@@ -18,14 +18,21 @@ export const walletTransactions = [
   {
     id: "TXN001",
     user: "DJ Melody",
-    type: "credit",                 // credit | debit
+    type: "credit",
     amount: 15000,
     description: "Royalty Payment - Spotify",
-    status: "Completed",            // Completed | Pending | Processing
+    status: "Completed",
     date: "2024-01-28",
     month: "Jan 2024",
     licence: "Standard",
     account: "Main",
+
+    // Newly added fields
+    availableBalance: 50000,
+    monthEarnings: 25000,
+    walletStatus: "Active", // Active | Frozen | Suspended
+    bankAccount: "XXXX-1234",
+    ifsc: "HDFC0005678",
   },
   {
     id: "TXN002",
@@ -38,6 +45,12 @@ export const walletTransactions = [
     month: "Jan 2024",
     licence: "Standard",
     account: "Main",
+
+    availableBalance: 120000,
+    monthEarnings: 18000,
+    walletStatus: "Active",
+    bankAccount: "XXXX-9823",
+    ifsc: "ICIC0003421",
   },
   {
     id: "TXN003",
@@ -50,6 +63,12 @@ export const walletTransactions = [
     month: "Jan 2024",
     licence: "Pro",
     account: "Store",
+
+    availableBalance: 76000,
+    monthEarnings: 22000,
+    walletStatus: "Frozen",
+    bankAccount: "XXXX-5544",
+    ifsc: "SBIN0011223",
   },
   {
     id: "TXN004",
@@ -62,6 +81,12 @@ export const walletTransactions = [
     month: "Jan 2024",
     licence: "Pro",
     account: "Main",
+
+    availableBalance: 30500,
+    monthEarnings: 14500,
+    walletStatus: "Active",
+    bankAccount: "XXXX-8877",
+    ifsc: "PNB0009087",
   },
   {
     id: "TXN005",
@@ -74,6 +99,12 @@ export const walletTransactions = [
     month: "Jan 2024",
     licence: "Standard",
     account: "Main",
+
+    availableBalance: 15000,
+    monthEarnings: 3500,
+    walletStatus: "Suspended",
+    bankAccount: "XXXX-6633",
+    ifsc: "AXIS0004412",
   },
 ];
 
@@ -82,3 +113,4 @@ export const statusOptions = ["All Status", "Completed", "Pending", "Processing"
 export const licenceOptions = ["All Licences", "Standard", "Pro"];
 export const monthOptions = ["All Months", "Jan 2024"];
 export const accountOptions = ["All Accounts", "Main", "Store"];
+export const typeOptions = ["All Types", "Credit", "Debit"];
