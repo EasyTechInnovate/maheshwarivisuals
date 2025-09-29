@@ -16,6 +16,8 @@ import Advertisement from './pages/advertisement/Advertisement'
 import MerchStore from './pages/merchStore/MerchStore'
 import HelpSupport from './pages/helpSupport/HelpSupport'
 import SettingsPage from './pages/setting/Setting'
+import BasicReleaseBuilder from './pages/uploadRelease/Basic'
+import AdvancedReleaseBuilder from './pages/uploadRelease/Advance'
 
 const App = () => {
   return (
@@ -24,6 +26,8 @@ const App = () => {
         <Route path='/user' element={<Index/>}>
           <Route index element={<Dashboard/>}/>
           <Route path='upload-release' element={<UploadRelease/>}/>
+          <Route path='upload-release/basic-release-builder' element={<BasicReleaseBuilder/>}/>
+          <Route path='upload-release/advanced-release-builder' element={<AdvancedReleaseBuilder/>}/>
           <Route path='catalog' element={<CatalogPage/>}/>
           <Route path='analytics' element={<Analytics/>}/>
           <Route path='royalties' element={<Royalties/>}/>
