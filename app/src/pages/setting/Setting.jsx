@@ -23,29 +23,29 @@ const SettingsPage = () => {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-6">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="w-4 h-4" />
+          <TabsList className="max-lg:flex max-lg:gap-2 lg:grid w-full grid-cols-6 mb-6  overflow-x-auto justify-start ">
+            <TabsTrigger value="profile" className="flex  items-center gap-2">
+              <User className="w-4 h-4 " />
               Profile
             </TabsTrigger>
-            <TabsTrigger value="account" className="flex items-center gap-2">
-              <Cog className="w-4 h-4" />
+            <TabsTrigger value="account" className="flex  items-center gap-2">
+              <Cog className="w-4 h-4 " />
               Account
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
-              <Bell className="w-4 h-4" />
+            <TabsTrigger value="notifications" className="flex  items-center gap-2">
+              <Bell className="w-4 h-4 " />
               Notifications
             </TabsTrigger>
-            <TabsTrigger value="billing" className="flex items-center gap-2">
-              <CreditCard className="w-4 h-4" />
+            <TabsTrigger value="billing" className="flex  items-center gap-2">
+              <CreditCard className="w-4 h-4 " />
               Billing
             </TabsTrigger>
-            <TabsTrigger value="privacy" className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
+            <TabsTrigger value="privacy" className="flex  items-center gap-2">
+              <Shield className="w-4 h-4 " />
               Privacy
             </TabsTrigger>
-            <TabsTrigger value="advanced" className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
+            <TabsTrigger value="advanced" className="flex  items-center gap-2">
+              <Settings className="w-4 h-4 " />
               Advanced
             </TabsTrigger>
           </TabsList>
