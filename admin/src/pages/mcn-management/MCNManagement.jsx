@@ -39,15 +39,15 @@ export default function MCNManagement({ theme = "dark" }) {
   }, [rows, search]);
 
   const bgMain = isDark
-    ? "bg-gray-900 text-slate-300"
+    ? "bg-[#111A22] text-slate-300"
     : "bg-gray-50 text-[#151F28]";
   const cardBg = isDark ? "bg-[#151F28]" : "bg-white";
   const borderColor = isDark ? "border-[#12212a]" : "border-gray-300";
   const textColor = isDark ? "text-gray-300" : "text-[#151F28]";
   const textMuted = isDark ? "text-gray-400" : "text-gray-600";
   const inputBg = isDark
-    ? "bg-gray-900 border-[#12212a] text-slate-300"
-    : "bg-white border-gray-300 text-gray-900";
+    ? "bg-[#111A22] border-[#12212a] text-slate-300"
+    : "bg-white border-gray-300 text-[#111A22]";
   const tabActive = isDark
     ? "bg-gray-800 text-white"
     : "bg-gray-100 text-black";

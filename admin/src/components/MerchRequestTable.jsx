@@ -21,7 +21,7 @@ export default function DesignRequestTable({ theme, data }) {
   const softBtn =
     theme === "dark"
       ? "bg-gray-800 hover:bg-gray-700 text-white"
-      : "bg-gray-200 hover:bg-gray-300 text-gray-900";
+      : "bg-gray-200 hover:bg-gray-300 text-[#111A22]";
 
   return (
     <div className={`${boxBg} overflow-x-auto rounded-2xl shadow`}>

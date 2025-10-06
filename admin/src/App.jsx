@@ -41,8 +41,8 @@ function App() {
   };
 
   return (
-    <div className={`flex h-screen overflow-hidden ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-100 text-black"}`}>
-      {/* Sidebar overlay */}
+    <div className={`flex h-screen overflow-hidden ${theme === "dark" ? "bg-[#111A22] text-white" : "bg-gray-100 text-black"}`}>
+    
       {sidebarOpen && (
         <button
           className="fixed inset-0 bg-black/50 z-30 md:hidden"
@@ -51,7 +51,7 @@ function App() {
         />
       )}
 
-      {/* Sidebar */}
+   
       <aside
         className={[
           "fixed inset-y-0 left-0 z-40 transform transition-transform duration-300",
@@ -66,25 +66,25 @@ function App() {
         <Sidebar isCollapsed={!sidebarOpen} theme={theme} />
       </aside>
 
-      {/* Main content */}
+      
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         <Header
           onToggleSidebar={() => setSidebarOpen((s) => !s)}
           onToggleTheme={toggleTheme}
           theme={theme}
         />
-        <main className={`flex-1 p-4 overflow-y-auto ${theme === "dark" ? "bg-gray-900" : "bg-white"}`}>
+        <main className={`flex-1 p-4 overflow-y-auto ${theme === "dark" ? "bg-[#111A22]" : "bg-white"}`}>
           <Routes>
-            {/* Redirect `/` to `/admin/dashboard` */}
+            
             <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
 
-            {/* Redirect `/admin` to `/admin/dashboard` */}
+         
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
-            {/* Your other routes */}
+          
             <Route path="/admin/dashboard" element={<Dashboard theme={theme} />} />
 
-            {/* Your other routes */}
+            
             <Route path="/admin/dashboard" element={<Dashboard theme={theme} />} />
             <Route path="/admin/user-management" element={<UserManagement theme={theme} />} />
             <Route path="/admin/release-management" element={<ReleaseManagement theme={theme} />} />

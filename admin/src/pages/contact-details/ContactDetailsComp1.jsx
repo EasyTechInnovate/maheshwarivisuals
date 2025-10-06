@@ -85,7 +85,7 @@ export default function ContactDetailsManager({
     "w-full rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500";
   const inputTheme = isDark
     ? "bg-[#0F1720] text-gray-200"
-    : "bg-gray-100 text-gray-900";
+    : "bg-gray-100 text-[#111A22]";
 
   const badge = (ok) =>
     `inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${
@@ -93,7 +93,7 @@ export default function ContactDetailsManager({
     }`;
 
   return (
-    <div className={isDark ? "text-white" : "text-gray-900"}>
+    <div className={isDark ? "text-white" : "text-[#111A22]"}>
       {/* Header */}
       <div className="flex items-start md:items-center justify-between pb-4">
         <div>

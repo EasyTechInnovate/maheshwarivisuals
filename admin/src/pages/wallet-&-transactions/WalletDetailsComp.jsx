@@ -110,7 +110,7 @@ export default function UserWalletPage({
   return (
     <div
       className={`${
-        isDark ? "bg-gray-900 text-slate-300" : "bg-gray-50 text-[#151F28]"
+        isDark ? "bg-[#111A22] text-slate-300" : "bg-gray-50 text-[#151F28]"
       } min-h-screen p-4 sm:p-8`}
     >
       <div className="max-w-[1200px] mx-auto">
@@ -192,7 +192,7 @@ export default function UserWalletPage({
                   <input
                     className={`${
                       isDark
-                        ? "bg-gray-900 text-slate-200 border border-[#12212a]"
+                        ? "bg-[#111A22] text-slate-200 border border-[#12212a]"
                         : "bg-gray-100 text-slate-900"
                     } w-full px-3 py-2 rounded-md`}
                     value={form[box.key] ?? box.value ?? ""}
@@ -202,7 +202,7 @@ export default function UserWalletPage({
                   <div
                     className={`${
                       isDark
-                        ? "bg-gray-900 text-slate-200"
+                        ? "bg-[#111A22] text-slate-200"
                         : "bg-gray-100 text-slate-900"
                     } w-full px-3 py-2 rounded-md`}
                   >
@@ -244,7 +244,7 @@ export default function UserWalletPage({
                 <div
                   key={t.id}
                   className={`${
-                    isDark ? "bg-gray-900" : "bg-gray-50"
+                    isDark ? "bg-[#111A22]" : "bg-gray-50"
                   } rounded-md p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-transparent hover:border-[#12212a]`}
                 >
                   <div className="flex items-center gap-3">

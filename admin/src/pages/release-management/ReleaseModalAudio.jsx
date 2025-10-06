@@ -154,7 +154,7 @@ export default function AudioUploadSection({ theme = "dark", onAudioChange }) {
                 placeholder="Enter song name"
                 value={audioInfo.songName}
                 onChange={(e) => handleInfoChange("songName", e.target.value)}
-                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-gray-900"}`}
+                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-[#111A22]"}`}
               />
             </div>
 
@@ -164,7 +164,7 @@ export default function AudioUploadSection({ theme = "dark", onAudioChange }) {
                 <SelectTrigger className={`w-full ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-gray-800"} rounded-md`}>
                   <SelectValue placeholder="Select genre" />
                 </SelectTrigger>
-                <SelectContent className={`${isDark ? "bg-gray-900 text-gray-200" : "bg-white text-gray-800"}`}>
+                <SelectContent className={`${isDark ? "bg-[#111A22] text-gray-200" : "bg-white text-gray-800"}`}>
                   <SelectItem value="Pop">Pop</SelectItem>
                   <SelectItem value="Rock">Rock</SelectItem>
                   <SelectItem value="Hip Hop">Hip Hop</SelectItem>
@@ -179,7 +179,7 @@ export default function AudioUploadSection({ theme = "dark", onAudioChange }) {
                 placeholder="Enter singer name"
                 value={audioInfo.singerName}
                 onChange={(e) => handleInfoChange("singerName", e.target.value)}
-                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-gray-900"}`}
+                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-[#111A22]"}`}
               />
             </div>
 
@@ -190,7 +190,7 @@ export default function AudioUploadSection({ theme = "dark", onAudioChange }) {
                 placeholder="Enter composer name"
                 value={audioInfo.composerName}
                 onChange={(e) => handleInfoChange("composerName", e.target.value)}
-                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-gray-900"}`}
+                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-[#111A22]"}`}
               />
             </div>
 
@@ -200,7 +200,7 @@ export default function AudioUploadSection({ theme = "dark", onAudioChange }) {
                 placeholder="Enter lyricist name"
                 value={audioInfo.lyricistName}
                 onChange={(e) => handleInfoChange("lyricistName", e.target.value)}
-                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-gray-900"}`}
+                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-[#111A22]"}`}
               />
             </div>
 
@@ -210,7 +210,7 @@ export default function AudioUploadSection({ theme = "dark", onAudioChange }) {
                 placeholder="Enter producer name"
                 value={audioInfo.producerName}
                 onChange={(e) => handleInfoChange("producerName", e.target.value)}
-                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-gray-900"}`}
+                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-[#111A22]"}`}
               />
             </div>
 
@@ -221,7 +221,7 @@ export default function AudioUploadSection({ theme = "dark", onAudioChange }) {
                 placeholder="Enter ISRC"
                 value={audioInfo.isrc}
                 onChange={(e) => handleInfoChange("isrc", e.target.value)}
-                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-gray-900"}`}
+                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-[#111A22]"}`}
               />
             </div>
 
@@ -231,7 +231,7 @@ export default function AudioUploadSection({ theme = "dark", onAudioChange }) {
                 placeholder="Enter preview timing"
                 value={audioInfo.previewTiming}
                 onChange={(e) => handleInfoChange("previewTiming", e.target.value)}
-                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-gray-900"}`}
+                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-[#111A22]"}`}
               />
             </div>
 
@@ -241,7 +241,7 @@ export default function AudioUploadSection({ theme = "dark", onAudioChange }) {
                 placeholder="Enter track option"
                 value={audioInfo.trackOption}
                 onChange={(e) => handleInfoChange("trackOption", e.target.value)}
-                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-gray-900"}`}
+                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-[#111A22]"}`}
               />
             </div>
           </div>

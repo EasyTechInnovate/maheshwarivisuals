@@ -129,7 +129,7 @@ export default function AnalyticsManagement({ theme = "dark" }) {
 
   // ✅ Otherwise show the main analytics page
   return (
-    <div className={`p-6 min-h-screen ${isDark ? "bg-gray-900 text-gray-200" : "bg-gray-50 text-[#151F28]"}`}>
+    <div className={`p-6 min-h-screen ${isDark ? "bg-[#111A22] text-gray-200" : "bg-gray-50 text-[#151F28]"}`}>
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
         <div>

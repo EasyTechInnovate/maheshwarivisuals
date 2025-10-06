@@ -13,7 +13,7 @@ export default function AllUsers({ theme = "dark", users = [] }) {
         isDark ? "bg-[#151F28]" : "bg-white"
       } rounded-xl p-4 sm:p-6 shadow`}
     >
-      <h2 className={`${isDark ? "text-white" : "text-gray-900"} text-lg font-semibold mb-2`}>
+      <h2 className={`${isDark ? "text-white" : "text-[#111A22]"} text-lg font-semibold mb-2`}>
         All Users
       </h2>
       <p className="text-sm text-gray-400 mb-4">
@@ -52,7 +52,7 @@ export default function AllUsers({ theme = "dark", users = [] }) {
                   <div className="flex flex-col">
                     <span
                       className={`${
-                        isDark ? "text-white" : "text-gray-900"
+                        isDark ? "text-white" : "text-[#111A22]"
                       } font-medium`}
                     >
                       {u.name}
@@ -86,7 +86,7 @@ export default function AllUsers({ theme = "dark", users = [] }) {
   className={`${
     isDark
       ? "bg-gray-700 text-white hover:bg-gray-600"
-      : "bg-gray-100 text-gray-900 hover:bg-gray-200"
+      : "bg-gray-100 text-[#111A22] hover:bg-gray-200"
   } px-3 py-1 rounded text-xs whitespace-nowrap`}
 >
   E-Mail

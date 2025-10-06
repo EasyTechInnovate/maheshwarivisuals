@@ -26,7 +26,7 @@ export default function Newsletter({ theme = "dark" }) {
         </p>
         <span
           className={`p-2 rounded-lg ${
-            theme === "dark" ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-900"
+            theme === "dark" ? "bg-gray-700 text-white" : "bg-gray-100 text-[#111A22]"
           }`}
         >
           {icon}
@@ -35,7 +35,7 @@ export default function Newsletter({ theme = "dark" }) {
       <div className="mt-3">
         <p
           className={`${
-            theme === "dark" ? "text-white" : "text-gray-900"
+            theme === "dark" ? "text-white" : "text-[#111A22]"
           } text-2xl font-bold`}
         >
           {value}
@@ -58,7 +58,7 @@ export default function Newsletter({ theme = "dark" }) {
   return (
     <div
       className={`${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
+        theme === "dark" ? "bg-[#111A22] text-white" : "bg-gray-100 text-black"
       } min-h-screen p-4 sm:p-6 rounded-2xl`}
     >
       {/* Top Heading + Button */}

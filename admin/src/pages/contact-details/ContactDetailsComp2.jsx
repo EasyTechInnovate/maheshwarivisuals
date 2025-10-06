@@ -44,7 +44,7 @@ export default function BusinessDetailsSection({
     "w-full rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500";
   const inputTheme = isDark
     ? "bg-[#0F1720] text-gray-200"
-    : "bg-gray-100 text-gray-900";
+    : "bg-gray-100 text-[#111A22]";
 
   const badge = (ok) =>
     `inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${
@@ -97,7 +97,7 @@ export default function BusinessDetailsSection({
   return (
     <div
       className={`grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 ${
-        isDark ? "text-white" : "text-gray-900"
+        isDark ? "text-white" : "text-[#111A22]"
       }`}
     >
       {/* Left: Physical Address */}

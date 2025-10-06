@@ -36,7 +36,7 @@ export default function SubscriptionPlans({ theme }) {
   return (
     <div
       className={`p-4 md:p-6 space-y-6 ${
-        isDark ? "bg-gray-900 text-gray-200" : "bg-gray-50 text-[#151F28]"
+        isDark ? "bg-[#111A22] text-gray-200" : "bg-gray-50 text-[#151F28]"
       }`}
     >
       {/* Header */}

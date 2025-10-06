@@ -119,8 +119,8 @@ export default function MCNInfoForm({
     if (e.dataTransfer?.files?.length) onFilesPicked(slot, e.dataTransfer.files);
   };
 
-  const bg = isDark ? "bg-gray-900 text-slate-300" : "bg-white text-[#151F28]";
-  const card = isDark ? "bg-gray-900" : "bg-white";
+  const bg = isDark ? "bg-[#111A22] text-slate-300" : "bg-white text-[#151F28]";
+  const card = isDark ? "bg-[#111A22]" : "bg-white";
   const border = isDark ? "border-[#12212a]" : "border-gray-200";
   const muted = isDark ? "text-gray-400" : "text-gray-600";
 

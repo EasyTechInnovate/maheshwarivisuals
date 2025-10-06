@@ -4,7 +4,7 @@ export default function NewsletterPreview({ theme = "dark", newsletter = {} }) {
 
   return (
     <div className={`${bgCard} rounded-xl p-6 flex-1 shadow`}>
-      <h2 className={`${theme === "dark" ? "text-white" : "text-gray-900"} text-lg font-semibold mb-4`}>Newsletter Preview</h2>
+      <h2 className={`${theme === "dark" ? "text-white" : "text-[#111A22]"} text-lg font-semibold mb-4`}>Newsletter Preview</h2>
 
       <div className="bg-purple-600 text-white rounded-lg p-3 mb-4">
         <div className="font-semibold">Maheshwari Visuals</div>
@@ -12,7 +12,7 @@ export default function NewsletterPreview({ theme = "dark", newsletter = {} }) {
       </div>
 
       <div className={`${inner} p-4 rounded-xl border`}>
-        <h3 className={`${theme === "dark" ? "text-white" : "text-gray-900"} font-semibold text-base`}>
+        <h3 className={`${theme === "dark" ? "text-white" : "text-[#111A22]"} font-semibold text-base`}>
           {newsletter.title || "Newsletter Title"}
         </h3>
         <p className={`${theme === "dark" ? "text-gray-300" : "text-gray-600"} text-sm mt-2`}>

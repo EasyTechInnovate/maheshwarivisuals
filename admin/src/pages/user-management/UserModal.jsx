@@ -14,7 +14,7 @@ function InputField({ label, value, onChange, readOnly = false, theme }) {
   const inputClasses =
     theme === "dark"
       ? "bg-gray-800 text-gray-200"
-      : "bg-gray-100 text-gray-900";
+      : "bg-gray-100 text-[#111A22]";
 
   return (
     <div
@@ -106,7 +106,7 @@ export default function UserInfoPage({ theme, defaultData, onBack, onSave }) {
     <div
       className={`p-6 min-h-screen ${
         theme === "dark"
-          ? "bg-gray-900 text-gray-200"
+          ? "bg-[#111A22] text-gray-200"
           : "bg-gray-50 text-[#151F28]"
       }`}
     >

@@ -14,7 +14,7 @@ export default function Header({ onToggleSidebar, onToggleTheme, theme }) {
     <header
       className={`flex items-center justify-between border-b px-4 h-14 transition-colors duration-300 ${
         isDark
-          ? "bg-gray-900 border-gray-800 text-white"
+          ? "bg-[#111A22] border-gray-800 text-white"
           : "bg-gray-200 border-gray-300 text-black"
       }`}
     >
@@ -35,7 +35,7 @@ export default function Header({ onToggleSidebar, onToggleTheme, theme }) {
           <div>
             <p
               className={`text-sm font-medium ${
-                isDark ? "text-white" : "text-gray-900"
+                isDark ? "text-white" : "text-[#111A22]"
               }`}
             >
               Maheshwari Visuals

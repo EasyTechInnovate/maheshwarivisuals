@@ -47,8 +47,8 @@ export default function NewsManagement({ theme = "dark" }) {
     };
 
     const containerClass = isDark
-        ? "bg-gray-900 text-white min-h-screen p-6"
-        : "bg-gray-50 text-gray-900 min-h-screen p-6";
+        ? "bg-[#111A22] text-white min-h-screen p-6"
+        : "bg-gray-50 text-[#111A22] min-h-screen p-6";
 
     const cardClass = `${isDark ? "bg-[#151F28]" : "bg-white"} rounded-xl border ${isDark ? "border-gray-700" : "border-gray-200"
         } shadow p-6 flex flex-col md:flex-row items-start md:items-center gap-4 relative`;

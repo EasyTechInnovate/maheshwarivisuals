@@ -61,7 +61,7 @@ export default function AnalyticsManagement({ theme = "dark" }) {
   const totalRevenue = uploadedData.reduce((sum, row) => sum + (parseFloat(row["SR (₹)"]) || 0), 0);
 
   return (
-    <div className={`p-6 min-h-screen space-y-6 ${isDark ? "bg-gray-900 text-gray-200" : "bg-gray-50 text-[#151F28]"}`}>
+    <div className={`p-6 min-h-screen space-y-6 ${isDark ? "bg-[#111A22] text-gray-200" : "bg-gray-50 text-[#151F28]"}`}>
       {/* Page Header */}
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>

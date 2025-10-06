@@ -6,12 +6,12 @@ import CreateMCNChannelModal from "./CreateMCNChannel";
 
 export default function ActiveChannelTable({ theme = "dark", onRowClick }) {
   const isDark = theme === "dark";
-  const textColor = isDark ? "text-gray-300" : "text-gray-900";
+  const textColor = isDark ? "text-gray-300" : "text-[#111A22]";
   const bgColor = isDark ? "bg-[#151F28]" : "bg-white";
   const borderColor = isDark ? "border-[#1f2d38]" : "border-gray-200";
   const inputBg = isDark
-    ? "bg-gray-900 border-[#1f2d38] text-slate-300"
-    : "bg-white border-gray-300 text-gray-900";
+    ? "bg-[#111A22] border-[#1f2d38] text-slate-300"
+    : "bg-white border-gray-300 text-[#111A22]";
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");

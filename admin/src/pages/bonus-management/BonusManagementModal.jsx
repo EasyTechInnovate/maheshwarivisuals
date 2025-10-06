@@ -147,7 +147,7 @@ export default function BonusManagementModal({ data = [], theme = "dark", onBack
   };
 
   return (
-    <div className={`p-6 space-y-6 min-h-screen transition-colors duration-300 ${isDark ? "bg-gray-900 text-gray-200" : "bg-gray-50 text-[#151F28]"}`}>
+    <div className={`p-6 space-y-6 min-h-screen transition-colors duration-300 ${isDark ? "bg-[#111A22] text-gray-200" : "bg-gray-50 text-[#151F28]"}`}>
       {/* Header */}
 <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
   <div className="flex items-center gap-3">

@@ -50,7 +50,7 @@ export default function SocialLinksEditor({ theme = "dark" }) {
   return (
     <div
       className={`min-h-screen p-6 ${
-        isDark ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+        isDark ? "bg-[#111A22] text-white" : "bg-gray-50 text-[#111A22]"
       }`}
     >
       {/* Header */}

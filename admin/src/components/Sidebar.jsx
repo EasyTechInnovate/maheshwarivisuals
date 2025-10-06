@@ -15,7 +15,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
     <div
       className={[
         "h-screen overflow-y-auto overflow-x-hidden pb-20 flex flex-col p-3 text-sm transition-all duration-300 custom-scrollbar",
-        isDark ? "bg-gray-900 text-gray-300" : "bg-white text-gray-900",
+        isDark ? "bg-[#111A22] text-gray-300" : "bg-white text-[#111A22]",
       ].join(" ")}
     >
       {/* Header */}
@@ -24,7 +24,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
           <>
             <h1
               className={`text-base font-bold ${
-                isDark ? "text-white" : "text-gray-900"
+                isDark ? "text-white" : "text-[#111A22]"
               }`}
             >
               Admin Panel
@@ -48,7 +48,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
             className={`flex items-center gap-2 w-full px-2 py-2 rounded-lg transition ${
               isDark
                 ? "hover:bg-[#334155] text-gray-300"
-                : "hover:bg-gray-200 text-gray-900"
+                : "hover:bg-gray-200 text-[#111A22]"
             }`}
           >
             <svg
@@ -67,7 +67,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
             </svg>
             <span
               className={`font-medium text-sm ${
-                isDark ? "text-gray-100" : "text-gray-900"
+                isDark ? "text-gray-100" : "text-[#111A22]"
               }`}
             >
               Dashboard
@@ -195,7 +195,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
                 className={`text-[11px] font-semibold tracking-wide py-1 transition ${
                   isDark
                     ? "text-gray-400 hover:text-white"
-                    : "text-gray-600 hover:text-gray-900"
+                    : "text-gray-600 hover:text-[#111A22]"
                 }`}
               >
                 {section.label}

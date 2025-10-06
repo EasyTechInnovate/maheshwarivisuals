@@ -57,7 +57,7 @@ export default function CreateSubscriptionPlanModal({ isOpen, onClose, categorie
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className={`max-w-lg rounded-lg ${
-          isDark ? "bg-gray-900 text-gray-200" : "bg-white text-[#151F28]"
+          isDark ? "bg-[#111A22] text-gray-200" : "bg-white text-[#151F28]"
         }`}
       >
         <DialogHeader>
@@ -83,7 +83,11 @@ export default function CreateSubscriptionPlanModal({ isOpen, onClose, categorie
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent
+               className={`${isDark ? "bg-gray-800 text-gray-200 border-gray-700" : "bg-white text-[#111A22] border-gray-300"
+                                    }`}
+                            
+              >
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.name}>
                     {cat.name}

@@ -75,7 +75,7 @@ export default function AnalyticsManagementModal({ theme = "light", data = [], o
   return (
     <div
       className={`p-4 md:p-6 space-y-6 min-h-[80vh] rounded-2xl shadow-lg transition-colors duration-300 ${
-        isDark ? "bg-gray-900 text-gray-200" : "bg-white text-[#151F28]"
+        isDark ? "bg-[#111A22] text-gray-200" : "bg-white text-[#151F28]"
       }`}
     >
       {/* Header */}  

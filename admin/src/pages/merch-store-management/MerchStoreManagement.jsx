@@ -26,7 +26,7 @@ export default function MerchStoreManagement({ theme }) {
   const softBtn =
     theme === "dark"
       ? "bg-gray-800 hover:bg-gray-700 text-white"
-      : "bg-gray-200 hover:bg-gray-300 text-gray-900";
+      : "bg-gray-200 hover:bg-gray-300 text-[#111A22]";
 
   useEffect(() => {
     const load = async () => {
@@ -53,7 +53,7 @@ export default function MerchStoreManagement({ theme }) {
     <div
       className={`${
         theme === "dark"
-          ? "bg-gray-900 text-white"
+          ? "bg-[#111A22] text-white"
           : "bg-gray-100 text-black"
       } min-h-screen p-4 sm:p-6 rounded-2xl`}
     >

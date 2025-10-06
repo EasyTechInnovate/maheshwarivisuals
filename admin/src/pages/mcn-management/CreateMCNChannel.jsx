@@ -54,7 +54,7 @@ export default function CreateMCNChannelModal({ isOpen, onClose, channelTypes = 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent
-                className={`max-w-lg rounded-lg ${isDark ? "bg-gray-900 text-gray-200" : "bg-white text-[#151F28]"
+                className={`max-w-lg rounded-lg ${isDark ? "bg-[#111A22] text-gray-200" : "bg-white text-[#151F28]"
                     }`}
             >
                 <DialogHeader>
@@ -76,7 +76,7 @@ export default function CreateMCNChannelModal({ isOpen, onClose, channelTypes = 
                             </SelectTrigger>
 
                             <SelectContent
-                                className={`${isDark ? "bg-gray-800 text-gray-200 border-gray-700" : "bg-white text-gray-900 border-gray-300"
+                                className={`${isDark ? "bg-gray-800 text-gray-200 border-gray-700" : "bg-white text-[#111A22] border-gray-300"
                                     }`}
                             >
                                 {channelTypes.map((type) => (

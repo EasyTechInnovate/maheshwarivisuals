@@ -6,8 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function SyncLicenseReviewModal({ isOpen, onClose, data = {}, theme = "dark" }) {
   const isDark = theme === "dark";
-  const textColor = isDark ? "text-gray-300" : "text-gray-900";
-  const bgColor = isDark ? "bg-gray-900 text-gray-200" : "bg-white text-[#151F28]";
+  const textColor = isDark ? "text-gray-300" : "text-[#111A22]";
+  const bgColor = isDark ? "bg-[#111A22] text-gray-200" : "bg-white text-[#151F28]";
 
   const [reviewNotes, setReviewNotes] = useState("");
 

@@ -38,7 +38,7 @@ export default function ReleaseManagement({ theme = "dark", onBack }) {
 
   return (
     <div
-      className={`p-6 space-y-6 transition-colors duration-200 ${isDark ? "bg-gray-900 text-gray-200" : "bg-gray-50 text-[#151F28]"
+      className={`p-6 space-y-6 transition-colors duration-200 ${isDark ? "bg-[#111A22] text-gray-200" : "bg-gray-50 text-[#151F28]"
         }`}
     >
       {/* Header + actions */}
@@ -186,7 +186,7 @@ export default function ReleaseManagement({ theme = "dark", onBack }) {
                 placeholder="Enter track title"
                 value={releaseData.releaseName}
                 onChange={(e) => handleChange("releaseName", e.target.value)}
-                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-gray-900"}`}
+                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-[#111A22]"}`}
               />
             </div>
 
@@ -219,7 +219,7 @@ export default function ReleaseManagement({ theme = "dark", onBack }) {
                 placeholder="Enter label name"
                 value={releaseData.labelName}
                 onChange={(e) => handleChange("labelName", e.target.value)}
-                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-gray-900"}`}
+                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-[#111A22]"}`}
               />
             </div>
 
@@ -232,7 +232,7 @@ export default function ReleaseManagement({ theme = "dark", onBack }) {
                 placeholder="Enter UPC"
                 value={releaseData.upc}
                 onChange={(e) => handleChange("upc", e.target.value)}
-                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-gray-900"}`}
+                className={`w-full rounded-md ${isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : "bg-white border border-gray-200 text-[#111A22]"}`}
               />
             </div>
           </div>
@@ -263,7 +263,7 @@ export default function ReleaseManagement({ theme = "dark", onBack }) {
               // type="date" if you want a datepicker
               className={`w-full rounded-md ${isDark
                   ? "bg-[#0f1724] border border-gray-700 text-gray-200"
-                  : "bg-white border border-gray-200 text-gray-900"
+                  : "bg-white border border-gray-200 text-[#111A22]"
                 }`}
             />
           </div>
@@ -277,7 +277,7 @@ export default function ReleaseManagement({ theme = "dark", onBack }) {
               placeholder="Enter store names"
               className={`w-full rounded-md ${isDark
                   ? "bg-[#0f1724] border border-gray-700 text-gray-200"
-                  : "bg-white border border-gray-200 text-gray-900"
+                  : "bg-white border border-gray-200 text-[#111A22]"
                 }`}
             />
           </div>

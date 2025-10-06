@@ -107,7 +107,7 @@ export default function Dashboard({ theme }) {
   return (
     <div
       className={
-        getThemeClasses(theme, "bg-gray-900 text-white", "bg-gray-100 text-black") +
+        getThemeClasses(theme, "bg-[#111A22] text-white", "bg-gray-100 text-black") +
         " min-h-screen p-4 sm:p-6 rounded-2xl"
       }
     >
