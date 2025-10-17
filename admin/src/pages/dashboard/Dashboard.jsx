@@ -18,8 +18,8 @@ import {
   LineChart,
   Line,
 } from "recharts";
+import GlobalApi from "@/lib/GlobalApi";
 
-// Icon mapping
 const cardIcons = {
   totalUsers: Users,
   activeReleases: Music,
@@ -29,11 +29,11 @@ const cardIcons = {
   platformUsage: Activity,
 };
 
-// Format numbers with commas
+
 const formatNumber = (num) =>
   typeof num === "number" ? num.toLocaleString("en-IN") : num;
 
-// Helper for theme classes
+
 const getThemeClasses = (theme, dark, light) =>
   theme === "dark" ? dark : light;
 
@@ -41,13 +41,65 @@ export default function Dashboard({ theme }) {
   const [data, setData] = useState(null);
   const [showAllActivities, setShowAllActivities] = useState(false);
 
-  useEffect(() => {
-    const loadData = async () => {
-      const res = await fetchDashboardData();
-      setData(res);
-    };
-    loadData();
-  }, []);
+useEffect(() => {
+  const loadData = async () => {
+    try {
+      const dashboardRes = await fetchDashboardData();
+      const healthRes = await GlobalApi.getHealth();
+
+      // Transform the health API data
+      const transformHealthData = (apiData) => {
+        const { application, system } = apiData;
+
+        return [
+          {
+            id: 1,
+            name: "Application Uptime",
+            status: "Operational",
+            detail: application.uptime,
+          },
+          {
+            id: 2,
+            name: "Memory Usage",
+            status: "Operational",
+            detail: `Used: ${application.memoryUsage.heapUsed} / Total: ${application.memoryUsage.heapTotal}`,
+          },
+          {
+            id: 3,
+            name: "CPU Usage",
+            status: system.cpuUsage.some((u) => u > 70)
+              ? "Degraded"
+              : "Operational",
+            detail: `Usage: ${system.cpuUsage.join(", ")}%`,
+          },
+          {
+            id: 4,
+            name: "System Memory",
+            status:
+              parseFloat(system.freeMemory) / parseFloat(system.totalMemory) <
+              0.2
+                ? "Degraded"
+                : "Operational",
+            detail: `Free: ${system.freeMemory} / Total: ${system.totalMemory}`,
+          },
+        ];
+      };
+
+      const systemHealthTransformed = transformHealthData(healthRes.data.data);
+
+      // Combine both responses
+      setData({
+        ...dashboardRes,
+        systemHealth: systemHealthTransformed,
+      });
+    } catch (err) {
+      console.error("Error loading dashboard data:", err);
+    }
+  };
+
+  loadData();
+}, []);
+
 
   if (!data)
     return (
@@ -62,7 +114,7 @@ export default function Dashboard({ theme }) {
       </div>
     );
 
-  // Reusable card component
+ 
   const StatCard = ({ title, value, change, breakdown, icon: Icon }) => (
     <div
       className={
@@ -201,9 +253,9 @@ export default function Dashboard({ theme }) {
 
       </div>
 
-      {/* Row 1: Two side-by-side cards */}
+      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mt-6 w-full">
-        {/* User Type Distribution */}
+     
         <div
           className={
             getThemeClasses(theme, "bg-[#151F28]", "bg-white") +

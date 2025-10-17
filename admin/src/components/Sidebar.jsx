@@ -14,11 +14,13 @@ export default function Sidebar({ isCollapsed = false, theme }) {
   return (
     <div
       className={[
-        "h-screen overflow-y-auto overflow-x-hidden pb-20 flex flex-col p-3 text-sm transition-all duration-300 custom-scrollbar",
-        isDark ? "bg-[#111A22] text-gray-300" : "bg-white text-[#111A22]",
-      ].join(" ")}
+    "h-screen overflow-y-auto overflow-x-hidden pb-20 flex flex-col p-3 text-sm transition-all duration-300 custom-scrollbar",
+    isDark
+      ? "bg-[#111A22] text-gray-300 border-r border-gray-800"
+      : "bg-white text-[#111A22] border-r border-gray-300",
+  ].join(" ")}
     >
-      {/* Header */}
+     
       <div className="mb-4 pb-2">
         {!isCollapsed && (
           <>
@@ -40,7 +42,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
         )}
       </div>
 
-      {/* Dashboard link */}
+     
       {!isCollapsed && (
         <div className="mb-4">
           <Link
@@ -76,7 +78,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
         </div>
       )}
 
-      {/* Accordion sections */}
+     
       {!isCollapsed && (
         <Accordion
           type="multiple"

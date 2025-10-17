@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "sonner";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -30,19 +31,30 @@ import BlogManagement from "./pages/blog-management/BlogManagement";
 import NewsManagement from "./pages/news-management/NewsManagement";
 import SocialLinksEditor from "./pages/social-links/SocialLinks";
 import ContactPage from "./pages/contact-details/ContactDetails";
-
+import AdminLogin from "./auth/SignIn";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [theme, setTheme] = useState("dark");
+  const location = useLocation();
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
+  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
+  // Check if we're on login page
+  const isLoginPage = location.pathname === "/admin/login";
+
+  // If on login page, show only the login
+  if (isLoginPage) {
+    return (
+      <div>
+        <AdminLogin theme={theme} />
+      </div>
+    );
+  }
+
+  // Otherwise, render dashboard layout
   return (
     <div className={`flex h-screen overflow-hidden ${theme === "dark" ? "bg-[#111A22] text-white" : "bg-gray-100 text-black"}`}>
-    
       {sidebarOpen && (
         <button
           className="fixed inset-0 bg-black/50 z-30 md:hidden"
@@ -51,7 +63,7 @@ function App() {
         />
       )}
 
-   
+      {/* Sidebar */}
       <aside
         className={[
           "fixed inset-y-0 left-0 z-40 transform transition-transform duration-300",
@@ -66,25 +78,18 @@ function App() {
         <Sidebar isCollapsed={!sidebarOpen} theme={theme} />
       </aside>
 
-      
+      {/* Main Content */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         <Header
           onToggleSidebar={() => setSidebarOpen((s) => !s)}
           onToggleTheme={toggleTheme}
           theme={theme}
         />
+
         <main className={`flex-1 p-4 overflow-y-auto ${theme === "dark" ? "bg-[#111A22]" : "bg-white"}`}>
           <Routes>
-            
-            <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
-
-         
-            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-
-          
-            <Route path="/admin/dashboard" element={<Dashboard theme={theme} />} />
-
-            
+            <Route path="/" element={<Navigate to="/admin/login" replace />} />
+            <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
             <Route path="/admin/dashboard" element={<Dashboard theme={theme} />} />
             <Route path="/admin/user-management" element={<UserManagement theme={theme} />} />
             <Route path="/admin/release-management" element={<ReleaseManagement theme={theme} />} />
@@ -116,6 +121,7 @@ function App() {
           </Routes>
         </main>
       </div>
+       <Toaster position="top-right" richColors theme={theme === "dark" ? "dark" : "light"} />
     </div>
   );
 }

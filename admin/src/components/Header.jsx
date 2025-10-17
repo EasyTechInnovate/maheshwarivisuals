@@ -1,14 +1,35 @@
-import { useState } from "react";
-import { Bell, Settings, Menu, Sun, Moon } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Bell, Settings, Menu, Sun, Moon, User, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Header({ onToggleSidebar, onToggleTheme, theme }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
   const isDark = theme === "dark";
 
   const handleToggle = () => {
     setIsSidebarOpen(!isSidebarOpen);
     onToggleSidebar?.();
   };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/admin/login");
+  };
+
+useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  if (!token && window.location.pathname !== "/admin/login") {
+    localStorage.clear();
+    navigate("/admin/login");
+  }
+}, [navigate]);
+
+
+
 
   return (
     <header
@@ -18,7 +39,6 @@ export default function Header({ onToggleSidebar, onToggleTheme, theme }) {
           : "bg-gray-200 border-gray-300 text-black"
       }`}
     >
-      {/* Left side - toggle + logo */}
       <div className="flex items-center gap-3">
         <button
           onClick={handleToggle}
@@ -51,9 +71,7 @@ export default function Header({ onToggleSidebar, onToggleTheme, theme }) {
         </div>
       </div>
 
-      {/* Right side - icons */}
-      <div className="flex items-center gap-4">
-        {/* Theme toggle */}
+      <div className="flex items-center gap-4 relative">
         <button
           onClick={onToggleTheme}
           className={`p-2 rounded-lg transition ${
@@ -67,7 +85,6 @@ export default function Header({ onToggleSidebar, onToggleTheme, theme }) {
           )}
         </button>
 
-        {/* Notifications */}
         <button
           className={`relative p-2 rounded-lg transition ${
             isDark ? "hover:bg-gray-800" : "hover:bg-gray-300"
@@ -77,14 +94,53 @@ export default function Header({ onToggleSidebar, onToggleTheme, theme }) {
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
 
-        {/* Settings */}
-        <button
-          className={`p-2 rounded-lg transition ${
-            isDark ? "hover:bg-gray-800" : "hover:bg-gray-300"
-          }`}
-        >
-          <Settings className={`w-5 h-5 ${isDark ? "text-gray-300" : "text-gray-700"}`} />
-        </button>
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className={`p-2 rounded-lg transition ${
+              isDark ? "hover:bg-gray-800" : "hover:bg-gray-300"
+            }`}
+          >
+            <Settings className={`w-5 h-5 ${isDark ? "text-gray-300" : "text-gray-700"}`} />
+          </button>
+
+          {dropdownOpen && (
+            <div
+              className={`absolute right-0 mt-2 w-40 rounded-lg shadow-lg border z-[100] ${
+                isDark
+                  ? "bg-[#1C252E] border-gray-700 text-gray-200"
+                  : "bg-white border-gray-300 text-gray-800"
+              }`}
+            >
+              <button
+                onClick={() => {
+                  setDropdownOpen(false);
+                  navigate("/admin/profile");
+                }}
+                className={`flex items-center gap-2 w-full px-4 py-2 text-sm transition ${
+                  isDark
+                    ? "hover:bg-gray-800 hover:text-white"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                <User size={16} />
+                Profile
+              </button>
+              <hr className={isDark ? "border-gray-700" : "border-gray-200"} />
+              <button
+                onClick={handleLogout}
+                className={`flex items-center gap-2 w-full px-4 py-2 text-sm transition  ${
+                  isDark
+                    ? "hover:bg-gray-800 hover:text-red-400 text-red-300"
+                    : "hover:bg-gray-100 text-red-600"
+                }`}
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
