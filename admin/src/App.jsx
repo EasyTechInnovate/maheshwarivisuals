@@ -1,16 +1,60 @@
 import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
-import Dashboard from "./components/Dashboard.jsx";
-import UserManagement from "./components/UserManagement"; 
+import Dashboard from "./pages/dashboard/Dashboard";
+import UserManagement from "./pages/user-management/UserManagement";
+import ReleaseManagement from "./pages/release-management/ReleaseManagement";
+import BonusManagement from "./pages/bonus-management/BonusManagement";
+import AnalyticsManagement from "./pages/analytics-management/AnalyticsManagement";
+import MonthManagement from "./pages/month-management/MonthManagement";
+import RoyaltyManagement from "./pages/royalty-management/RoyaltyManagement";
+import WalletTransactions from "./pages/wallet-&-transactions/WalletTransactions";
+import MCNManagement from "./pages/mcn-management/MCNManagement";
+import TeamManagement from "./pages/team-management/TeamManagement";
+import SubscriptionPlans from "./pages/subscription-plans/SubscriptionPlans";
+import PlaylistPitching from "./pages/playlist-pitching/PlaylistPitching";
+import SyncManagement from "./pages/synchronization-(sync)/Synchronization(SYNC)";
+import MCNMonthManagement from "./pages/mcn-royality/MCNMonthManagement";
+import AdvertisementRequests from "./pages/advertisment-plans/AdvertisementPlans";
+import MerchStoreManagement from "./pages/merch-store-management/MerchStoreManagement";
+import NotificationPage from "./pages/notifications/NotificaionsPage";
+import Newsletter from "./pages/newsletter/Newsletter";
+import HelpSupport from "./pages/help-&-support/HelpSupportPage";
+import TestimonialManager from "./pages/testimonials/Testimonials";
+import TrendingArtistsManager from "./pages/trending-artists/TrendingArtists";
+import TrendingLabelsManager from "./pages/trending-labels/TrendingLabels";
+import FaqManager from "./pages/faq-management/FAQManagement";
+import BlogManagement from "./pages/blog-management/BlogManagement";
+import NewsManagement from "./pages/news-management/NewsManagement";
+import SocialLinksEditor from "./pages/social-links/SocialLinks";
+import ContactPage from "./pages/contact-details/ContactDetails";
+import AdminLogin from "./auth/SignIn";
+import KycManagement from "./pages/kyc-management/KYCManagement";
 
 function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [theme, setTheme] = useState("dark");
+  const location = useLocation();
 
+  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
+
+  // Check if we're on login page
+  const isLoginPage = location.pathname === "/admin/login";
+
+  // If on login page, show only the login
+  if (isLoginPage) {
+    return (
+      <div>
+        <AdminLogin theme={theme} />
+      </div>
+    );
+  }
+
+  // Otherwise, render dashboard layout
   return (
-    <div className="flex h-screen bg-[#0D1117] text-white overflow-hidden">
-      {/* Mobile overlay */}
+    <div className={`flex h-screen overflow-hidden ${theme === "dark" ? "bg-[#111A22] text-white" : "bg-gray-100 text-black"}`}>
       {sidebarOpen && (
         <button
           className="fixed inset-0 bg-black/50 z-30 md:hidden"
@@ -28,24 +72,56 @@ function App() {
           "w-64",
           sidebarOpen ? "md:w-60" : "md:w-16",
           "md:transition-[width] md:duration-300",
+          theme === "dark" ? "bg-[#111A22]" : "bg-gray-200"
         ].join(" ")}
       >
-        <Sidebar isCollapsed={!sidebarOpen} />
+        <Sidebar isCollapsed={!sidebarOpen} theme={theme} />
       </aside>
 
-      {/* Main content */}
+      {/* Main Content */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         <Header
           onToggleSidebar={() => setSidebarOpen((s) => !s)}
-          className="bg-[#111A22]"
+          onToggleTheme={toggleTheme}
+          theme={theme}
         />
-        <main className="flex-1 p-4 overflow-y-auto bg-[#111A22]">
+
+        <main className={`flex-1 p-4 overflow-y-auto ${theme === "dark" ? "bg-[#111A22]" : "bg-white"}`}>
           <Routes>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/user-management" element={<UserManagement />} />
+            <Route path="/" element={<Navigate to="/admin/login" replace />} />
+            <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+            <Route path="/admin/dashboard" element={<Dashboard theme={theme} />} />
+            <Route path="/admin/user-management" element={<UserManagement theme={theme} />} />
+            <Route path="/admin/release-management" element={<ReleaseManagement theme={theme} />} />
+            <Route path="/admin/bonus-management" element={<BonusManagement theme={theme} />} />
+            <Route path="/admin/kyc-management" element={<KycManagement theme={theme} />} />
+            <Route path="/admin/analytics-management" element={<AnalyticsManagement theme={theme} />} />
+            <Route path="/admin/month-management" element={<MonthManagement theme={theme} />} />
+            <Route path="/admin/royalty-management" element={<RoyaltyManagement theme={theme} />} />
+            <Route path="/admin/wallet-&-transactions" element={<WalletTransactions theme={theme} />} />
+            <Route path="/admin/mcn-management" element={<MCNManagement theme={theme} />} />
+            <Route path="/admin/mcn-royality" element={<MCNMonthManagement theme={theme} />} />
+            <Route path="/admin/team-management" element={<TeamManagement theme={theme} />} />
+            <Route path="/admin/subscription-plans" element={<SubscriptionPlans theme={theme} />} />
+            <Route path="/admin/playlist-pitching" element={<PlaylistPitching theme={theme} />} />
+            <Route path="/admin/advertisement-plans" element={<AdvertisementRequests theme={theme} />} />
+            <Route path="/admin/synchronization-(sync)" element={<SyncManagement theme={theme} />} />
+            <Route path="/admin/merch-store-management" element={<MerchStoreManagement theme={theme} />} />
+            <Route path="/admin/notifications" element={<NotificationPage theme={theme} />} />
+            <Route path="/admin/newsletter" element={<Newsletter theme={theme} />} />
+            <Route path="/admin/help-&-support" element={<HelpSupport theme={theme} />} />
+            <Route path="/admin/testimonials" element={<TestimonialManager theme={theme} />} />
+            <Route path="/admin/trending-artists" element={<TrendingArtistsManager theme={theme} />} />
+            <Route path="/admin/trending-labels" element={<TrendingLabelsManager theme={theme} />} />
+            <Route path="/admin/faq-management" element={<FaqManager theme={theme} />} />
+            <Route path="/admin/blog-management" element={<BlogManagement theme={theme} />} />
+            <Route path="/admin/news-management" element={<NewsManagement theme={theme} />} />
+            <Route path="/admin/social-links" element={<SocialLinksEditor theme={theme} />} />
+            <Route path="/admin/contact-details" element={<ContactPage theme={theme} />} />
           </Routes>
         </main>
       </div>
+      <Toaster position="top-right" richColors theme={theme === "dark" ? "dark" : "light"} />
     </div>
   );
 }

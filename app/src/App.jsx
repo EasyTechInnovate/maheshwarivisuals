@@ -1,34 +1,49 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react'
+import { Route, Routes } from 'react-router-dom'
+import Index from './pages/Index'
+import Dashboard from './pages/dashboard/Dashboard'
+import UploadRelease from './pages/uploadRelease/UploadRelease'
+import CatalogPage from './pages/catalog/Catalog'
+import Analytics from './pages/analytics/Analytics'
+import Royalties from './pages/royalties/Royalties'
+import FinanceWallet from './pages/financeAndWallet/FinanceWallet'
+import WithdrawFund from './pages/financeAndWallet/WithdrawFund'
+import YouTubeMCN from './pages/youtubeMCN/YoutubeMCN'
+import YouTubeMCNRequest from './pages/youtubeMCN/YoutubeMCNRequest'
+import MVProduction from './pages/mvProduction/MVProduction'
+import MVMarketing from './pages/mvMarketing/MVMarketing'
+import Advertisement from './pages/advertisement/Advertisement'
+import MerchStore from './pages/merchStore/MerchStore'
+import HelpSupport from './pages/helpSupport/HelpSupport'
+import SettingsPage from './pages/setting/Setting'
+import BasicReleaseBuilder from './pages/uploadRelease/Basic'
+import AdvancedReleaseBuilder from './pages/uploadRelease/Advance'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div>
+      <Routes>
+        <Route path='/app' element={<Index />}>
+          <Route index element={<Dashboard />} />
+          <Route path='upload-release' element={<UploadRelease />} />
+          <Route path='upload-release/basic-release-builder' element={<BasicReleaseBuilder />} />
+          <Route path='upload-release/advanced-release-builder' element={<AdvancedReleaseBuilder />} />
+          <Route path='catalog' element={<CatalogPage />} />
+          <Route path='analytics' element={<Analytics />} />
+          <Route path='royalties' element={<Royalties />} />
+          <Route path='finance-and-wallet' element={<FinanceWallet />} />
+          <Route path='finance-and-wallet/withdraw-fund' element={<WithdrawFund />} />
+          <Route path='youtube-mcn' element={<YouTubeMCN />} />
+          <Route path='youtube-mcn/new-request' element={<YouTubeMCNRequest />} />
+          <Route path='mv-production' element={<MVProduction />} />
+          <Route path='mv-marketing' element={<MVMarketing />} />
+          <Route path='advertisement' element={<Advertisement />} />
+          <Route path='merch' element={<MerchStore />} />
+          <Route path='help' element={<HelpSupport />} />
+          <Route path='settings' element={<SettingsPage />} />
+        </Route>
+      </Routes>
+    </div>
   )
 }
 
