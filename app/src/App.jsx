@@ -23,24 +23,24 @@ const App = () => {
   return (
     <div>
       <Routes>
-        <Route path='/user' element={<Index/>}>
-          <Route index element={<Dashboard/>}/>
-          <Route path='upload-release' element={<UploadRelease/>}/>
-          <Route path='upload-release/basic-release-builder' element={<BasicReleaseBuilder/>}/>
-          <Route path='upload-release/advanced-release-builder' element={<AdvancedReleaseBuilder/>}/>
-          <Route path='catalog' element={<CatalogPage/>}/>
-          <Route path='analytics' element={<Analytics/>}/>
-          <Route path='royalties' element={<Royalties/>}/>
-          <Route path='finance-and-wallet' element={<FinanceWallet/>}/>
-          <Route path='finance-and-wallet/withdraw-fund' element={<WithdrawFund/>}/>
-          <Route path='youtube-mcn' element={<YouTubeMCN/>}/>
-          <Route path='youtube-mcn/new-request' element={<YouTubeMCNRequest/>}/>
-          <Route path='mv-production' element={<MVProduction/>}/>
-          <Route path='mv-marketing' element={<MVMarketing/>}/>
-          <Route path='advertisement' element={<Advertisement/>}/>
-          <Route path='merch' element={<MerchStore/>}/>
-          <Route path='help' element={<HelpSupport/>}/>
-          <Route path='settings' element={<SettingsPage/>}/>
+        <Route path='/app' element={<Index />}>
+          <Route index element={<Dashboard />} />
+          <Route path='upload-release' element={<UploadRelease />} />
+          <Route path='upload-release/basic-release-builder' element={<BasicReleaseBuilder />} />
+          <Route path='upload-release/advanced-release-builder' element={<AdvancedReleaseBuilder />} />
+          <Route path='catalog' element={<CatalogPage />} />
+          <Route path='analytics' element={<Analytics />} />
+          <Route path='royalties' element={<Royalties />} />
+          <Route path='finance-and-wallet' element={<FinanceWallet />} />
+          <Route path='finance-and-wallet/withdraw-fund' element={<WithdrawFund />} />
+          <Route path='youtube-mcn' element={<YouTubeMCN />} />
+          <Route path='youtube-mcn/new-request' element={<YouTubeMCNRequest />} />
+          <Route path='mv-production' element={<MVProduction />} />
+          <Route path='mv-marketing' element={<MVMarketing />} />
+          <Route path='advertisement' element={<Advertisement />} />
+          <Route path='merch' element={<MerchStore />} />
+          <Route path='help' element={<HelpSupport />} />
+          <Route path='settings' element={<SettingsPage />} />
         </Route>
       </Routes>
     </div>
