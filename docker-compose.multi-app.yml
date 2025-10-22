@@ -15,8 +15,6 @@ services:
     restart: always
     profiles:
       - development
-      - qa
-      - production
 
   # Backend Server
   server:
