@@ -7,7 +7,6 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import UserManagement from "./pages/user-management/UserManagement";
 import ReleaseManagement from "./pages/release-management/ReleaseManagement";
 import BonusManagement from "./pages/bonus-management/BonusManagement";
-import KycManagement from "./pages/kyc-management/KycManagement";
 import AnalyticsManagement from "./pages/analytics-management/AnalyticsManagement";
 import MonthManagement from "./pages/month-management/MonthManagement";
 import RoyaltyManagement from "./pages/royalty-management/RoyaltyManagement";
@@ -32,6 +31,7 @@ import NewsManagement from "./pages/news-management/NewsManagement";
 import SocialLinksEditor from "./pages/social-links/SocialLinks";
 import ContactPage from "./pages/contact-details/ContactDetails";
 import AdminLogin from "./auth/SignIn";
+import KycManagement from "./pages/kyc-management/KYCManagement";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -121,7 +121,7 @@ function App() {
           </Routes>
         </main>
       </div>
-       <Toaster position="top-right" richColors theme={theme === "dark" ? "dark" : "light"} />
+      <Toaster position="top-right" richColors theme={theme === "dark" ? "dark" : "light"} />
     </div>
   );
 }
