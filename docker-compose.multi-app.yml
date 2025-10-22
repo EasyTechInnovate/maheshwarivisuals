@@ -110,6 +110,21 @@ services:
   # QA ENVIRONMENT
   # =================================
 
+  # QA MongoDB
+  qa-mongo:
+    container_name: qa-mongo
+    image: 'mongo:7'
+    volumes:
+      - qa-mongo-data:/data/db
+    networks:
+      - qa-net
+    env_file:
+      - .env.qa
+    command: mongod --bind_ip_all
+    restart: always
+    profiles:
+      - qa
+
   # QA Server
   qa-server:
     container_name: qa-server
@@ -121,6 +136,8 @@ services:
       - .env.qa
     expose:
       - "5000"
+    depends_on:
+      - qa-mongo
     networks:
       - qa-net
     profiles:
@@ -208,6 +225,21 @@ services:
   # PRODUCTION ENVIRONMENT
   # =================================
 
+  # Production MongoDB
+  prod-mongo:
+    container_name: prod-mongo
+    image: 'mongo:7'
+    volumes:
+      - prod-mongo-data:/data/db
+    networks:
+      - prod-net
+    env_file:
+      - .env.production
+    command: mongod --bind_ip_all
+    restart: always
+    profiles:
+      - production
+
   # Production Server
   prod-server:
     container_name: prod-server
@@ -219,6 +251,8 @@ services:
       - .env.production
     expose:
       - "5000"
+    depends_on:
+      - prod-mongo
     networks:
       - prod-net
     profiles:
@@ -312,3 +346,5 @@ networks:
 
 volumes:
   mongo-data:
+  qa-mongo-data:
+  prod-mongo-data:
