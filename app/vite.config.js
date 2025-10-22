@@ -13,7 +13,7 @@ export default defineConfig({
       usePolling: true,
     },
   },
-    resolve: {
+  resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
