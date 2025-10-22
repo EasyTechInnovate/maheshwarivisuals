@@ -33,18 +33,24 @@ jobs:
           ssh $DEPLOY_USER@$DEPLOY_HOST "
             REPO_PATH='/home/qa'
             
-            # Clone or update the main repository once
-            if [ ! -d \"\$REPO_PATH\" ]; then
-              echo '📥 Cloning repository...'
-              git clone https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_REPO.git \$REPO_PATH
-              echo '✅ Repository cloned'
-            else
-              echo '🔄 Updating repository...'
+            # Check if it's already a git repository
+            if [ -d \"\$REPO_PATH/.git\" ]; then
+              echo '🔄 Repository exists, updating...'
               cd \$REPO_PATH
               git remote set-url origin https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_REPO.git
-              git fetch origin main
-              git reset --hard origin/main
+              git fetch origin development
+              git reset --hard origin/development
+              git clean -fd
               echo '✅ Repository updated'
+            else
+              # Directory exists but not a git repo
+              echo '📥 Initializing repository in existing directory...'
+              cd \$REPO_PATH
+              git init
+              git remote add origin https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_REPO.git
+              git fetch origin development
+              git checkout -b development origin/development
+              echo '✅ Repository initialized'
             fi
             
             echo ''
@@ -52,9 +58,7 @@ jobs:
             echo '🚀 Deploying Client (Next.js)...'
             echo '════════════════════════════════════════'
             
-            echo '📂 Syncing files to /home/qa/client...'
-            rsync -av --delete \$REPO_PATH/client/ /home/qa/client/
-            cd /home/qa/client
+            cd \$REPO_PATH/client
             
             if [ ! -f \".env\" ]; then
               echo '❌ Error: client .env not found'
@@ -77,9 +81,7 @@ jobs:
             echo '🚀 Deploying Admin Panel...'
             echo '════════════════════════════════════════'
             
-            echo '📂 Syncing files to /home/qa/admin...'
-            rsync -av --delete \$REPO_PATH/admin/ /home/qa/admin/
-            cd /home/qa/admin
+            cd \$REPO_PATH/admin
             
             if [ ! -f \".env\" ]; then
               echo '❌ Error: admin .env not found'
@@ -99,9 +101,7 @@ jobs:
             echo '🚀 Deploying User App (React)...'
             echo '════════════════════════════════════════'
             
-            echo '📂 Syncing files to /home/qa/app...'
-            rsync -av --delete \$REPO_PATH/app/ /home/qa/app/
-            cd /home/qa/app
+            cd \$REPO_PATH/app
             
             if [ ! -f \".env\" ]; then
               echo '❌ Error: app .env not found'
@@ -125,8 +125,6 @@ jobs:
             echo '✨ All deployments completed successfully!'
             echo '════════════════════════════════════════'
           "
-
-
 
       - name: Verify Deployment
         run: |
