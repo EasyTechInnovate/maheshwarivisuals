@@ -2,7 +2,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, BarChart3, DollarSign, IndianRupee, Megaphone, Music, Play, Upload, Video } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 import {earningsData ,streamsData ,videoTutorials ,recentReleases ,quickActions ,performanceMetrics} from './Dashboard.config'
-import React from 'react';
+import React, { useEffect } from 'react';
+import { getServerHealth } from '@/services/api.services';
 
 const Dashboard = () => {
   
