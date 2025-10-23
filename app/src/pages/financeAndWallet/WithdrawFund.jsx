@@ -47,7 +47,7 @@ export default function WithdrawFund({ backIconSrc }) {
           variant="outline"
           size="icon"
           className='mt-2'
-          onClick={() => navigate("/user/finance-and-wallet")}
+          onClick={() => navigate("/app/finance-and-wallet")}
         >
             <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -123,7 +123,7 @@ export default function WithdrawFund({ backIconSrc }) {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => navigate("/user/finance-and-wallet")}
+                  onClick={() => navigate("/app/finance-and-wallet")}
                 >
                   Cancel
                 </Button>

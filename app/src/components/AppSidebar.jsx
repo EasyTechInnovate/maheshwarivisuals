@@ -14,38 +14,38 @@ const AppSidebar = () => {
     {
       title: "MAIN",
       items: [
-        { icon: Home, label: "Dashboard", url: "/user" },
-        { icon: User, label: "Profile", url: "/user/profile" },
-        { icon: Calendar, label: "My Plan", url: "/user/plan" },
-        { icon: Upload, label: "Upload Release", url: "/user/upload-release" },
-        { icon: Grid3x3, label: "Catalog", url: "/user/catalog" }
+        { icon: Home, label: "Dashboard", url: "/app" },
+        { icon: User, label: "Profile", url: "/app/profile" },
+        { icon: Calendar, label: "My Plan", url: "/app/plan" },
+        { icon: Upload, label: "Upload Release", url: "/app/upload-release" },
+        { icon: Grid3x3, label: "Catalog", url: "/app/catalog" }
       ]
     },
     {
       title: "BUSINESS", 
       items: [
-        { icon: Users, label: "Join MCN", url: "/user/youtube-mcn" },
-        { icon: BarChart3, label: "Analytics", url: "/user/analytics" },
-        { icon: DollarSign, label: "Royalties", url: "/user/royalties" },
-        { icon: Wallet, label: "Finance & Wallet", url: "/user/finance-and-wallet" }
+        { icon: Users, label: "Join MCN", url: "/app/youtube-mcn" },
+        { icon: BarChart3, label: "Analytics", url: "/app/analytics" },
+        { icon: DollarSign, label: "Royalties", url: "/app/royalties" },
+        { icon: Wallet, label: "Finance & Wallet", url: "/app/finance-and-wallet" }
       ]
     },
     {
       title: "MARKETING",
       items: [
-        { icon: Megaphone, label: "MV Marketing", url: "/user/mv-marketing" },
-        { icon: Megaphone, label: "Advertisement", url: "/user/advertisement" },
-        { icon: Video, label: "MV Production", url: "/user/mv-production" },
-        { icon: Wrench, label: "Fan Links Builder", url: "/user/fan-links" },
-        { icon: Store, label: "Merch Store", url: "/user/merch" }
+        { icon: Megaphone, label: "MV Marketing", url: "/app/mv-marketing" },
+        { icon: Megaphone, label: "Advertisement", url: "/app/advertisement" },
+        { icon: Video, label: "MV Production", url: "/app/mv-production" },
+        { icon: Wrench, label: "Fan Links Builder", url: "/app/fan-links" },
+        { icon: Store, label: "Merch Store", url: "/app/merch" }
       ]
     },
     {
       title: "TOOLS",
       items: [
-        { icon: Bot, label: "AI Mastering", url: "/user/ai-mastering" },
-        { icon: HelpCircle, label: "Help & Support", url: "/user/help" },
-        { icon: Settings, label: "Settings", url: "/user/settings" }
+        { icon: Bot, label: "AI Mastering", url: "/app/ai-mastering" },
+        { icon: HelpCircle, label: "Help & Support", url: "/app/help" },
+        { icon: Settings, label: "Settings", url: "/app/settings" }
       ]
     }
   ];

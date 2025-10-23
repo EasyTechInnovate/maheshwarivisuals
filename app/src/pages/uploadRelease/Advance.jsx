@@ -974,7 +974,7 @@ const AdvancedReleaseBuilder = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
-            <Button onClick={()=>navigate('/user/upload-release/')} variant="outline" size="sm" className="p-2">
+            <Button onClick={()=>navigate('/app/upload-release/')} variant="outline" size="sm" className="p-2">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
@@ -1028,7 +1028,7 @@ const AdvancedReleaseBuilder = () => {
           <div className="flex space-x-4">
             <Button 
               variant="outline" 
-              onClick={() => navigate('/user/upload-release')}
+              onClick={() => navigate('/app/upload-release')}
             >
               Cancel
             </Button>
