@@ -2,6 +2,8 @@ import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Index from './pages/Index'
 import Dashboard from './pages/dashboard/Dashboard'
+import Profile from './pages/profile/Profile'
+import Plan from './pages/plan/Plan'
 import UploadRelease from './pages/uploadRelease/UploadRelease'
 import CatalogPage from './pages/catalog/Catalog'
 import Analytics from './pages/analytics/Analytics'
@@ -25,6 +27,8 @@ const App = () => {
       <Routes>
         <Route path='/app' element={<Index />}>
           <Route index element={<Dashboard />} />
+          <Route path='profile' element={<Profile />} />
+          <Route path='plan' element={<Plan />} />
           <Route path='upload-release' element={<UploadRelease />} />
           <Route path='upload-release/basic-release-builder' element={<BasicReleaseBuilder />} />
           <Route path='upload-release/advanced-release-builder' element={<AdvancedReleaseBuilder />} />
