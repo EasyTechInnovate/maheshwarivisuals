@@ -1,45 +1,104 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import {
-  subscriptionStats,
-  subscriptionPlans,
-} from "./SubscriptionPlansData";
-import SubscriptionCard from "@/components/SubscriptionCard";
-import SubscriberTable from "@/components/SubscriberTable";
-import CreateSubscriptionPlanModal from "./SubscriptionPlanModal"; // Import the modal component
+import { subscriptionStats } from "./SubscriptionPlansData";
+import SubscriptionCard from "@/components/subscription-plans/SubscriptionCard";
+import SubscriberTable from "@/components/subscription-plans/SubscriberTable";
+import CreateSubscriptionPlanModal from "../../components/subscription-plans/SubscriptionPlanModal";
+import GlobalApi from "@/lib/GlobalApi";
+import { toast } from "sonner";
 
 export default function SubscriptionPlans({ theme }) {
   const isDark = theme === "dark";
-  const [plans, setPlans] = useState(subscriptionPlans);
+  const [plans, setPlans] = useState([]);
   const [activeTab, setActiveTab] = useState("Everyone");
-  const [editingPlanId, setEditingPlanId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
-  const handleDelete = (id) => {
-    setPlans((prev) => prev.filter((p) => p.id !== id));
+  
+  useEffect(() => {
+    fetchPlans();
+  }, []);
+
+  const fetchPlans = async () => {
+    try {
+      const res = await GlobalApi.getSubscriptionPlans(true);
+      if (res.data?.data?.plans) {
+        const normalized = res.data.data.plans.map((p) => ({
+          ...p,
+          id: p.id ?? p._id,
+        }));
+        setPlans(normalized);
+      }
+    } catch (err) {
+      console.error("Failed to fetch plans:", err);
+      toast.error("Failed to load subscription plans");
+    }
   };
 
-  const handleEdit = (id, field, value) => {
-    setPlans((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, [field]: value } : p))
-    );
-    setEditingPlanId(null);
+ 
+  const handleDelete = async (planId) => {
+    try {
+      await GlobalApi.deletePlan(planId);
+      setPlans((prev) => prev.filter((p) => p.planId !== planId));
+      toast.success(`Deleted plan successfully`);
+    } catch (err) {
+      console.error("Delete failed:", err);
+      toast.error(
+        err.response?.data?.message || "Failed to delete the subscription plan"
+      );
+    }
   };
 
-  const handleToggle = (id, value) => {
-    setPlans((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, active: value } : p))
-    );
+  
+  const handleToggle = async (planId, value) => {
+    try {
+      if (value) {
+        await GlobalApi.activatePlan(planId);
+      } else {
+        await GlobalApi.deactivatePlan(planId);
+      }
+
+      setPlans((prev) =>
+        prev.map((p) =>
+          p.planId === planId ? { ...p, active: value, isActive: value } : p
+        )
+      );
+
+      toast.success(`Plan ${value ? "activated" : "deactivated"} successfully`);
+    } catch (err) {
+      console.error("Toggle failed:", err);
+      toast.error("Failed to update plan status");
+    }
+  };
+
+
+  
+  const openCreateModal = () => {
+    setSelectedPlan(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (plan) => {
+    setSelectedPlan(plan);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedPlan(null);
+    fetchPlans();
   };
 
   return (
     <div
       className={`p-4 md:p-6 space-y-6 ${
-        isDark ? "bg-[#111A22] text-gray-200" : "bg-gray-50 text-[#151F28]"
+        isDark
+          ? "bg-[#111A22] text-gray-200"
+          : "bg-gray-50 text-[#151F28]"
       }`}
     >
-      {/* Header */}
+      
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Subscription Plans</h1>
@@ -53,13 +112,13 @@ export default function SubscriptionPlans({ theme }) {
         </div>
         <Button
           className="bg-purple-600 hover:bg-purple-700 text-white px-4 flex items-center gap-2"
-          onClick={() => setIsModalOpen(true)} // Open modal on click
+          onClick={openCreateModal}
         >
           <Plus className="h-4 w-4" /> Create New Plan
         </Button>
       </div>
 
-      {/* Stats */}
+     
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {subscriptionStats.map((stat, i) => (
           <div
@@ -83,7 +142,7 @@ export default function SubscriptionPlans({ theme }) {
         ))}
       </div>
 
-      {/* Tabs */}
+      
       <div
         className={`flex items-center rounded-lg overflow-hidden ${
           isDark ? "bg-[#151F28]" : "bg-gray-200"
@@ -106,7 +165,7 @@ export default function SubscriptionPlans({ theme }) {
         ))}
       </div>
 
-      {/* Content Switch */}
+      
       {activeTab === "Subscribers" ? (
         <SubscriberTable isDark={isDark} />
       ) : (
@@ -116,30 +175,28 @@ export default function SubscriptionPlans({ theme }) {
               <SubscriptionCard
                 plan={plan}
                 isDark={isDark}
-                editingPlanId={editingPlanId}
-                setEditingPlanId={setEditingPlanId}
-                handleEdit={handleEdit}
                 handleDelete={handleDelete}
                 handleToggle={handleToggle}
+                handleEdit={openEditModal}
               />
             </div>
           ))}
         </div>
       )}
 
-      {/* Create Plan Modal */}
-     <CreateSubscriptionPlanModal
-  isOpen={isModalOpen}
-  onClose={() => setIsModalOpen(false)}
-  theme={theme}
-  categories={[
-    { id: 1, name: "Everyone" },
-    { id: 2, name: "Artists" },
-    { id: 3, name: "Labels" },
-    { id: 4, name: "Subscribers" },
-  ]}
-/>
-
+      
+      <CreateSubscriptionPlanModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        theme={theme}
+        planData={selectedPlan}
+        categories={[
+          { id: 1, name: "Everyone" },
+          { id: 2, name: "Artists" },
+          { id: 3, name: "Labels" },
+          { id: 4, name: "Subscribers" },
+        ]}
+      />
     </div>
   );
 }

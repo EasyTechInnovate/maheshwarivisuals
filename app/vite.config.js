@@ -5,7 +5,7 @@ import path from "path"
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/user',
+  base: '/app',
   server: {
     host: true,
     port: 8000,
@@ -13,7 +13,7 @@ export default defineConfig({
       usePolling: true,
     },
   },
-    resolve: {
+  resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },

@@ -85,7 +85,7 @@ const ProtectedRoutes = () => {
 
   return (
     <Routes>
-      <Route path='/user' element={<Index/>}>
+      <Route path='/app' element={<Index/>}>
         <Route index element={<Dashboard/>}/>
         <Route path='upload-release' element={<UploadRelease/>}/>
         <Route path='upload-release/basic-release-builder' element={<BasicReleaseBuilder/>}/>
