@@ -985,7 +985,7 @@ const BasicReleaseBuilder = () => {
 
   const goBack = () => {
     // Navigate back to upload release page
-    console.log('Navigate back to /user/upload-release');
+    console.log('Navigate back to /app/upload-release');
   };
 
   return (
@@ -997,7 +997,7 @@ const BasicReleaseBuilder = () => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => navigate('/user/upload-release')} 
+              onClick={() => navigate('/app/upload-release')} 
               className="p-2"
             >
               <ArrowLeft className="w-5 h-5" />

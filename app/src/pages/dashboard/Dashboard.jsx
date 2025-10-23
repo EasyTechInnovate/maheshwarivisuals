@@ -20,7 +20,7 @@ const Dashboard = () => {
         </div>
 
         {/* Upload Release Button */}
-        <a href="/user/upload-release">
+        <a href="/app/upload-release">
         <Button className="bg-purple-600 hover:bg-purple-700 text-white" >
           <Upload className="w-4 h-4 mr-2" />
           Upload Release

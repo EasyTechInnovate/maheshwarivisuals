@@ -128,7 +128,7 @@ export default function YouTubeMCNRequest() {
           variant="outline" 
           className="mt-2 border-gray-600  hover:bg-gray-800" 
           size="icon" 
-          onClick={()=> navigate('/user/youtube-mcn')}
+          onClick={()=> navigate('/app/youtube-mcn')}
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>

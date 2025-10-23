@@ -102,7 +102,7 @@ servicesAxiosInstance.interceptors.response.use(
                 processQueue(refreshError, null);
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
-                window.location.href = '/user/login';
+                window.location.href = '/app/login';
                 return Promise.reject(refreshError);
             } finally {
                 isRefreshing = false;
