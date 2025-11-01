@@ -1,7 +1,8 @@
 import React from 'react'
 import {  
   Music, Home, User, Calendar, Upload, Grid3x3, Users, BarChart3, DollarSign, 
-  Wallet, Megaphone, Video, Wrench, Store, Bot, HelpCircle, Settings
+  Wallet, Megaphone, Video, Wrench, Store, Bot, HelpCircle, Settings,
+  BotMessageSquare
 } from 'lucide-react';
 import { 
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, 
@@ -44,6 +45,7 @@ const AppSidebar = () => {
       title: "TOOLS",
       items: [
         { icon: Bot, label: "AI Mastering", url: "/app/ai-mastering" },
+        { icon: BotMessageSquare, label: "Mahi AI", url: "/app/mahi-ai" },
         { icon: HelpCircle, label: "Help & Support", url: "/app/help" },
         { icon: Settings, label: "Settings", url: "/app/settings" }
       ]

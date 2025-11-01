@@ -18,6 +18,7 @@ import HelpSupport from './pages/helpSupport/HelpSupport'
 import SettingsPage from './pages/setting/Setting'
 import BasicReleaseBuilder from './pages/uploadRelease/Basic'
 import AdvancedReleaseBuilder from './pages/uploadRelease/Advance'
+import MahiAI from './pages/mahiAI/MahiAI'
 
 const App = () => {
   return (
@@ -39,6 +40,7 @@ const App = () => {
           <Route path='mv-marketing' element={<MVMarketing />} />
           <Route path='advertisement' element={<Advertisement />} />
           <Route path='merch' element={<MerchStore />} />
+          <Route path='mahi-ai' element={<MahiAI />} />
           <Route path='help' element={<HelpSupport />} />
           <Route path='settings' element={<SettingsPage />} />
         </Route>
