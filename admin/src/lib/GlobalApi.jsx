@@ -143,6 +143,78 @@ const createTrendingLabel = (payload) =>
 
 
 
+// ---------------------- Testimonials (Admin) ----------------------
+
+const getAllTestimonials = (page = 1, limit = 10) =>
+  axiosClient.get(`/v1/admin/testimonials?page=${page}&limit=${limit}`);
+
+const createTestimonial = (payload) =>
+  axiosClient.post(`/v1/admin/testimonials`, payload);
+
+const getTestimonialById = (testimonialId) =>
+  axiosClient.get(`/v1/admin/testimonials/${testimonialId}`);
+
+const updateTestimonial = (testimonialId, payload) =>
+  axiosClient.put(`/v1/admin/testimonials/${testimonialId}`, payload);
+
+const updateTestimonialStatus = (testimonialId, payload) =>
+  axiosClient.patch(`/v1/admin/testimonials/${testimonialId}/status`, payload);
+
+const deleteTestimonial = (testimonialId) =>
+  axiosClient.delete(`/v1/admin/testimonials/${testimonialId}`);
+
+
+
+// ---------------------- MCN Admin ----------------------
+
+
+const getMcnRequests = (page = 1, limit = 10) =>
+  axiosClient.get(`/v1/mcn/admin/requests?page=${page}&limit=${limit}`);
+
+const getPendingMcnRequests = () =>
+  axiosClient.get("/v1/mcn/admin/requests/pending");
+
+const reviewMcnRequest = (requestId, data) =>
+  axiosClient.post(`/v1/mcn/admin/requests/${requestId}/review`, data);
+
+const createMcnChannel = (requestId) =>
+  axiosClient.post(`/v1/mcn/admin/requests/${requestId}/create-channel`);
+
+const getMcnChannels = (page = 1, limit = 10) =>
+  axiosClient.get(`/v1/mcn/admin/channels?page=${page}&limit=${limit}`);
+
+const updateMcnChannelStatus = (channelId, data) =>
+  axiosClient.patch(`/v1/mcn/admin/channels/${channelId}/status`, data);
+
+
+
+// ---------------------- Team Members (Admin) ----------------------
+
+const createTeamMember = (payload) =>
+  axiosClient.post(`/v1/admin/team-members`, payload);
+
+const getAllTeamMembers = (page = 1, limit = 10) =>
+  axiosClient.get(`/v1/admin/team-members?page=${page}&limit=${limit}`);
+
+const getTeamMemberById = (teamMemberId) =>
+  axiosClient.get(`/v1/admin/team-members/${teamMemberId}`);
+
+const updateTeamMember = (teamMemberId, payload) =>
+  axiosClient.put(`/v1/admin/team-members/${teamMemberId}`, payload);
+
+const updateTeamMemberStatus = (teamMemberId, payload) =>
+  axiosClient.patch(`/v1/admin/team-members/${teamMemberId}/status`, payload);
+
+const deleteTeamMember = (teamMemberId) =>
+  axiosClient.delete(`/v1/admin/team-members/${teamMemberId}`);
+
+const resendTeamInvitation = (teamMemberId) =>
+  axiosClient.post(`/v1/admin/team-members/${teamMemberId}/resend-invitation`);
+
+
+const getTeamStatistics = () =>
+  axiosClient.get(`/v1/admin/team-members/statistics`);
+
 
 export default {
   getHealth,
@@ -171,4 +243,24 @@ export default {
   deleteTrendingLabel,
   createTrendingLabel,
   getAllTrendingLabels,
+  getAllTestimonials,
+  createTestimonial,
+  getTestimonialById,
+  updateTestimonial,
+  updateTestimonialStatus,
+  deleteTestimonial,
+  getMcnRequests,
+  getPendingMcnRequests,
+  reviewMcnRequest,
+  createMcnChannel,
+  getMcnChannels,
+  updateMcnChannelStatus,
+  createTeamMember,
+  getAllTeamMembers,
+  getTeamMemberById,
+  updateTeamMember,
+  updateTeamMemberStatus,
+  deleteTeamMember,
+  resendTeamInvitation,
+  getTeamStatistics,
 };

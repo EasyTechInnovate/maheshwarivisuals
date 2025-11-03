@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Toaster } from "sonner";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
+import Header from "./components/common/Header";
+import Sidebar from "./components/common/Sidebar";
 import Dashboard from "./pages/dashboard/Dashboard";
 import UserManagement from "./pages/user-management/UserManagement";
 import ReleaseManagement from "./pages/release-management/ReleaseManagement";
@@ -40,10 +40,10 @@ function App() {
 
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
-  // Check if we're on login page
+
   const isLoginPage = location.pathname === "/admin/login";
 
-  // If on login page, show only the login
+
   if (isLoginPage) {
     return (
       <div>
@@ -52,7 +52,7 @@ function App() {
     );
   }
 
-  // Otherwise, render dashboard layout
+
   return (
     <div className={`flex h-screen overflow-hidden ${theme === "dark" ? "bg-[#111A22] text-white" : "bg-gray-100 text-black"}`}>
       {sidebarOpen && (
@@ -63,7 +63,7 @@ function App() {
         />
       )}
 
-      {/* Sidebar */}
+
       <aside
         className={[
           "fixed inset-y-0 left-0 z-40 transform transition-transform duration-300",
@@ -78,7 +78,7 @@ function App() {
         <Sidebar isCollapsed={!sidebarOpen} theme={theme} />
       </aside>
 
-      {/* Main Content */}
+
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         <Header
           onToggleSidebar={() => setSidebarOpen((s) => !s)}
@@ -121,7 +121,7 @@ function App() {
           </Routes>
         </main>
       </div>
-       <Toaster position="top-right" richColors theme={theme === "dark" ? "dark" : "light"} />
+      <Toaster position="top-right" richColors theme={theme === "dark" ? "dark" : "light"} />
     </div>
   );
 }
