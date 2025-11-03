@@ -99,7 +99,7 @@ export default function FinanceWallet() {
           </Button>
           <Button
             className="gap-2 bg-[#711CE9] text-white hover:bg-[#6f14ef]"
-            onClick={() => navigate("/user/finance-and-wallet/withdraw-fund")}
+            onClick={() => navigate("/app/finance-and-wallet/withdraw-fund")}
           >
             <ArrowDownLeft className="h-4 w-4 " />
             Withdraw Funds

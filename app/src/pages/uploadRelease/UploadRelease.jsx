@@ -19,7 +19,7 @@ const UploadRelease = () => {
           {/* Basic Release Builder Card */}
           <div 
             className="relative  border-2 border-dashed border-slate-600 rounded-lg p-12 hover:border-slate-500 transition-colors cursor-pointer group"
-            onClick={() => navigate('/user/upload-release/basic-release-builder')}
+            onClick={() => navigate('/app/upload-release/basic-release-builder')}
           >
             <div className="flex flex-col items-center justify-center text-center h-48">
               <div className="mb-6">
@@ -32,7 +32,7 @@ const UploadRelease = () => {
           {/* Advanced Release Builder Card */}
           <div 
             className="relative  border-2 border-dashed border-slate-600 rounded-lg p-12 hover:border-slate-500 transition-colors cursor-pointer group"
-            onClick={() => navigate('/user/upload-release/advanced-release-builder')}
+            onClick={() => navigate('/app/upload-release/advanced-release-builder')}
           >
             <div className="flex flex-col items-center justify-center text-center h-48">
               <div className="mb-6">

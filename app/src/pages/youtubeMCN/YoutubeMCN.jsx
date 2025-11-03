@@ -90,7 +90,7 @@ export default function YouTubeMCN() {
           <h1 className="text-2xl font-bold">YouTube MCN</h1>
           <p className="text-muted-foreground">Create and manage marketing campaigns for your music</p>
         </div>
-        <Button onClick={() => navigate('/user/youtube-mcn/new-request')} className="bg-[#711CE9] hover:bg-[#6f14ef] text-white">
+        <Button onClick={() => navigate('/app/youtube-mcn/new-request')} className="bg-[#711CE9] hover:bg-[#6f14ef] text-white">
           + New Request
         </Button>
       </div>
