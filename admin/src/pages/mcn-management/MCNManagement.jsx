@@ -22,12 +22,25 @@ export default function MCNManagement({ theme = "dark" }) {
   const [activeTab, setActiveTab] = useState("request");
   const [selectedUser, setSelectedUser] = useState(null);
 
-
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [viewData, setViewData] = useState(null);
   const [processing, setProcessing] = useState(false);
 
- 
+
+  const [stats, setStats] = useState(null);
+  const fetchStats = async () => {
+    try {
+      const res = await GlobalApi.getMcnStats();
+      const data = res?.data?.data || null;
+      setStats(data);
+    } catch (err) {
+      console.error("❌ Error fetching MCN stats:", err);
+
+      toast.error(err?.response?.data?.message || err?.message || "Failed to fetch stats");
+      setStats(null);
+    }
+  };
+
   const fetchRequests = async () => {
     try {
       setLoading(true);
@@ -38,7 +51,12 @@ export default function MCNManagement({ theme = "dark" }) {
         id: r._id,
         channelName: r.youtubeChannelName,
         subscribers: r.subscriberCount,
-        month: new Date(r.createdAt).toLocaleString("default", { month: "long" }),
+        submittedAt: new Date(r.createdAt).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        }),
+        accountId: r.userAccountId || "-",
         totalViews28d: r.totalViewsCountsIn28Days,
         adSenseEnabled: r.isAdSenseEnabled ? "Yes" : "No",
         copyrightStrikes: r.hasCopyrightStrikes ? "Yes" : "No",
@@ -54,7 +72,6 @@ export default function MCNManagement({ theme = "dark" }) {
 
       setRows(formatted);
 
-     
       const totalRecords = apiData.length;
       const totalUnits = apiData.reduce((sum, r) => sum + (r.subscriberCount || 0), 0);
       const totalRevenue = apiData.reduce((sum, r) => sum + (r.channelRevenueLastMonth || 0), 0);
@@ -71,8 +88,17 @@ export default function MCNManagement({ theme = "dark" }) {
   };
 
   useEffect(() => {
+
     fetchRequests();
+    fetchStats();
+
   }, []);
+
+
+  useEffect(() => {
+    fetchStats();
+
+  }, [activeTab]);
 
   const handleApprove = async (id, adminNotes) => {
     try {
@@ -120,6 +146,38 @@ export default function MCNManagement({ theme = "dark" }) {
     );
   }, [rows, search]);
 
+
+  const getTopStats = () => {
+
+    const s = stats || {};
+    const revenueFromRequests = s.revenue?.totalRevenue ?? 0;
+    const requestsObj = s.requests || {};
+    const channelsActive = s.channels?.active || {};
+    const revenueChannelsActive = channelsActive.totalRevenue ?? 0;
+    const countChannelsActive = channelsActive.count ?? 0;
+    const avgRevenueShare = channelsActive.avgRevenueShare ?? 0;
+    const totalChannels = s.revenue?.totalChannels ?? 0;
+
+    if (activeTab === "active") {
+      return [
+        { label: "Active Channels", value: countChannelsActive },
+        { label: "Total Revenue", value: revenueChannelsActive, highlight: true },
+        { label: "Avg Revenue Share", value: `${avgRevenueShare !== null ? String(avgRevenueShare) : "-"}%` },
+        { label: "Total Channels", value: totalChannels },
+      ];
+    }
+
+
+    return [
+      { label: "Approved", value: requestsObj.approved ?? 0 },
+      { label: "Pending", value: requestsObj.pending ?? 0 },
+      { label: "Rejected", value: requestsObj.rejected ?? 0 },
+      { label: "Total Revenue", value: revenueFromRequests, highlight: true },
+    ];
+  };
+
+  const topStats = getTopStats();
+
   const bgMain = isDark ? "bg-[#111A22] text-slate-300" : "bg-gray-50 text-[#151F28]";
   const cardBg = isDark ? "bg-[#151F28]" : "bg-white";
   const borderColor = isDark ? "border-[#12212a]" : "border-gray-300";
@@ -141,7 +199,7 @@ export default function MCNManagement({ theme = "dark" }) {
   return (
     <div className={`${bgMain} min-h-screen p-4 md:p-6`}>
       <div className="max-w-[1200px] mx-auto space-y-6">
-       
+
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold">MCN Management</h1>
@@ -152,9 +210,8 @@ export default function MCNManagement({ theme = "dark" }) {
           <div className="flex items-center gap-3">
             <button
               onClick={() => alert("Import CSV/Excel (mock)")}
-              className={`px-3 py-2 rounded-md border ${borderColor} ${
-                isDark ? "bg-transparent" : "bg-white"
-              } text-sm inline-flex items-center gap-2`}
+              className={`px-3 py-2 rounded-md border ${borderColor} ${isDark ? "bg-transparent" : "bg-white"
+                } text-sm inline-flex items-center gap-2`}
             >
               <Upload className="w-4 h-4" /> Import CSV/Excel
             </button>
@@ -167,43 +224,49 @@ export default function MCNManagement({ theme = "dark" }) {
           </div>
         </div>
 
-       
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: "Total Records", value: statsData.totalRecords },
-            { label: "Total Units", value: statsData.totalUnits.toLocaleString("en-IN") },
-            {
-              label: "Total Revenue",
-              value: formatINR(statsData.totalRevenue),
-              highlight: true,
-            },
-            { label: "Active Records", value: statsData.activeRecords },
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className={`rounded-lg p-4 ${cardBg} border ${borderColor} shadow-sm`}
-            >
-              <div className="flex items-center justify-between">
-                <p className={`text-sm ${textMuted}`}>{item.label}</p>
-                {item.label === "Total Revenue" && (
-                  <Info className="w-4 h-4 opacity-60" />
-                )}
-              </div>
-              <p
-                className={`text-2xl font-semibold mt-2 ${
-                  item.highlight ? "text-emerald-400" : textColor
-                }`}
+          {topStats.map((item, idx) => {
+
+            const isRevenueLabel = item.label.toLowerCase().includes("revenue");
+            let displayValue = item.value;
+            if (isRevenueLabel) {
+              displayValue =
+                typeof item.value === "number" ? formatINR(item.value) : String(item.value || "-");
+            } else {
+
+              if (typeof item.value === "number") {
+                displayValue = item.value.toLocaleString("en-IN");
+              } else {
+                displayValue = String(item.value ?? "-");
+              }
+            }
+
+            return (
+              <div
+                key={idx}
+                className={`rounded-lg p-4 ${cardBg} border ${borderColor} shadow-sm`}
               >
-                {item.value}
-              </p>
-            </div>
-          ))}
+                <div className="flex items-center justify-between">
+                  <p className={`text-sm ${textMuted}`}>{item.label}</p>
+                  {item.label === "Total Revenue" && (
+                    <Info className="w-4 h-4 opacity-60" />
+                  )}
+                </div>
+                <p
+                  className={`text-2xl font-semibold mt-2 ${item.highlight ? "text-emerald-400" : textColor
+                    }`}
+                >
+                  {displayValue}
+                </p>
+              </div>
+            );
+          })}
         </div>
 
-      
         <div className={`rounded-md p-4 ${cardBg} border ${borderColor}`}>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-           
+
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 h-4 w-4 opacity-60" />
               <input
@@ -214,7 +277,6 @@ export default function MCNManagement({ theme = "dark" }) {
               />
             </div>
 
-          
             <div className="flex flex-wrap items-center gap-3">
               <select className={`text-sm px-3 py-2 rounded-md border ${inputBg}`} defaultValue="all">
                 <option value="all">All Licenses</option>
@@ -248,31 +310,27 @@ export default function MCNManagement({ theme = "dark" }) {
           </div>
         </div>
 
-       
         <div className="w-full flex justify-center">
           <div
             className={`inline-flex rounded-full overflow-hidden border ${borderColor} w-[500px]`}
           >
             <button
               onClick={() => setActiveTab("request")}
-              className={`flex-1 py-2 text-sm font-medium ${
-                activeTab === "request" ? tabActive : tabInactive
-              }`}
+              className={`flex-1 py-2 text-sm font-medium ${activeTab === "request" ? tabActive : tabInactive
+                }`}
             >
               Request
             </button>
             <button
               onClick={() => setActiveTab("active")}
-              className={`flex-1 py-2 text-sm font-medium ${
-                activeTab === "active" ? tabActive : tabInactive
-              }`}
+              className={`flex-1 py-2 text-sm font-medium ${activeTab === "active" ? tabActive : tabInactive
+                }`}
             >
               Active Channel
             </button>
           </div>
         </div>
 
-     
         <AnimatePresence mode="wait">
           {activeTab === "active" && (
             <motion.div
@@ -305,8 +363,9 @@ export default function MCNManagement({ theme = "dark" }) {
                       <tr>
                         {[
                           "YouTube Channel Name",
+                          "Account ID",
                           "Subscribers",
-                          "Month",
+                          "Submitted On",
                           "Total Views (28d)",
                           "AdSense Enabled?",
                           "Copyright Strikes?",
@@ -326,8 +385,9 @@ export default function MCNManagement({ theme = "dark" }) {
                       {filteredRows.map((r) => (
                         <tr key={r.id} className={`border-t ${borderColor} ${rowHover}`}>
                           <td className="px-4 py-3">{r.channelName}</td>
+                          <td className="px-4 py-3">{r.accountId}</td>
                           <td className="px-4 py-3">{r.subscribers?.toLocaleString("en-IN")}</td>
-                          <td className="px-4 py-3">{r.month}</td>
+                          <td className="px-4 py-3">{r.submittedAt}</td>
                           <td className="px-4 py-3 text-center">{r.totalViews28d?.toLocaleString("en-IN")}</td>
                           <td className="px-4 py-3 text-center">{r.adSenseEnabled}</td>
                           <td className="px-4 py-3 text-center">{r.copyrightStrikes}</td>
@@ -336,11 +396,10 @@ export default function MCNManagement({ theme = "dark" }) {
                           <td className="px-4 py-3 text-center">{r.lastMonthRevenue?.toLocaleString("en-IN")}</td>
                           <td className="px-4 py-3 text-center">
                             <span
-                              className={`inline-block px-3 py-1 rounded-full text-xs ${
-                                r.monetizationEligibility === "Eligible"
-                                  ? "bg-emerald-700/20 text-emerald-400"
-                                  : "bg-gray-300 text-gray-700"
-                              }`}
+                              className={`inline-block px-3 py-1 rounded-full text-xs ${r.monetizationEligibility === "Eligible"
+                                ? "bg-emerald-700/20 text-emerald-400"
+                                : "bg-gray-300 text-gray-700"
+                                }`}
                             >
                               {r.monetizationEligibility}
                             </span>
@@ -395,7 +454,6 @@ export default function MCNManagement({ theme = "dark" }) {
         </AnimatePresence>
       </div>
 
-     
       <MCNRequestViewModal
         open={isViewOpen}
         onClose={() => setIsViewOpen(false)}

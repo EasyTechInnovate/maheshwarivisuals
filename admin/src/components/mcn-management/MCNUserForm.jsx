@@ -25,7 +25,7 @@ export default function MCNInfoForm({
   saveUser = null,
   deleteUser = null,
   exportCSV = null,
-  onBack = null, // <-- NEW
+  onBack = null,
 }) {
   const isDark = theme === "dark";
 
@@ -127,7 +127,7 @@ export default function MCNInfoForm({
   return (
     <div className={`${bg} p-6 min-h-screen`}>
       <div className="max-w-[1200px] mx-auto space-y-6">
-        {/* Header */}
+       
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {onBack && (
@@ -161,15 +161,15 @@ export default function MCNInfoForm({
           </div>
         </div>
 
-        {/* The form card */}
+      
         <div className={`rounded-xl p-6 ${card} border ${border} shadow`}>
           {loading ? (
             <div className="py-10 text-center">Loading...</div>
           ) : (
             <>
-              {/* Two column layout */}
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Left */}
+               
                 <div className="space-y-4">
                   <LabeledInput label="YouTube Channel Name" value={safe(data?.channelName)} onChange={(v) => setField("channelName", v)} />
                   <LabeledInput label="Subscribers Count" value={safe(data?.subscribersCount)} onChange={(v) => setField("subscribersCount", v)} />
@@ -179,7 +179,7 @@ export default function MCNInfoForm({
                   <LabeledInput label="YouTube Channel Revenue in Last Month" value={safe(data?.revenueMonth)} onChange={(v) => setField("revenueMonth", v)} />
                 </div>
 
-                {/* Right */}
+               
                 <div className="space-y-4">
                   <LabeledInput label="YouTube Channel Link" value={safe(data?.channelLink)} onChange={(v) => setField("channelLink", v)} />
                   <LabeledInput label="Total Views in past 28 days" value={safe(data?.totalViews28d)} onChange={(v) => setField("totalViews28d", v)} />
@@ -190,7 +190,7 @@ export default function MCNInfoForm({
                 </div>
               </div>
 
-              {/* Supporting Materials */}
+             
               <div className="mt-6">
                 <h3 className="text-lg font-semibold">Supporting Materials</h3>
                 <p className={`text-sm ${muted} mt-1`}>
@@ -202,7 +202,7 @@ export default function MCNInfoForm({
                 </div>
               </div>
 
-              {/* Save + Delete */}
+            
               <div className="mt-8 flex items-center justify-center gap-4">
                 <button onClick={handleSave} disabled={saving} className="px-12 py-3 rounded-full bg-gradient-to-r from-[#7c3aed] to-[#6d28d9] text-white font-medium shadow">
                   {saving ? "Saving..." : "Save"}

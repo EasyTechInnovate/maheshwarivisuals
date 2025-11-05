@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Download, MoreHorizontal, Music, Lock, Upload } from "lucide-react";
+import ManageLabelsModal from "@/components/user-management/ManageLabelsModal";
 
 import { users as mockUsers } from "./UserData";
-import UserInfoPage from "./UserModal"; 
+import UserInfoPage from "../../components/user-management/UserModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +17,9 @@ export default function UserManagement({ theme }) {
   const isDark = theme === "dark";
   const [search, setSearch] = useState("");
   const [users, setUsers] = useState(mockUsers);
+  const [isManageLabelsOpen, setIsManageLabelsOpen] = useState(false);
+  const [selectedLabelData, setSelectedLabelData] = useState([]);
+
 
   const [activePage, setActivePage] = useState("list"); // list | userInfo
   const [selectedUser, setSelectedUser] = useState(null);
@@ -50,9 +54,21 @@ export default function UserManagement({ theme }) {
 
   const handleSave = (formData) => {
     console.log("Saving user data:", formData);
-   
+
     setActivePage("list");
   };
+
+  const handleManageLabels = (user) => {
+    // Example mock data - replace this later with actual label API data for the user
+    const labelData = [
+      { stageName: "Artist One", status: "Active", display: true },
+      { stageName: "Artist Two", status: "Inactive", display: false },
+    ];
+    setSelectedUser(user);
+    setSelectedLabelData(labelData);
+    setIsManageLabelsOpen(true);
+  };
+
 
   if (activePage === "userInfo") {
     return (
@@ -160,9 +176,14 @@ export default function UserManagement({ theme }) {
                     <Button size="sm" className="bg-purple-600 text-white flex items-center gap-1 rounded-full px-3">
                       <Music className="h-4 w-4" /> Manage Release
                     </Button>
-                    <Button size="sm" className="bg-purple-600 text-white rounded-full px-3">
+                    <Button
+                      size="sm"
+                      className="bg-purple-600 text-white rounded-full px-3"
+                      onClick={() => handleManageLabels(user)}
+                    >
                       Manage Label
                     </Button>
+
                     <Button size="sm" className="bg-purple-600 text-white flex items-center gap-1 rounded-full px-3">
                       <Lock className="h-4 w-4" /> Reset Password
                     </Button>
@@ -171,18 +192,17 @@ export default function UserManagement({ theme }) {
                     </Button>
 
 
-    <DropdownMenu>
+                    <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button size="icon" variant="ghost">
                           <MoreHorizontal className="h-5 w-5" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
-                        className={`${
-                          isDark
-                            ? "bg-[#151F28] border border-gray-700 text-gray-200"
-                            : "bg-white border border-gray-200 text-gray-800"
-                        } rounded-lg shadow-md`}
+                        className={`${isDark
+                          ? "bg-[#151F28] border border-gray-700 text-gray-200"
+                          : "bg-white border border-gray-200 text-gray-800"
+                          } rounded-lg shadow-md`}
                       >
                         <DropdownMenuItem>KYC Details</DropdownMenuItem>
                         <DropdownMenuItem className="text-red-500">
@@ -198,6 +218,16 @@ export default function UserManagement({ theme }) {
           </tbody>
         </table>
       </div>
+      <ManageLabelsModal
+        isOpen={isManageLabelsOpen}
+        onClose={() => setIsManageLabelsOpen(false)}
+        data={selectedLabelData}
+        theme={theme}
+        userId={selectedUser?.id}
+        userName={selectedUser?.stageName}
+      />
+
+
     </div>
   );
 }

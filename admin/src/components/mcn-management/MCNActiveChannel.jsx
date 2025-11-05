@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import GlobalApi from "@/lib/GlobalApi";
 import CreateMCNChannelModal from "./CreateMCNChannel";
 import { toast } from "sonner";
+import UpdateMCNChannelStatusModal from "./UpdateMCNChannelStatusModal";
+
 
 export default function ActiveChannelTable({ theme = "dark", onRowClick }) {
   const isDark = theme === "dark";
@@ -20,13 +22,18 @@ export default function ActiveChannelTable({ theme = "dark", onRowClick }) {
   const [channels, setChannels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newChannel, setNewChannel] = useState(null);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+const [selectedChannel, setSelectedChannel] = useState(null);
 
-  // Pagination
+
+
+ 
   const [currentPage, setCurrentPage] = useState(1);
   const [limit] = useState(8);
   const [total, setTotal] = useState(0);
 
-  // Fetch MCN Channels
+ 
   const fetchChannels = async (page = 1) => {
     try {
       setLoading(true);
@@ -37,15 +44,18 @@ export default function ActiveChannelTable({ theme = "dark", onRowClick }) {
       const totalCount = res?.data?.total || apiData.length;
 
       const formatted = apiData.map((ch) => ({
-        id: ch._id,
-        name: ch.channelName,
-        youtubeId: ch.youtubeChannelId,
-        accountId: ch.userAccountId,
-        channelLink: ch.channelLink,
-        revenueShare: `${ch.revenueShare}%`,
-        manager: ch.channelManager || "-",
-        status: ch.status === "active" ? "Active" : "Pending",
-      }));
+  id: ch._id,
+  name: ch.channelName,
+  youtubeId: ch.youtubeChannelId,
+  accountId: ch.userAccountId,
+  channelLink: ch.channelLink,
+  revenueShare: `${ch.revenueShare}%`,
+  manager: ch.channelManager || "-",
+  status: ch.status
+    ? ch.status.charAt(0).toUpperCase() + ch.status.slice(1).toLowerCase()
+    : "Unknown",
+}));
+
 
       setChannels(formatted);
       setTotal(totalCount);
@@ -61,29 +71,57 @@ export default function ActiveChannelTable({ theme = "dark", onRowClick }) {
     fetchChannels(currentPage);
   }, [currentPage]);
 
-  // Filtered results
-  const filteredChannels = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return channels.filter((channel) => {
-      const matchesSearch =
-        channel.name.toLowerCase().includes(q) ||
-        channel.manager.toLowerCase().includes(q) ||
-        channel.accountId.toLowerCase().includes(q) ||
-        channel.youtubeId.toLowerCase().includes(q);
-      const matchesStatus =
-        statusFilter === "All Status" || channel.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [channels, search, statusFilter]);
+  useEffect(() => {
+  if (newChannel) {
+    const ch = newChannel;
+    const formatted = {
+      id: ch._id,
+      name: ch.channelName,
+      youtubeId: ch.youtubeChannelId || "-",
+      accountId: ch.userAccountId || "-",
+      accountName: ch.accountName || "Unknown",
+      channelLink: ch.channelLink,
+      revenueShare: `${ch.revenueShare}%`,
+      manager: ch.channelManager || "-",
+      status: ch.status
+  ? ch.status.charAt(0).toUpperCase() + ch.status.slice(1)
+  : "Unknown",
+    };
 
-  // Pagination logic
+    setChannels((prev) => [formatted, ...prev]);
+    setTotal((prev) => prev + 1);
+    toast.success("MCN Channel added successfully!");
+  }
+}, [newChannel]);
+
+
+  
+  const filteredChannels = useMemo(() => {
+  const q = search.trim().toLowerCase();
+  return channels.filter((channel) => {
+    const matchesSearch =
+      channel.name.toLowerCase().includes(q) ||
+      channel.manager.toLowerCase().includes(q) ||
+      channel.accountId.toLowerCase().includes(q) ||
+      channel.youtubeId.toLowerCase().includes(q);
+
+    const matchesStatus =
+      statusFilter === "All Status" ||
+      channel.status.toLowerCase() === statusFilter.toLowerCase();
+
+    return matchesSearch && matchesStatus;
+  });
+}, [channels, search, statusFilter]);
+
+
+  
   const totalPages = Math.ceil(total / limit);
   const canGoPrev = currentPage > 1;
   const canGoNext = currentPage < totalPages;
 
   return (
     <div className={`rounded-2xl p-5 ${bgColor} border ${borderColor} shadow-lg`}>
-      {/* Header Section */}
+     
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3">
         <div>
           <h3 className={`text-xl font-semibold ${textColor}`}>MCN Channels</h3>
@@ -100,7 +138,7 @@ export default function ActiveChannelTable({ theme = "dark", onRowClick }) {
         </Button>
       </div>
 
-      {/* Search & Filter */}
+     
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <input
           type="text"
@@ -115,7 +153,7 @@ export default function ActiveChannelTable({ theme = "dark", onRowClick }) {
           onChange={(e) => setStatusFilter(e.target.value)}
           className={`px-3 py-2 rounded-lg text-sm border focus:ring-2 focus:ring-purple-500 focus:outline-none transition ${inputBg}`}
         >
-          {["All Status", "Active", "Pending"].map((status) => (
+          {["All Status", "Active", "Pending", "Inactive", "Suspended"].map((status) => (
             <option key={status} value={status}>
               {status}
             </option>
@@ -123,7 +161,7 @@ export default function ActiveChannelTable({ theme = "dark", onRowClick }) {
         </select>
       </div>
 
-      {/* Table */}
+      
       <div className="overflow-x-auto">
         {loading ? (
           <p className="text-center py-6 text-gray-400">Loading channels...</p>
@@ -152,7 +190,7 @@ export default function ActiveChannelTable({ theme = "dark", onRowClick }) {
                     className={`border-b ${borderColor} hover:bg-gray-800/10 transition cursor-pointer`}
                     onClick={() => onRowClick && onRowClick(channel)}
                   >
-                    {/* Channel Name + Manager */}
+                   
                     <td className="px-4 py-4 whitespace-nowrap">
                       <p className={`font-semibold ${textColor}`}>{channel.name}</p>
                       <p className="text-xs text-gray-500">
@@ -160,7 +198,7 @@ export default function ActiveChannelTable({ theme = "dark", onRowClick }) {
                       </p>
                     </td>
 
-                    {/* Status */}
+                   
                     <td className="px-4 py-4 whitespace-nowrap">
                       <Badge
                         variant={channel.status === "Active" ? "success" : "warning"}
@@ -169,52 +207,60 @@ export default function ActiveChannelTable({ theme = "dark", onRowClick }) {
                       </Badge>
                     </td>
 
-                    {/* Revenue Share */}
+                   
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className={`${textColor}`}>{channel.revenueShare}</span>
                     </td>
 
-                    {/* YouTube ID */}
+                    
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className="text-purple-400 font-medium">{channel.youtubeId}</span>
                     </td>
 
-                    {/* Account ID */}
+                   
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className="text-green-400 font-medium">
                         {channel.accountId}
                       </span>
                     </td>
 
-                    {/* Actions */}
+                   
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        {[Eye, UserPlus, Edit].map((Icon, i) => (
-                          <button
-                            key={i}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log(`Clicked ${Icon.name} for`, channel);
-                            }}
-                            className={`p-2 rounded-lg ${
-                              isDark
-                                ? "bg-gray-700 text-white hover:bg-gray-600"
-                                : "bg-gray-200 text-black hover:bg-gray-300"
-                            } transition`}
-                          >
-                            <Icon size={16} />
-                          </button>
-                        ))}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            console.log("Delete clicked for", channel);
-                          }}
-                          className="p-2 rounded-lg bg-red-600 text-white hover:bg-red-500 transition"
-                        >
-                          <Trash size={16} />
-                        </button>
-                      </div>
+                     <div className="flex items-center gap-2">
+ 
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      console.log("View clicked for", channel);
+    }}
+    className={`p-2 rounded-lg ${
+      isDark
+        ? "bg-gray-700 text-white hover:bg-gray-600"
+        : "bg-gray-200 text-black hover:bg-gray-300"
+    } transition`}
+  >
+    <Eye size={16} />
+  </button>
+
+  
+  <button
+    onClick={(e) => {
+  e.stopPropagation();
+  setSelectedChannel(channel);
+  setTimeout(() => setIsStatusModalOpen(true), 0);
+}}
+
+    className={`p-2 rounded-lg ${
+      isDark
+        ? "bg-gray-700 text-white hover:bg-gray-600"
+        : "bg-gray-200 text-black hover:bg-gray-300"
+    } transition`}
+  >
+    <Edit size={16} />
+  </button>
+
+</div>
+
                     </td>
                   </tr>
                 ))
@@ -233,7 +279,7 @@ export default function ActiveChannelTable({ theme = "dark", onRowClick }) {
         )}
       </div>
 
-      {/* Pagination */}
+      
       {!loading && totalPages > 1 && (
         <div className="flex justify-between items-center mt-5">
           <Button
@@ -260,17 +306,32 @@ export default function ActiveChannelTable({ theme = "dark", onRowClick }) {
         </div>
       )}
 
-      {/* Create MCN Channel Modal */}
+    
       <CreateMCNChannelModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        theme={theme}
-        channelTypes={[
-          { id: 1, name: "Entertainment" },
-          { id: 2, name: "Education" },
-          { id: 3, name: "Music" },
-        ]}
-      />
+  isOpen={isModalOpen}
+  onClose={(created) => {
+    setIsModalOpen(false);
+    if (created) setNewChannel(created);
+  }}
+  theme={theme}
+  channelTypes={[
+    { id: 1, name: "Entertainment" },
+    { id: 2, name: "Education" },
+    { id: 3, name: "Music" },
+  ]}
+/>
+
+<UpdateMCNChannelStatusModal
+  isOpen={isStatusModalOpen}
+  onClose={(shouldRefresh) => {
+    setIsStatusModalOpen(false);
+    if (shouldRefresh) fetchChannels(currentPage);
+  }}
+  channelId={selectedChannel?.id}
+  currentStatus={selectedChannel?.status?.toLowerCase()}
+/>
+
+
     </div>
   );
 }

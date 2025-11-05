@@ -45,7 +45,7 @@ export default function AdminLogin() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email */}
+       
           <div>
             <label className="text-gray-300 text-sm mb-2 block">Email</label>
             <div className="relative">
@@ -62,7 +62,7 @@ export default function AdminLogin() {
             </div>
           </div>
 
-          {/* Password */}
+         
           <div>
             <label className="text-gray-300 text-sm mb-2 block">Password</label>
             <div className="relative">

@@ -177,14 +177,17 @@ const getPendingMcnRequests = () =>
 const reviewMcnRequest = (requestId, data) =>
   axiosClient.post(`/v1/mcn/admin/requests/${requestId}/review`, data);
 
-const createMcnChannel = (requestId) =>
-  axiosClient.post(`/v1/mcn/admin/requests/${requestId}/create-channel`);
+const createMcnChannel = (requestId, data) =>
+  axiosClient.post(`/v1/mcn/admin/requests/${requestId}/create-channel`, data);
 
 const getMcnChannels = (page = 1, limit = 10) =>
   axiosClient.get(`/v1/mcn/admin/channels?page=${page}&limit=${limit}`);
 
 const updateMcnChannelStatus = (channelId, data) =>
   axiosClient.patch(`/v1/mcn/admin/channels/${channelId}/status`, data);
+
+const getMcnStats = () => axiosClient.get("/v1/mcn/admin/stats");
+
 
 
 
@@ -211,9 +214,39 @@ const deleteTeamMember = (teamMemberId) =>
 const resendTeamInvitation = (teamMemberId) =>
   axiosClient.post(`/v1/admin/team-members/${teamMemberId}/resend-invitation`);
 
-
 const getTeamStatistics = () =>
   axiosClient.get(`/v1/admin/team-members/statistics`);
+
+
+
+
+// ---------------------- Sublabels (Admin) ----------------------
+
+
+const createSubLabel = (payload) => axiosClient.post(`/v1/admin/sublabels`, payload);
+
+const getAllSubLabels = (page = 1, limit = 10) =>
+  axiosClient.get(`/v1/admin/sublabels?page=${page}&limit=${limit}`);
+
+const getSubLabelById = (sublabelId) => axiosClient.get(`/v1/admin/sublabels/${sublabelId}`);
+
+const updateSubLabel = (sublabelId, payload) =>
+  axiosClient.patch(`/v1/admin/sublabels/${sublabelId}`, payload);
+
+const deleteSubLabel = (sublabelId) => axiosClient.delete(`/v1/admin/sublabels/${sublabelId}`);
+
+const assignUserToSubLabel = (sublabelId, payload) =>
+  axiosClient.post(`/v1/admin/sublabels/${sublabelId}/assign-user`, payload);
+
+const removeUserFromSubLabel = (sublabelId, payload) =>
+  axiosClient.post(`/v1/admin/sublabels/${sublabelId}/remove-user`, payload);
+
+const getUserSubLabels = (userId) => axiosClient.get(`/v1/admin/users/${userId}/sublabels`);
+
+const toggleUserSubLabels = (userId, payload) =>
+  axiosClient.post(`/v1/admin/users/${userId}/sublabels`, payload);
+
+
 
 
 export default {
@@ -255,6 +288,7 @@ export default {
   createMcnChannel,
   getMcnChannels,
   updateMcnChannelStatus,
+  getMcnStats,
   createTeamMember,
   getAllTeamMembers,
   getTeamMemberById,
@@ -263,4 +297,14 @@ export default {
   deleteTeamMember,
   resendTeamInvitation,
   getTeamStatistics,
+  createSubLabel,
+  getAllSubLabels,
+  getSubLabelById,
+  updateSubLabel,
+  deleteSubLabel,
+  assignUserToSubLabel,
+  removeUserFromSubLabel,
+  getUserSubLabels,
+  toggleUserSubLabels,
+  
 };
