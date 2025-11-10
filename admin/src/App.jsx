@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Toaster } from "sonner";
+import "react-datepicker/dist/react-datepicker.css";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Header from "./components/common/Header";
 import Sidebar from "./components/common/Sidebar";
@@ -28,11 +29,11 @@ import TrendingLabelsManager from "./pages/trending-labels/TrendingLabels";
 import FaqManager from "./pages/faq-management/FAQManagement";
 import BlogManagement from "./pages/blog-management/BlogManagement";
 import NewsManagement from "./pages/news-management/NewsManagement";
-import SocialLinksEditor from "./pages/social-links/SocialLinks";
-import ContactPage from "./pages/contact-details/ContactDetails";
+import SocialLinksEditor from "./components/company-settings/SocialLinks";
+import ContactPage from "./components/company-settings/ContactDetails";
 import AdminLogin from "./auth/SignIn";
 import KycManagement from "./pages/kyc-management/KYCManagement";
-
+import UnifiedSettingsPage from "./pages/contact-details/CompanySettings"
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [theme, setTheme] = useState("dark");
@@ -117,7 +118,8 @@ function App() {
             <Route path="/admin/blog-management" element={<BlogManagement theme={theme} />} />
             <Route path="/admin/news-management" element={<NewsManagement theme={theme} />} />
             <Route path="/admin/social-links" element={<SocialLinksEditor theme={theme} />} />
-            <Route path="/admin/contact-details" element={<ContactPage theme={theme} />} />
+            {/* <Route path="/admin/contact-details" element={<ContactPage theme={theme} />} /> */}
+            <Route path="/admin/contact-details" element={<UnifiedSettingsPage theme={theme} />} />
           </Routes>
         </main>
       </div>

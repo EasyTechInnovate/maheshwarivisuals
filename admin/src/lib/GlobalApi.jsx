@@ -247,6 +247,76 @@ const toggleUserSubLabels = (userId, payload) =>
   axiosClient.post(`/v1/admin/users/${userId}/sublabels`, payload);
 
 
+const getUsers = (page = 1, limit = 10) =>
+  axiosClient.get(`/v1/admin/users?page=${page}&limit=${limit}`);
+
+
+
+// ---------------------- Support Tickets (Admin) ----------------------
+
+const getAllSupportTickets = (page = 1, limit = 10) =>
+  axiosClient.get(`/v1/admin/support-tickets?page=${page}&limit=${limit}`);
+
+const getSupportTicketStats = (timeframe = "month") =>
+  axiosClient.get(`/v1/admin/support-tickets/stats?timeframe=${timeframe}`);
+
+const getSupportTicketAnalytics = (startDate, endDate) =>
+  axiosClient.get(`/v1/admin/support-tickets/analytics?startDate=${startDate}&endDate=${endDate}`);
+
+const getSupportTicketById = (ticketId) =>
+  axiosClient.get(`/v1/admin/support-tickets/${ticketId}`);
+
+const updateSupportTicket = (ticketId, payload) =>
+  axiosClient.put(`/v1/admin/support-tickets/${ticketId}`, payload);
+
+const deleteSupportTicket = (ticketId) =>
+  axiosClient.delete(`/v1/admin/support-tickets/${ticketId}`);
+
+const addAdminResponse = (ticketId, payload) =>
+  axiosClient.post(`/v1/admin/support-tickets/${ticketId}/response`, payload);
+
+const addInternalNote = (ticketId, payload) =>
+  axiosClient.post(`/v1/admin/support-tickets/${ticketId}/internal-note`, payload);
+
+const assignSupportTicket = (ticketId, payload) =>
+  axiosClient.patch(`/v1/admin/support-tickets/${ticketId}/assign`, payload);
+
+const escalateSupportTicket = (ticketId, payload) =>
+  axiosClient.patch(`/v1/admin/support-tickets/${ticketId}/escalate`, payload);
+
+
+// ---------------------- Company Settings (Admin) ----------------------
+
+const createCompanySettings = (payload) =>
+  axiosClient.post(`/v1/admin/company-settings`, payload);
+
+const getAllCompanySettings = (page = 1, limit = 10) =>
+  axiosClient.get(`/v1/admin/company-settings?page=${page}&limit=${limit}`);
+
+const getCompanySettingsById = (companySettingsId) =>
+  axiosClient.get(`/v1/admin/company-settings/${companySettingsId}`);
+
+const updateCompanySettings = (companySettingsId, payload) =>
+  axiosClient.put(`/v1/admin/company-settings/${companySettingsId}`, payload);
+
+const updateCompanySettingsStatus = (companySettingsId, payload) =>
+  axiosClient.patch(`/v1/admin/company-settings/${companySettingsId}/status`, payload);
+
+const deleteCompanySettings = (companySettingsId) =>
+  axiosClient.delete(`/v1/admin/company-settings/${companySettingsId}`);
+
+
+// ---------------------- Company Settings: YouTube Links ----------------------
+
+const addYouTubeLink = (companySettingsId, payload) =>
+  axiosClient.post(`/v1/admin/company-settings/${companySettingsId}/youtube-links`, payload);
+
+const updateYouTubeLinks = (companySettingsId, payload) =>
+  axiosClient.put(`/v1/admin/company-settings/${companySettingsId}/youtube-links/0`, payload);
+
+const deleteYouTubeLink = (companySettingsId) =>
+  axiosClient.delete(`/v1/admin/company-settings/${companySettingsId}/youtube-links/0`);
+
 
 
 export default {
@@ -306,5 +376,25 @@ export default {
   removeUserFromSubLabel,
   getUserSubLabels,
   toggleUserSubLabels,
-  
+  getUsers,
+  getAllSupportTickets,
+  getSupportTicketStats,
+  getSupportTicketAnalytics,
+  getSupportTicketById,
+  updateSupportTicket,
+  deleteSupportTicket,
+  addAdminResponse,
+  addInternalNote,
+  assignSupportTicket,
+  escalateSupportTicket,
+  createCompanySettings,
+  getAllCompanySettings,
+  getCompanySettingsById,
+  updateCompanySettings,
+  updateCompanySettingsStatus,
+  deleteCompanySettings,
+  addYouTubeLink,
+  updateYouTubeLinks,
+  deleteYouTubeLink,
+
 };
