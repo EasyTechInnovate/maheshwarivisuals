@@ -2,6 +2,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 
 import { Toaster } from "sonner";
+import { MediaQueryProvider } from "@/contexts/MediaQueryContext";
 
 const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
@@ -21,16 +22,17 @@ export default function RootLayout({ children }) {
       <body
         className={`${poppins.className} antialiased`}
       >
- 
-        {children}
+        <MediaQueryProvider>
+          {children}
 
-        <Toaster 
-          position="top-right"
-          richColors
-          expand={true}
-          duration={4000}
-          closeButton
-        />
+          <Toaster
+            position="top-right"
+            richColors
+            expand={true}
+            duration={4000}
+            closeButton
+          />
+        </MediaQueryProvider>
       </body>
     </html>
   );

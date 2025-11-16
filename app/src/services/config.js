@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-// const baseURL = import.meta.env.VITE_SERVER_URL;
-const baseURL = 'https://mv.easytechinnovate.site/v1';
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+// const baseURL = 'https://mv.easytechinnovate.site/v1';
+// const baseURL = 'http://localhost:5000/v1';
 
 if (!baseURL) {
     throw new Error('VITE_SERVER_URL is not defined in the environment variables.');

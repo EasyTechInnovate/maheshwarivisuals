@@ -29,6 +29,7 @@ import Faq from '@/components/website/Faq'
 import { FaMusic } from 'react-icons/fa'
 import { HeadingText } from '@/components/FixedUiComponents'
 import TestimonialSwiper from '@/components/website/TestimonialSwiper'
+import { useIsMdAndUp } from '@/contexts/MediaQueryContext'
 
 const anton = Anton({
     weight: ['400'],
@@ -49,6 +50,9 @@ const images = [
 ]
 
 const HomePage = () => {
+    // Get breakpoint value from context
+    const isMdAndUp = useIsMdAndUp()
+
     const mainHeading = {
         hidden: { opacity: 0, scale: 0.95 },
         visible: { opacity: 1, scale: 1, transition: { duration: 0.6, delay: 0.2, ease: 'easeOut' }, viewport: { once: true } }
@@ -117,16 +121,16 @@ const HomePage = () => {
                             TRUSTED BY 200K+ ARTISTS
                         </motion.h1>
                     </div>
-                    <div className="relative pt-[100px] ">
+                    <div className="relative pt-[150px] md:pt-[100px]  ">
                         <motion.h1
                             variants={mainHeading}
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
-                            className={`${anton.className} text-[80px]  sm:text-[100px]  leading-none text-center  uppercase text-transparent bg-clip-text`}
-                            style={{
+                            className={`${anton.className} text-[50px] sm:text-[70px]  md:text-[100px]  leading-none text-center  uppercase text-transparent bg-clip-text`}
+                            style={isMdAndUp ? {
                                 backgroundImage: `radial-gradient(circle at center -200px, rgba(249, 244, 237, 1) 30%,rgba(180,160,255,0.6) 60%,  rgba(100,100,255,0.2) 70%)`
-                            }}>
+                            } : {color: '#cfc6d5' }}>
                             YOUR MUSIC
                             <br />
                         </motion.h1>
@@ -135,10 +139,10 @@ const HomePage = () => {
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
-                            className={`${anton.className} text-[80px]  sm:text-[100px]  leading-none text-center  uppercase text-transparent bg-clip-text`}
-                            style={{
+                            className={`${anton.className} text-[50px] sm:text-[70px]  md:text-[100px]  leading-none text-center  uppercase text-transparent bg-clip-text`}
+                            style={isMdAndUp ? {
                                 backgroundImage: `radial-gradient(circle at center -250px, rgba(249, 244, 237, 1) 30%,rgba(180,160,255,0.6) 60%,  rgba(100,100,255,0.2) 70%)`
-                            }}>
+                            } : {color: '#cfc6d5' }}>
                             Our Mission
                             <br />
                         </motion.h1>
@@ -147,7 +151,7 @@ const HomePage = () => {
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
-                            className="text-center mt-6">
+                            className="text-center mt-6 max-sm:text-xs">
                             Distribute your music to top platforms, grow your <br /> audience, and get the recognition you deserve.
                         </motion.h1>
                         <motion.div
@@ -156,18 +160,18 @@ const HomePage = () => {
                             whileInView="visible"
                             viewport={{ once: true }}
                             className="flex justify-center items-center mt-6 gap-2 relative z-10">
-                            <h1 className="text-center text-xl">🚀 Music Distribution</h1>
+                            <h1 className="text-center max-sm:text-xs text-xl">🚀 Music Distribution</h1>
                             <div className="h-[20px] w-1 bg-[#652CD6]"></div>
-                            <h1 className="text-center text-xl">🛡️ Marketing</h1>
+                            <h1 className="text-center max-sm:text-xs text-xl">🛡️ Marketing</h1>
                             <div className="h-[20px] w-1 bg-[#652CD6]"></div>
-                            <h1 className="text-center text-xl">📞 Artist & Label Solutions</h1>
+                            <h1 className="text-center max-sm:text-xs text-xl">📞 Artist & Label Solutions</h1>
                         </motion.div>
                         <motion.div
                             variants={subHeading}
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
-                            className="flex justify-center items-center mt-6 relative z-10">
+                            className="flex justify-center items-center mt-6 relative z-10 max-sm:mt-10">
                             <Button
                                 variant="blue"
                                 className="shadow-2xl shadow-violet-600">
@@ -183,7 +187,7 @@ const HomePage = () => {
                     <Image
                         src={hero2}
                         alt=""
-                        className="w-screen absolute bottom-[-150px] z-[9]"
+                        className="h-[400px] object-cover lg:w-screen absolute bottom-[-50px] lg:bottom-[-150px] z-[9]"
                     />
                 </motion.div>
             </div>

@@ -8,6 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Plus, X, Music, Upload, Calendar } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { createRelease, updateReleaseStep1, updateReleaseStep2, updateReleaseStep3, submitRelease } from '../../services/api.services';
+import { showToast } from '../../utils/toast';
+import { uploadToImageKit } from '../../utils/imagekitUploader.js';
 
 const languages = [
    "Afrikaans",
@@ -155,6 +159,7 @@ const languages = [
 ];
 
 const genres = [
+  "bollywood",
   "Alternative",
   "Alternative Rock",
   "Alternative & Rock Latino",
@@ -231,11 +236,16 @@ const BasicReleaseBuilder = () => {
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(0);
   const [releaseType, setReleaseType] = useState('');
+  const [releaseId, setReleaseId] = useState('');
   const [worldWideRelease, setWorldWideRelease] = useState('no');
   const [selectedTerritories, setSelectedTerritories] = useState([]);
   const [selectedPartners, setSelectedPartners] = useState([]);
   const [selectAllPartners, setSelectAllPartners] = useState(false);
   const [copyrightOption, setCopyrightOption] = useState(''); // 'proceed' or 'upload'
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingCoverArt, setIsUploadingCoverArt] = useState(false);
+  const [uploadingTrackId, setUploadingTrackId] = useState(null);
+  const [isUploadingCopyrightDoc, setIsUploadingCopyrightDoc] = useState(false);
   // const [tracks, setTracks] = useState([{ id: 1 }]);
 
   const generateUniqueId = () => {
@@ -245,8 +255,12 @@ const BasicReleaseBuilder = () => {
   // Form data state
   const [formData, setFormData] = useState({
     // Cover Art & Track Info
-    coverArt: null,
+    coverArt: '',
     coverArtPreview: null,
+    coverArtInfo: {
+      size: null,
+      format: null,
+    },
     releaseName: '',
     genre: '',
     upc: '',
@@ -255,7 +269,7 @@ const BasicReleaseBuilder = () => {
     // Audio & Track Details
     tracks: [{
       id: generateUniqueId(),
-      audioFile: null,
+      trackLink: '',
       audioFileName: '',
       songName: '',
       genre: '',
@@ -275,10 +289,67 @@ const BasicReleaseBuilder = () => {
     territories: [],
     partners: [],
     copyrightOption: '',
-    copyrightDocument: null
+    copyrightDocument: ''
   });
 
   const tracks = formData.tracks;
+
+  // API Mutations
+  const createReleaseMutation = useMutation({
+    mutationFn: (trackType) => createRelease(trackType),
+    onSuccess: (data) => {
+      setReleaseId(data.data.releaseId);
+      showToast.success('Release created successfully!');
+    },
+    onError: (error) => {
+      showToast.error(error?.response?.data?.message || 'Failed to create release');
+    }
+  });
+
+  const updateStep1Mutation = useMutation({
+    mutationFn: (data) => updateReleaseStep1(releaseId, data),
+    onSuccess: (data) => {
+      showToast.success('Step 1 completed successfully!');
+      setCurrentStep(1);
+    },
+    onError: (error) => {
+      showToast.error(error?.response?.data?.message || 'Failed to update step 1');
+    }
+  });
+
+  const updateStep2Mutation = useMutation({
+    mutationFn: (data) => updateReleaseStep2(releaseId, data),
+    onSuccess: (data) => {
+      showToast.success('Step 2 completed successfully!');
+      setCurrentStep(2);
+    },
+    onError: (error) => {
+      showToast.error(error?.response?.data?.message || 'Failed to update step 2');
+    }
+  });
+
+  const updateStep3Mutation = useMutation({
+    mutationFn: (data) => updateReleaseStep3(releaseId, data),
+    onSuccess: (data) => {
+      showToast.success('Step 3 completed successfully!');
+    },
+    onError: (error) => {
+      showToast.error(error?.response?.data?.message || 'Failed to update step 3');
+    }
+  });
+
+  const submitReleaseMutation = useMutation({
+    mutationFn: (releaseId) => submitRelease(releaseId),
+    onSuccess: (data) => {
+      showToast.success('Release submitted for review successfully!');
+      setTimeout(() => {
+        navigate('/app/catalog');
+      }, 2000);
+    },
+    onError: (error) => {
+      showToast.error(error?.response?.data?.message || 'Failed to submit release');
+    }
+  });
 
   // const territories = [
   //    'India' , 'Canada', 'USA' , 'UK' ,'Afghanistan', 'Albania', 'Algeria', 'Greece', 'Grenada', 'Guatemala',
@@ -332,55 +403,70 @@ const BasicReleaseBuilder = () => {
   ];
 
   // Handle cover art upload
-  const handleCoverArtUpload = (event) => {
+  const handleCoverArtUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       // Check file type
       if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
-        alert('Please select a JPG or PNG image file');
+        showToast.error('Please select a JPG or PNG image file');
         return;
       }
 
-      // Check file dimensions
-      const img = new Image();
-      img.onload = function() {
-        if (this.width < 3000 || this.height < 3000) {
-          alert('Image must be at least 3000x3000 pixels');
-          return;
-        }
-        
-        // Create preview URL
-        const previewUrl = URL.createObjectURL(file);
-        setFormData({
-          ...formData,
-          coverArt: file,
-          coverArtPreview: previewUrl
-        });
-      };
-      img.src = URL.createObjectURL(file);
+      setIsUploadingCoverArt(true);
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = async () => {
+          try {
+            if (img.width < 3000 || img.height < 3000) {
+              showToast.error('Image must be at least 3000x3000 pixels');
+              return;
+            }
+            const response = await uploadToImageKit(file, 'basic_release/cover_art');
+            setFormData(prev => ({ 
+              ...prev, 
+              coverArt: response.url, 
+              coverArtPreview: response.url,
+              coverArtInfo: { size: file.size, format: file.type.split('/')[1] }
+            }));
+          } catch (error) {
+            // In case of upload error, you might want to clear the preview
+            console.error("Upload failed, clearing preview.", error);
+          } finally {
+            setIsUploadingCoverArt(false);
+          }
+        };
+        img.src = e.target.result;
+      }
+      reader.readAsDataURL(file);
     }
   };
 
   // Handle audio file upload
-  const handleAudioUpload = (trackId, event) => {
+  const handleAudioUpload = async (trackId, event) => {
     const file = event.target.files[0];
     if (file) {
       // Check if it's an audio file
       if (!file.type.startsWith('audio/')) {
-        alert('Please select an audio file');
+        showToast.error('Please select an audio file');
         return;
       }
 
-      const updatedTracks = formData.tracks.map(track => 
-        track.id === trackId 
-          ? { ...track, audioFile: file, audioFileName: file.name }
-          : track
-      );
-      
-      setFormData({
-        ...formData,
-        tracks: updatedTracks
-      });
+      setUploadingTrackId(trackId);
+      try {
+        const response = await uploadToImageKit(file, 'basic_release/tracks');
+        const updatedTracks = formData.tracks.map(track => 
+          track.id === trackId 
+            ? { ...track, trackLink: response.url, audioFileName: file.name }
+            : track
+        );
+        setFormData(prev => ({ ...prev, tracks: updatedTracks }));
+      } catch (error) {
+        console.error("Audio upload failed for track:", trackId, error);
+      } finally {
+        setUploadingTrackId(null);
+      }
     }
   };
 
@@ -399,9 +485,15 @@ const BasicReleaseBuilder = () => {
   };
 
   const addTrack = () => {
-    const newTrack = { 
+    // Prevent adding multiple tracks for single release
+    if (releaseType === 'single' && formData.tracks.length >= 1) {
+      showToast.error('Single release can only have one track');
+      return;
+    }
+
+    const newTrack = {
       id: generateUniqueId(),
-      audioFile: null,
+      trackLink: '',
       audioFileName: '',
       songName: '',
       genre: '',
@@ -468,19 +560,42 @@ const BasicReleaseBuilder = () => {
     setFormData({ ...formData, copyrightOption: option });
   };
 
-  const handleCopyrightDocumentUpload = (event) => {
+  const handleCopyrightDocumentUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      setFormData({ ...formData, copyrightDocument: file });
+      if (!['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) {
+        showToast.error('Please select a PDF or DOC file.');
+        return;
+      }
+      setIsUploadingCopyrightDoc(true);
+      try {
+        const response = await uploadToImageKit(file, 'basic_release/copyright_docs');
+        setFormData(prev => ({ ...prev, copyrightDocument: response.url }));
+      } catch (error) {
+        console.error("Copyright document upload failed:", error);
+      } finally {
+        setIsUploadingCopyrightDoc(false);
+      }
+    }
+  };
+
+  const handleReleaseTypeSelection = async (type) => {
+    const loadingToast = showToast.loading('Creating release...');
+    try {
+      await createReleaseMutation.mutateAsync(type);
+      setReleaseType(type);
+      showToast.dismiss(loadingToast);
+    } catch (error) {
+      showToast.dismiss(loadingToast);
     }
   };
 
   const renderReleaseTypeSelection = () => (
     <div className="max-w-6xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div 
+        <div
           className="relative border-2 border-dashed border-slate--600 rounded-lg p-12 hover:border-slate-500 transition-colors cursor-pointer group"
-          onClick={() => setReleaseType('single')}
+          onClick={() => handleReleaseTypeSelection('single')}
         >
           <div className="flex flex-col items-center justify-center text-center h-48">
             <div className="mb-6">
@@ -491,9 +606,9 @@ const BasicReleaseBuilder = () => {
           </div>
         </div>
 
-        <div 
+        <div
           className="relative border-2 border-dashed border-slate--600 rounded-lg p-12 hover:border-slate-500 transition-colors cursor-pointer group"
-          onClick={() => setReleaseType('album')}
+          onClick={() => handleReleaseTypeSelection('album')}
         >
           <div className="flex flex-col items-center justify-center text-center h-48">
             <div className="mb-6">
@@ -516,11 +631,20 @@ const BasicReleaseBuilder = () => {
             <h3 className="text-foreground text-lg font-medium mb-6">Cover Art</h3>
             <div className="flex flex-col items-center">
               <div className="w-full h-[250px] bg-muted border-2 border-dashed border-muted-foreground/30 rounded-lg flex flex-col items-center justify-center mb-4 relative overflow-hidden">
+                {isUploadingCoverArt && (
+                  <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center z-10">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p className="text-white mt-2 text-sm">Uploading...</p>
+                  </div>
+                )}
                 {formData.coverArtPreview ? (
                   <img 
                     src={formData.coverArtPreview} 
                     alt="Cover preview" 
-                    className="w-full h-full object-cover rounded-lg"
+                    className="w-full h-full  object-contain rounded-lg"
                   />
                 ) : (
                   <>
@@ -536,10 +660,11 @@ const BasicReleaseBuilder = () => {
                   accept=".jpg,.jpeg,.png"
                   onChange={handleCoverArtUpload}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  disabled={isUploadingCoverArt}
                 />
               </div>
-              <Button variant="outline" size="sm" onClick={() => document.querySelector('input[type="file"]').click()}>
-                Choose Image
+              <Button variant="outline" size="sm" onClick={() => document.querySelector('input[type="file"]').click()} disabled={isUploadingCoverArt}>
+                {isUploadingCoverArt ? 'Uploading...' : 'Choose Image'}
               </Button>
             </div>
           </div>
@@ -629,6 +754,15 @@ const BasicReleaseBuilder = () => {
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-full h-[250px] bg-muted border-2 border-dashed border-muted-foreground/30 rounded-lg flex flex-col items-center justify-center mb-4 relative">
+                  {uploadingTrackId === track.id && (
+                    <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center z-10">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <p className="text-white mt-2 text-sm">Uploading...</p>
+                    </div>
+                  )}
                   {track.audioFileName ? (
                     <div className="text-center p-4">
                       <Music className="w-8 h-8 text-green-500 mx-auto mb-2" />
@@ -648,10 +782,11 @@ const BasicReleaseBuilder = () => {
                     accept="audio/*"
                     onChange={(e) => handleAudioUpload(track.id, e)}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    disabled={uploadingTrackId === track.id}
                   />
                 </div>
-                <Button variant="outline" size="sm">
-                  Choose Audio
+                <Button variant="outline" size="sm" onClick={() => document.querySelector(`input[type="file"][accept="audio/*"]`).click()} disabled={uploadingTrackId === track.id}>
+                  {uploadingTrackId === track.id ? 'Uploading...' : 'Choose Audio'}
                 </Button>
               </div>
             </div>
@@ -930,16 +1065,24 @@ const BasicReleaseBuilder = () => {
           {copyrightOption === 'upload' && (
             <div className="ml-6 mt-4">
               <Label className="text-foreground">Upload Copyright Document</Label>
-              <div className="flex items-center space-x-2 mt-2">
+              <div className="flex items-center space-x-2 mt-2 relative">
                 <Input 
                   type="file" 
                   accept=".pdf,.doc,.docx" 
-                  className="flex-1" 
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
                   onChange={handleCopyrightDocumentUpload}
+                  disabled={isUploadingCopyrightDoc}
+                  id="copyright-doc-input"
                 />
-                <Button variant="outline" size="sm">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload
+                <div className="flex-1 p-2 border rounded-md bg-background text-sm text-muted-foreground h-10 flex items-center truncate">
+                  {formData.copyrightDocument 
+                    ? new URL(formData.copyrightDocument).pathname.split('/').pop() 
+                    : 'No file selected'
+                  }
+                </div>
+                <Button variant="outline" size="sm" onClick={() => document.getElementById('copyright-doc-input').click()} disabled={isUploadingCopyrightDoc}>
+                  {isUploadingCopyrightDoc ? <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> : <Upload className="w-4 h-4" />}
+                  <span className="ml-2">{isUploadingCopyrightDoc ? 'Uploading...' : 'Upload'}</span>
                 </Button>
               </div>
             </div>
@@ -974,13 +1117,133 @@ const BasicReleaseBuilder = () => {
     }
   };
 
-  const handleSubmit = () => {
-    console.log('Form Data:', formData);
-    console.log('Tracks:', formData.tracks);
-    console.log('Selected Territories:', selectedTerritories);
-    console.log('Selected Partners:', selectedPartners);
-    console.log('Copyright Option:', copyrightOption);
-    // Add your submit logic here
+  const handleStepSubmit = async () => {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    const loadingToast = showToast.loading('Saving...');
+
+    try {
+      if (currentStep === 0) {
+        // Step 1: Cover Art & Release Info
+        const step1Data = {
+          coverArt: { 
+            imageUrl: formData.coverArt,
+            imageSize: formData.coverArtInfo.size,
+            imageFormat: formData.coverArtInfo.format,
+          },
+          releaseInfo: {
+            releaseName: formData.releaseName,
+            genre: formData.genre,
+            labelName: formData.labelName,
+            upc: formData.upc
+          }
+        };
+
+        await updateStep1Mutation.mutateAsync(step1Data);
+      } else if (currentStep === 1) {
+        // Step 2: Audio Files & Track Details
+        const tracksData = formData.tracks.map(track => ({
+          trackName: track.songName,
+          genre: track.genre,
+          composerName: track.composerName,
+          lyricistName: track.lyricistName,
+          singerName: track.singerName,
+          producerName: track.producerName,
+          isrc: track.isrc,
+          audioFiles: [
+            {
+              format: "mp3",
+              fileUrl: track.trackLink,
+              fileSize: 5242880, // This is a placeholder, ImageKit doesn't return size easily
+              duration: 210
+            }
+          ],
+          previewTiming: {
+            startTime: 30,
+            endTime: 60
+          },
+          callerTuneTiming: {
+            startTime: 45,
+            endTime: 75
+          },
+          language: track.language
+        }));
+
+        const step2Data = {
+          tracks: tracksData
+        };
+
+        await updateStep2Mutation.mutateAsync(step2Data);
+      } else if (currentStep === 2) {
+        // Step 3: Release Settings
+
+        // Territorial Rights Logic
+        let territorialRightsData;
+        if (worldWideRelease === 'yes') {
+          // World Wide Release - add all territories
+          territorialRightsData = {
+            hasRights: true,
+            territories: territories.map(t => t.toLowerCase().replace(/\s+/g, '_').replace(/\(/g, '').replace(/\)/g, ''))
+          };
+        } else {
+          // Specific territories selected
+          territorialRightsData = {
+            hasRights: selectedTerritories.length > 0,
+            territories: selectedTerritories.map(t => t.toLowerCase().replace(/\s+/g, '_').replace(/\(/g, '').replace(/\)/g, ''))
+          };
+        }
+
+        // Partner Selection Logic
+        let partnerSelectionData;
+        if (selectAllPartners) {
+          // All partners selected - add all partners
+          partnerSelectionData = {
+            hasPartners: true,
+            partners: partners.map(p => p.name.toLowerCase().replace(/\s+/g, '_'))
+          };
+        } else {
+          // Specific partners selected
+          partnerSelectionData = {
+            hasPartners: selectedPartners.length > 0,
+            partners: selectedPartners.map(p => p.toLowerCase().replace(/\s+/g, '_'))
+          };
+        }
+
+        const step3Data = {
+          releaseDate: formData.forFutureRelease ? new Date(formData.forFutureRelease).toISOString() : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          territorialRights: territorialRightsData,
+          partnerSelection: partnerSelectionData,
+          copyrights: {
+            ownsCopyright: copyrightOption === 'upload',
+            copyrightDocuments: copyrightOption === 'upload' && formData.copyrightDocument ? [
+              { documentUrl: formData.copyrightDocument }
+            ] : []
+          }
+        };
+
+        await updateStep3Mutation.mutateAsync(step3Data);
+
+        // After step 3 is complete, submit the release
+        showToast.dismiss(loadingToast);
+        const submitLoadingToast = showToast.loading('Submitting release for review...');
+
+        try {
+          await submitReleaseMutation.mutateAsync(releaseId);
+          showToast.dismiss(submitLoadingToast);
+        } catch (submitError) {
+          showToast.dismiss(submitLoadingToast);
+          throw submitError;
+        }
+      }
+
+      showToast.dismiss(loadingToast);
+    } catch (error) {
+      showToast.dismiss(loadingToast);
+      console.error('Error submitting step:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const goBack = () => {
@@ -1056,18 +1319,13 @@ const BasicReleaseBuilder = () => {
                   Previous
                 </Button>
               )}
-              <Button 
-                onClick={() => {
-                  if (currentStep < 2) {
-                    setCurrentStep(currentStep + 1);
-                  } else {
-                    handleSubmit();
-                  }
-                }}
+              <Button
+                onClick={handleStepSubmit}
+                disabled={isSubmitting || createReleaseMutation.isPending || updateStep1Mutation.isPending || updateStep2Mutation.isPending || updateStep3Mutation.isPending || submitReleaseMutation.isPending}
                 className="bg-primary text-primary-foreground"
               >
-                {currentStep === 2 ? 'Submit' : 'Next Step'}
-                {currentStep < 2 && <ArrowLeft className="w-4 h-4 ml-2 rotate-180" />}
+                {isSubmitting ? 'Saving...' : currentStep === 2 ? 'Submit' : 'Next Step'}
+                {currentStep < 2 && !isSubmitting && <ArrowLeft className="w-4 h-4 ml-2 rotate-180" />}
               </Button>
             </div>
           </div>
