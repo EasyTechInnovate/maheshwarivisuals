@@ -29,11 +29,9 @@ import TrendingLabelsManager from "./pages/trending-labels/TrendingLabels";
 import FaqManager from "./pages/faq-management/FAQManagement";
 import BlogManagement from "./pages/blog-management/BlogManagement";
 import NewsManagement from "./pages/news-management/NewsManagement";
-import SocialLinksEditor from "./components/company-settings/SocialLinks";
-import ContactPage from "./components/company-settings/ContactDetails";
 import AdminLogin from "./auth/SignIn";
 import KycManagement from "./pages/kyc-management/KYCManagement";
-import UnifiedSettingsPage from "./pages/contact-details/CompanySettings"
+import UnifiedSettingsPage from "./pages/company-settings/CompanySettings"
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [theme, setTheme] = useState("dark");
@@ -117,9 +115,7 @@ function App() {
             <Route path="/admin/faq-management" element={<FaqManager theme={theme} />} />
             <Route path="/admin/blog-management" element={<BlogManagement theme={theme} />} />
             <Route path="/admin/news-management" element={<NewsManagement theme={theme} />} />
-            <Route path="/admin/social-links" element={<SocialLinksEditor theme={theme} />} />
-            {/* <Route path="/admin/contact-details" element={<ContactPage theme={theme} />} /> */}
-            <Route path="/admin/contact-details" element={<UnifiedSettingsPage theme={theme} />} />
+            <Route path="/admin/company-settings" element={<UnifiedSettingsPage theme={theme} />} />
           </Routes>
         </main>
       </div>
