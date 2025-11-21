@@ -210,3 +210,39 @@ export const updateFanLink = async (fanLinkId, data) => {
     const response = await servicesAxiosInstance.put(`/fan-links/my-links/${fanLinkId}`, data)
     return response.data
 }
+
+// Marketing APIs
+
+// Sync Submissions
+export const getMySyncSubmissions = async (params) => {
+    const { page = 1, limit = 10 } = params
+    const queryParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    })
+
+    const response = await servicesAxiosInstance.get(`/marketing/sync/my-submissions?${queryParams.toString()}`)
+    return response.data
+}
+
+export const submitSyncRequest = async (data) => {
+    const response = await servicesAxiosInstance.post('/marketing/sync/submit', data)
+    return response.data
+}
+
+// Playlist Pitching Submissions
+export const getMyPlaylistPitchingSubmissions = async (params) => {
+    const { page = 1, limit = 10 } = params
+    const queryParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    })
+
+    const response = await servicesAxiosInstance.get(`/marketing/playlist-pitching/my-submissions?${queryParams.toString()}`)
+    return response.data
+}
+
+export const submitPlaylistPitchingRequest = async (data) => {
+    const response = await servicesAxiosInstance.post('/marketing/playlist-pitching/submit', data)
+    return response.data
+}
