@@ -151,12 +151,92 @@ const AdvancedReleaseBuilder = () => {
     'United Arab Emirates', 'United Kingdom', 'United States of America', 'Vietnam'
   ];
 
-  const partners = [
-    { name: '7 Digital' }, { name: 'Tik Tok' }, { name: 'Amazon' }, { name: 'Spotify' },
-    { name: 'Apple Music' }, { name: 'Beatport' }, { name: 'Juno Download' },
-    { name: 'Napster' }, { name: 'Shazam' }, { name: 'SoundCloud' }, { name: 'Tidal' },
-    { name: 'Deezer' }, { name: 'Instagram' }, { name: 'iTunes' }, { name: 'Traxsource' }
-  ];
+  const partners = {
+  callerTunePartners: [
+    "Jio",
+    "Airtel",
+    "BSNL",
+    "VI"
+  ],
+
+  indianStores: [
+    "Gaana",
+    "Hungama",
+    "Jiosaavn",
+    "Wynk"
+  ],
+
+  internationalStores: [
+    "7Digital",
+    "MixUpload",
+    "Deezer",
+    "SoundCloud",
+    "AMI Entertainment",
+    "Simfy",
+    "Slacker",
+    "SoundExchange",
+    "Gracenote",
+    "Lickd",
+    "8tracks",
+    "Likee",
+    "MonkingMe",
+    "iMusica",
+    "Appler Music",
+    "TouchTunes",
+    "Traxsource",
+    "Pandora",
+    "Tidal",
+    "Juno Downloads",
+    "Shazam",
+    "SberZvuk",
+    "Spotify",
+    "BMAT",
+    "KKBOX",
+    "MediaNet",
+    "Amazon",
+    "Napster",
+    "DailyMotion",
+    "AWA",
+    "iHeart Radio",
+    "BoomPlay",
+    "Facebook Audio Library",
+    "Facebook Audio Footprinting",
+    "Alibaba",
+    "NetEase",
+    "Tencent",
+    "Audible Magic",
+    "Muso.ai",
+    "Saavn",
+    "United Media Agency",
+    "MixCloud",
+    "Kuack Media Group",
+    "SiriusXM",
+    "Anghami",
+    "Qobuz",
+    "ClickNClear",
+    "TunedGlobal",
+    "FLO",
+    "ACRCloud",
+    "MoodAgent",
+    "Enaza",
+    "YouTube Art Tracks",
+    "YouTube Content Id",
+    "JOOX",
+    "IPEX",
+    "Jaxsta",
+    "Melon",
+    "Pretzel",
+    "Resso",
+    "TikTok",
+    "SCPP",
+    "Soundmouse",
+    "Triller",
+    "Yandex",
+    "Zaycev",
+    "AudioMack"
+  ]
+};
+
 
   // API Mutations
   const createReleaseMutation = useMutation({
@@ -415,7 +495,15 @@ const AdvancedReleaseBuilder = () => {
 
   const handleSelectAllPartners = (checked) => {
     setSelectAllPartners(checked);
-    const allPartnerNames = checked ? partners.map(p => p.name) : [];
+
+    const allPartnerNames = checked
+      ? [
+          ...partners.callerTunePartners,
+          ...partners.indianStores,
+          ...partners.internationalStores
+        ]
+      : [];
+
     setSelectedPartners(allPartnerNames);
     setFormData({ ...formData, partners: allPartnerNames });
   };
@@ -1053,33 +1141,45 @@ const AdvancedReleaseBuilder = () => {
           </div>
         </div>
 
+        {/* Partner Selection */}
         <div>
-          <h4 className="text-foreground font-semibold mb-4">Partner Selection :</h4>
+          <h4 className="text-foreground font-medium mb-4">Partner Selection :</h4>
+
+          {/* Select All */}
           <div className="flex items-center space-x-2 mb-4">
-            <Checkbox 
-              id="selectAllPartners"
+            <Checkbox
+              id="selectAll"
               checked={selectAllPartners}
               onCheckedChange={handleSelectAllPartners}
             />
-            <Label htmlFor="selectAllPartners" className="font-medium">Select All Partners</Label>
+            <Label htmlFor="selectAll" className="font-medium">Select All Partners</Label>
           </div>
 
-          <Card className="p-6 border border-muted bg-background rounded-lg">
-            <Label className="text-primary font-medium mb-4 block">International Partners</Label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {partners.map((partner) => (
-                <div key={partner.name} className="flex items-center space-x-2">
-                  <Checkbox 
-                    id={partner.name}
-                    checked={selectedPartners.includes(partner.name)}
-                    onCheckedChange={(checked) => handlePartnerChange(partner.name, checked)}
-                  />
-                  <Label htmlFor={partner.name} className="text-sm">{partner.name}</Label>
-                </div>
-              ))}
-            </div>
-          </Card>
+          {/* Render Each Category */}
+          {Object.entries(partners).map(([category, list]) => (
+            <Card key={category} className="p-6 border  border-muted bg-background rounded-lg mb-6">
+              <Label className="text-primary font-medium">
+                {category === "callerTunePartners" && "CallerTune Partners"}
+                {category === "indianStores" && "Indian Stores"}
+                {category === "internationalStores" && "International Stores"}
+              </Label>
+
+              <div className="grid grid-cols-3 max-h-60 overflow-y-auto custom-scroll gap-4 mt-4">
+                {list.map((partner) => (
+                  <div key={partner} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={partner}
+                      checked={selectedPartners.includes(partner)}
+                      onCheckedChange={(checked) => handlePartnerChange(partner, checked)}
+                    />
+                    <Label htmlFor={partner} className="text-sm">{partner}</Label>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          ))}
         </div>
+
 
         <div className="space-y-4">
           <h4 className="text-foreground font-semibold">Copyright Options :</h4>
