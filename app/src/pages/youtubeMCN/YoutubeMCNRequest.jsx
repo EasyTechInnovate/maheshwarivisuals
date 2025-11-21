@@ -1,14 +1,18 @@
 import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { ArrowLeft, Upload } from "lucide-react"
+import { ArrowLeft, Upload, Loader2 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { useMutation } from "@tanstack/react-query"
+import { submitMcnRequest } from "../../services/api.services"
+import { showToast } from "../../utils/toast"
+import { uploadToImageKit } from "../../utils/imagekitUploader"
 
 export default function YouTubeMCNRequest() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     channelName: "",
-    channelLink: "",
+    youtubeChannelId: "",
     subscribers: "",
     totalViews: "",
     monetization: "",
@@ -18,8 +22,8 @@ export default function YouTubeMCNRequest() {
     otherMCN: "",
     otherMCNName: "",
     revenueLastMonth: "",
-    analyticsFile: null,
-    revenueFile: null,
+    analyticsScreenshotUrl: "",
+    revenueScreenshotUrl: "",
     legalOwner: false,
     agreeTerms: false,
     ownershipTransfer: false,
@@ -27,6 +31,38 @@ export default function YouTubeMCNRequest() {
   })
 
   const [dragActive, setDragActive] = useState({ analytics: false, revenue: false })
+  const [isUploading, setIsUploading] = useState({ analytics: false, revenue: false })
+
+  const { mutate: submitRequest, isLoading } = useMutation({
+    mutationFn: submitMcnRequest,
+    onSuccess: () => {
+      showToast.success("MCN request submitted successfully!")
+      navigate("/app/youtube-mcn")
+    },
+    onError: (error) => {
+      showToast.error(error.response?.data?.message || "Failed to submit request.")
+    },
+  })
+
+  const parseRevenue = (revenueString) => {
+    if (!revenueString) return null
+    if (revenueString.includes('+')) {
+      return parseInt(revenueString.replace('$', '').replace('+', ''), 10)
+    }
+    return parseInt(revenueString.split('-')[0].replace('$', ''), 10)
+  }
+
+  const getChannelIdFromUrl = (url) => {
+    if (!url) return ""
+    try {
+      const urlObj = new URL(url)
+      const pathParts = urlObj.pathname.split('/').filter(Boolean)
+      if (pathParts[0] === 'channel' && pathParts[1]) {
+        return pathParts[1]
+      }
+    } catch (e) { /* Not a valid URL, might be an ID */ }
+    return url // Assume it's an ID if parsing fails
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -48,30 +84,56 @@ export default function YouTubeMCNRequest() {
     }
   }
 
+  const handleFileUpload = async (file, fileType) => {
+    if (!file) return
+    setIsUploading((prev) => ({ ...prev, [fileType]: true }))
+    try {
+      const response = await uploadToImageKit(file, "mcn_screenshots")
+      setFormData((prev) => ({ ...prev, [`${fileType}ScreenshotUrl`]: response.url }))
+    } catch (error) {
+      console.error("Upload failed:", error)
+    } finally {
+      setIsUploading((prev) => ({ ...prev, [fileType]: false }))
+    }
+  }
+
   const handleDrop = (e, fileType) => {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(prev => ({ ...prev, [fileType]: false }))
-    
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0]
-      setFormData(prev => ({ ...prev, [`${fileType}File`]: file }))
+      handleFileUpload(e.dataTransfer.files[0], fileType)
     }
   }
 
-  const handleFileChange = (e, fileType) => {
-    const file = e.target.files[0]
-    if (file) {
-      setFormData(prev => ({ ...prev, [`${fileType}File`]: file }))
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    // NOTE: File upload to a storage service to get a URL is not implemented.
+    // Using placeholder URLs as per API requirement.
+    const payload = {
+      youtubeChannelName: formData.channelName,
+      youtubeChannelId: getChannelIdFromUrl(formData.youtubeChannelId),
+      subscriberCount: Number(formData.subscribers),
+      totalViewsCountsIn28Days: Number(formData.totalViews),
+      monetizationEligibility: formData.monetization === "Yes",
+      isAdSenseEnabled: formData.adsense === "Yes",
+      hasCopyrightStrikes: formData.strikes === "Yes",
+      isContentOriginal: formData.originalContent === "Yes",
+      isPartOfAnotherMCN: formData.otherMCN === "Yes",
+      otherMCNDetails: formData.otherMCN === "Yes" ? formData.otherMCNName : null,
+      channelRevenueLastMonth: parseRevenue(formData.revenueLastMonth),
+      analyticsScreenshotUrl: formData.analyticsScreenshotUrl,
+      revenueScreenshotUrl: formData.revenueScreenshotUrl,
+      isLegalOwner: formData.legalOwner,
+      agreesToTerms: formData.agreeTerms,
+      understandsOwnership: formData.ownershipTransfer,
+      consentsToContact: formData.contactConsent,
     }
+
+    submitRequest(payload)
   }
 
-  const handleSubmit = () => {
-    console.log("Form data:", formData)
-    // Later: Call API with formData
-  }
-
-  const FileUploadArea = ({ fileType, label, file }) => (
+  const FileUploadArea = ({ fileType, label, url }) => (
     <div className="space-y-2 p-4 rounded-lg border">
       <label className="flex items-center gap-2 text-sm font-medium text-white">
         <Upload className="w-4 h-4" />
@@ -88,29 +150,37 @@ export default function YouTubeMCNRequest() {
         onDragOver={(e) => handleDrag(e, fileType)}
         onDrop={(e) => handleDrop(e, fileType)}
       >
-        <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-        <p className="text-gray-300 mb-2">
-          {file ? file.name : "Drop your audio file here"}
-        </p>
-        <p className="text-sm text-gray-500 mb-4">
-          Supports MP3, WAV, FLAC (Max 100MB)
-        </p>
+        {isUploading[fileType] ? (
+          <div className="flex flex-col items-center justify-center">
+            <Loader2 className="w-12 h-12 mx-auto mb-4 text-gray-400 animate-spin" />
+            <p className="text-gray-300">Uploading...</p>
+          </div>
+        ) : url ? (
+          <div className="text-center">
+            <img src={url} alt="Screenshot preview" className="max-h-24 mx-auto mb-2 rounded" />
+            <a href={url} target="_blank" rel="noopener noreferrer" className="text-purple-400 text-xs break-all hover:underline">
+              {url.split('/').pop()}
+            </a>
+          </div>
+        ) : (
+          <>
+            <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <p className="text-gray-300 mb-2">Drop your screenshot here</p>
+            <p className="text-sm text-gray-500 mb-4">Supports JPG, PNG</p>
+          </>
+        )}
         <input
           type="file"
-          accept=".mp3,.wav,.flac,.png,.jpg,.jpeg,.pdf"
-          onChange={(e) => handleFileChange(e, fileType)}
+          accept=".png,.jpg,.jpeg"
+          onChange={(e) => handleFileUpload(e.target.files[0], fileType)}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          disabled={isUploading[fileType]}
         />
         <Button
           type="button"
-          className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2"
-          onClick={() => {
-            const input = document.createElement('input')
-            input.type = 'file'
-            input.accept = '.mp3,.wav,.flac,.png,.jpg,.jpeg,.pdf'
-            input.onchange = (e) => handleFileChange(e, fileType)
-            input.click()
-          }}
+          className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 mt-4"
+          onClick={(e) => e.currentTarget.previousElementSibling.click()}
+          disabled={isUploading[fileType]}
         >
           Choose File
         </Button>
@@ -121,10 +191,11 @@ export default function YouTubeMCNRequest() {
   const allTermsAccepted = formData.legalOwner && formData.agreeTerms && formData.ownershipTransfer && formData.contactConsent
 
   return (
-    <div className="min-h-screen   p-4">
+    <form onSubmit={handleSubmit} className="min-h-screen p-4">
       {/* Back Button */}
       <div className="flex items-center gap-3 mb-6">
         <Button 
+          type="button"
           variant="outline" 
           className="mt-2 border-gray-600  hover:bg-gray-800" 
           size="icon" 
@@ -153,11 +224,11 @@ export default function YouTubeMCNRequest() {
           </div>
 
           <div>
-            <label className="block text-sm mb-1 ">YouTube Channel Link</label>
+            <label className="block text-sm mb-1 ">YouTube Channel ID or Link</label>
             <input
               type="url"
-              name="channelLink"
-              value={formData.channelLink}
+              name="youtubeChannelId"
+              value={formData.youtubeChannelId}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-slate-600 rounded-md "
             />
@@ -295,12 +366,12 @@ export default function YouTubeMCNRequest() {
           <FileUploadArea
             fileType="analytics"
             label="Upload Channel Analytics Screenshot (Last 30 Days)"
-            file={formData.analyticsFile}
+            url={formData.analyticsScreenshotUrl}
           />
           <FileUploadArea
             fileType="revenue"
-            label="Upload Channel Analytics Screenshot (Last 30 Days)"
-            file={formData.revenueFile}
+            label="Upload Channel Revenue Screenshot (Last 30 Days)"
+            url={formData.revenueScreenshotUrl}
           />
         </CardContent>
       </Card>
@@ -361,13 +432,17 @@ export default function YouTubeMCNRequest() {
       {/* Submit Button */}
       <div className="mt-8">
         <Button 
-          onClick={handleSubmit} 
-          disabled={!allTermsAccepted}
+          type="submit"
+          disabled={!allTermsAccepted || isLoading}
           className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 text-lg font-medium disabled:bg-gray-600 disabled:cursor-not-allowed"
         >
-          Apply
+          {isLoading ? (
+            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Applying...</>
+          ) : (
+            "Apply"
+          )}
         </Button>
       </div>
-    </div>
+    </form>
   )
 }   
