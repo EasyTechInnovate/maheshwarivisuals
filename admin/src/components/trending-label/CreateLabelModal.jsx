@@ -169,7 +169,7 @@ export default function AddLabelModal({ open, onClose, theme, editData }) {
 
         
         <div className="flex justify-end mt-6 gap-3">
-          <Button variant="outline" disabled={loading} onClick={onClose} className={`rounded-full px-4 ${isDark ? "bg-transparent border-gray-600 text-gray-300 hover:bg-gray-800" : "border-gray-300 text-gray-700 hover:bg-gray-100"}`}>
+          <Button variant="outline" disabled={loading} onClick={onClose} className={`rounded-full px-4 ${isDark ? "bg-transparent border-gray-800 text-gray-300 hover:bg-gray-800" : "border-gray-300 text-gray-700 hover:bg-gray-100"}`}>
             Cancel
           </Button>
           <Button disabled={loading} onClick={handleSubmit} className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-4 flex items-center gap-2">

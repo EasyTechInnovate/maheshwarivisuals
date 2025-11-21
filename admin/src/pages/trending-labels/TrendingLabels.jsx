@@ -269,9 +269,9 @@ export default function TrendingLabelsManager({ theme }) {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="end"
-                        className={
+                        className={ 
                           theme === "dark"
-                            ? "bg-gray-800 text-white"
+                            ? "bg-[#151F28] text-white border-gray-700"
                             : "bg-white text-black"
                         }
                       >

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Search, Download, MessageSquare, Loader2 } from "lucide-react";
-import GlobalApi from "@/lib/GlobalApi"; 
+import GlobalApi from "@/lib/GlobalApi";
 import SupportTicketDetail from "@/components/help-&-support/SupportTicketDetail";
 
 export default function HelpSupport({ theme = "dark" }) {
@@ -19,41 +19,41 @@ export default function HelpSupport({ theme = "dark" }) {
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
   const [categoryFilter, setCategoryFilter] = useState("All");
-  const [selectedTicketId, setSelectedTicketId] = useState(null); 
-  
+  const [selectedTicket, setSelectedTicket] = useState(null);
 
 
-  const cardClass = `${
-    theme === "dark" ? "bg-[#151F28]" : "bg-white"
-  } p-5 rounded-2xl shadow flex flex-col`;
+
+
+  const cardClass = `${theme === "dark" ? "bg-[#151F28]" : "bg-white"
+    } p-5 rounded-2xl shadow flex flex-col`;
 
   const textColors =
     theme === "dark"
       ? {
-          primary: "text-white",
-          secondary: "text-gray-400",
-          muted: "text-gray-500",
-        }
+        primary: "text-white",
+        secondary: "text-gray-400",
+        muted: "text-gray-500",
+      }
       : {
-          primary: "text-black",
-          secondary: "text-gray-600",
-          muted: "text-gray-500",
-        };
+        primary: "text-black",
+        secondary: "text-gray-600",
+        muted: "text-gray-500",
+      };
 
   const bgColors =
     theme === "dark"
       ? {
-          input: "bg-[#111A22] text-white",
-          select: "bg-[#111A22] text-white hover:bg-gray-700",
-          button: "bg-[#111A22] text-white hover:bg-gray-700",
-          rowHover: "hover:bg-gray-800/40 border-gray-800",
-        }
+        input: "bg-[#111A22] text-white",
+        select: "bg-[#111A22] text-white hover:bg-gray-700",
+        button: "bg-[#111A22] text-white hover:bg-gray-700",
+        rowHover: "hover:bg-gray-800/40 border-gray-800",
+      }
       : {
-          input: "bg-gray-200 text-black",
-          select: "bg-gray-200 text-black hover:bg-gray-300",
-          button: "bg-gray-200 text-black hover:bg-gray-300",
-          rowHover: "hover:bg-gray-100 border-gray-200",
-        };
+        input: "bg-gray-200 text-black",
+        select: "bg-gray-200 text-black hover:bg-gray-300",
+        button: "bg-gray-200 text-black hover:bg-gray-300",
+        rowHover: "hover:bg-gray-100 border-gray-200",
+      };
 
   const badgeColors = {
     category: {
@@ -143,12 +143,12 @@ export default function HelpSupport({ theme = "dark" }) {
 
 
 
-    if (selectedTicketId) {
+  if (selectedTicket) {
     return (
       <SupportTicketDetail
         theme={theme}
-        ticketId={selectedTicketId}
-        onBack={() => setSelectedTicketId(null)}
+        ticket={selectedTicket}
+        onBack={() => setSelectedTicket(null)}
       />
     );
   }
@@ -157,13 +157,13 @@ export default function HelpSupport({ theme = "dark" }) {
 
 
 
+
   return (
 
-    
+
     <div
-      className={`${
-        theme === "dark" ? "bg-[#111A22] text-white" : "bg-gray-100 text-black"
-      } min-h-screen p-4 sm:p-6 rounded-2xl`}
+      className={`${theme === "dark" ? "bg-[#111A22] text-white" : "bg-gray-100 text-black"
+        } min-h-screen p-4 sm:p-6 rounded-2xl`}
     >
       {/* Heading */}
       <h1 className={`text-xl sm:text-2xl font-bold mb-2 ${textColors.primary}`}>
@@ -245,17 +245,15 @@ export default function HelpSupport({ theme = "dark" }) {
 
       {/* Search + Filters */}
       <div
-        className={`${
-          theme === "dark" ? "bg-[#151F28]" : "bg-white"
-        } p-4 rounded-2xl shadow mb-6 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between`}
+        className={`${theme === "dark" ? "bg-[#151F28]" : "bg-white"
+          } p-4 rounded-2xl shadow mb-6 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between`}
       >
         <div
           className={`flex items-center rounded-lg px-3 py-2 w-full sm:w-1/2 ${bgColors.input}`}
         >
           <Search
-            className={`w-4 h-4 mr-2 ${
-              theme === "dark" ? "text-gray-400" : "text-gray-600"
-            }`}
+            className={`w-4 h-4 mr-2 ${theme === "dark" ? "text-gray-400" : "text-gray-600"
+              }`}
           />
           <input
             type="text"
@@ -314,9 +312,8 @@ export default function HelpSupport({ theme = "dark" }) {
 
       {/* Table */}
       <div
-        className={`${
-          theme === "dark" ? "bg-[#151F28]" : "bg-white"
-        } rounded-2xl shadow overflow-x-auto`}
+        className={`${theme === "dark" ? "bg-[#151F28]" : "bg-white"
+          } rounded-2xl shadow overflow-x-auto`}
       >
         {loading ? (
           <div className="flex justify-center items-center py-10">
@@ -371,53 +368,61 @@ export default function HelpSupport({ theme = "dark" }) {
                     <td className="py-3 px-4">{t.subject}</td>
                     <td className="py-3 px-4">
                       <span
-                        className={`text-xs px-2.5 py-1 rounded-full ${
-                          badgeColors.category[t.category] ||
+                        className={`text-xs px-2.5 py-1 rounded-full ${badgeColors.category[t.category] ||
                           "bg-gray-200 text-gray-600"
-                        }`}
+                          }`}
                       >
                         {t.category}
                       </span>
                     </td>
                     <td className="py-3 px-4">
                       <span
-                        className={`text-xs px-2.5 py-1 rounded-full ${
-                          badgeColors.priority[
-                            t.priority?.charAt(0).toUpperCase() +
-                              t.priority?.slice(1).toLowerCase()
-                          ] || "bg-gray-200 text-gray-600"
-                        }`}
+                        className={`text-xs px-2.5 py-1 rounded-full ${badgeColors.priority[
+                          t.priority?.charAt(0).toUpperCase() +
+                          t.priority?.slice(1).toLowerCase()
+                        ] || "bg-gray-200 text-gray-600"
+                          }`}
                       >
                         {t.priority}
                       </span>
                     </td>
                     <td className="py-3 px-4">
                       <span
-                        className={`text-xs px-2.5 py-1 rounded-full ${
-                          badgeColors.status[t.status?.toLowerCase()] ||
+                        className={`text-xs px-2.5 py-1 rounded-full ${badgeColors.status[t.status?.toLowerCase()] ||
                           "bg-gray-200 text-gray-600"
-                        }`}
+                          }`}
                       >
                         {t.status}
                       </span>
                     </td>
-                    <td className="py-3 px-4">
-                      {t.assignedTo || "Unassigned"}
-                    </td>
+
+
+                  <td className="py-3 px-4">
+  {typeof t.assignedTo === "object" && t.assignedTo !== null
+    ? `${t.assignedTo.firstName ?? ""} ${t.assignedTo.lastName ?? ""}`.trim()
+    : t.assignedTo || "Unassigned"}
+</td>
+
+
+
                     <td className="py-3 px-4">
                       {new Date(t.createdAt).toLocaleDateString()}
                     </td>
+
+
                     <td className="py-3 px-4 flex items-center gap-1">
                       <MessageSquare className="w-4 h-4 text-gray-400" />
                       {t.responses?.length || 0}
                     </td>
+
                     <td className="py-3 px-4">
                       <button
-  className={`px-3.5 py-2 rounded-lg text-xs ${bgColors.button}`}
-  onClick={() => setSelectedTicketId(t.ticketId)}
->
-  View
-</button>
+                        className={`px-3.5 py-2 rounded-lg text-xs ${bgColors.button}`}
+                        onClick={() => setSelectedTicket(t)}
+
+                      >
+                        View
+                      </button>
 
                     </td>
                   </tr>
@@ -434,11 +439,10 @@ export default function HelpSupport({ theme = "dark" }) {
           <button
             disabled={page <= 1}
             onClick={() => setPage(page - 1)}
-            className={`px-3 py-1 rounded-lg text-sm ${
-              page <= 1
-                ? "opacity-50 cursor-not-allowed"
-                : bgColors.button
-            }`}
+            className={`px-3 py-1 rounded-lg text-sm ${page <= 1
+              ? "opacity-50 cursor-not-allowed"
+              : bgColors.button
+              }`}
           >
             Prev
           </button>
@@ -448,11 +452,10 @@ export default function HelpSupport({ theme = "dark" }) {
           <button
             disabled={page >= pagination.totalPages}
             onClick={() => setPage(page + 1)}
-            className={`px-3 py-1 rounded-lg text-sm ${
-              page >= pagination.totalPages
-                ? "opacity-50 cursor-not-allowed"
-                : bgColors.button
-            }`}
+            className={`px-3 py-1 rounded-lg text-sm ${page >= pagination.totalPages
+              ? "opacity-50 cursor-not-allowed"
+              : bgColors.button
+              }`}
           >
             Next
           </button>
