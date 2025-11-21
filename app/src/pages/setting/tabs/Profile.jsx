@@ -7,11 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Camera, Link, Shield, CreditCard } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
 
 const Profile = () => {
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const {user} = useAuthStore();
 
   const fileInputRef = useRef(null);
   
@@ -22,6 +23,7 @@ const Profile = () => {
     lastName: '',
     artistName: '',
     phoneNumber: '',
+    emailAddress: '',
     bio: '',
     primaryGenre: '',
     location: '',
@@ -58,68 +60,53 @@ const Profile = () => {
     }
   });
 
-  // Fetch profile data on component mount
-  useEffect(() => {
-    fetchProfileData();
-  }, []);
-
-  const fetchProfileData = async () => {
-    setLoading(true);
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     try {
-      // Simulate API call - replace with actual API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Fake data from API
-      const profileData = {
-        profileImage: '',
-        firstName: 'Artist',
-        lastName: 'Name',
-        artistName: 'Artist Name',
-        phoneNumber: '+91 98765 43210',
-        bio: 'Passionate musician creating unique sounds and connecting with fans worldwide.',
-        primaryGenre: 'pop',
-        location: 'Mumbai, India',
-        socialMedia: {
-          instagram: 'https://instagram.com/yourhandle',
-          youtube: 'https://youtube.com/yourchannel',
-          spotify: 'https://open.spotify.com/artist/...',
-          website: 'https://yourwebsite.com'
-        },
-        kyc: {
-          aadhaarNumber: '1234 5678 9012 3456',
-          panNumber: 'ABCDE1234F',
-          bankNumber: '1234567890123456',
-          ifscCode: 'HDFC0000123',
-          status: 'approved'
-        },
-        subscription: {
-          plan: 'Premium Plan',
-          price: '$99',
-          period: 'per year',
-          status: 'Active',
-          startDate: 'Jan 15, 2024',
-          endDate: 'Jan 15, 2025',
-          paymentMethod: '•••• 1234',
-          nextBilling: 'Jan 15, 2025',
-          autoRenewal: true,
-          features: [
-            'Unlimited music releases',
-            'Advanced analytics dashboard',
-            'Priority customer support',
-            'Playlist pitching service',
-            'Custom artist profile'
-          ]
-        }
-      };
-
-      setFormData(profileData);
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }).format(new Date(dateString));
     } catch (error) {
-      console.error('Error fetching profile data:', error);
-      alert('Error loading profile data');
-    } finally {
-      setLoading(false);
+      return dateString; // Return original string if formatting fails
     }
   };
+
+  // Populate form data when user object is available from the store
+  useEffect(() => {
+    if (user) {
+      
+
+      setFormData(prev => ({
+        ...prev,
+        // Basic user info
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        emailAddress: user.emailAddress || '',
+        artistName: user.artistName || '', // Assuming this might come from the API
+        phoneNumber: user.phoneNumber?.internationalNumber || '',
+
+        // Other profile details (will be empty if not in user object)
+        bio: user.bio || '',
+        primaryGenre: user.primaryGenre || '',
+        location: user.location || '',
+
+        // Nested objects
+        socialMedia: user.socialMedia || prev.socialMedia,
+        kyc: user.kyc || prev.kyc,
+        subscription: user.subscription ? {
+          ...prev.subscription, // Keep fields not in API response (like price, features)
+          plan: user.subscription.planId || user.subscription.planId,
+          status: user.subscription.status || prev.subscription.status,
+          startDate: formatDate(user.subscription.validFrom),
+          endDate: formatDate(user.subscription.validUntil),
+          nextBilling: formatDate(user.subscription.nextPaymentDate),
+          autoRenewal: user.subscription.autoRenewal,
+        } : prev.subscription,
+      }));
+    }
+  }, [user]);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -218,17 +205,6 @@ const handleImageUpload = (event) => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p>Loading profile data...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8">
       {/* Profile Information Section */}
@@ -323,6 +299,16 @@ const handleImageUpload = (event) => {
                 onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                 placeholder="+91 98765 43210"
                 className="border-slate-700"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Email Address</label>
+              <Input
+                value={formData.emailAddress}
+                onChange={(e) => handleInputChange('emailAddress', e.target.value)}
+                placeholder="your@email.com"
+                className="border-slate-700"
+                disabled // Email is usually not editable
               />
             </div>
           </div>

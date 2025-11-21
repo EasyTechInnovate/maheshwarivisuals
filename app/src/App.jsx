@@ -30,24 +30,32 @@ import AdvancedReleaseBuilder from './pages/uploadRelease/Advance'
 import Profile from './pages/profile/Profile'
 import Plan from './pages/plan/Plan'
 import MahiAI from './pages/mahiAI/MahiAI'
+import FanLinksBuilder from './pages/fanLink/FanLink'
 
 const AuthProvider = ({ children }) => {
   const { setUser, setAuthenticated, setLoading, clearAuth } = useAuthStore();
 
-  const { isLoading } = useQuery({
+  const { isLoading, data, isError } = useQuery({
     queryKey: ['userProfile'],
     queryFn: getUserProfile,
     enabled: !!localStorage.getItem('accessToken'), 
     retry: 1,
-    onSuccess: (data) => {
-      if (data?.data?.user) {
-        setUser(data.data.user);
-      }
-    },
-    onError: () => {
+  });
+
+  // Handle success
+  useEffect(() => {
+    if (data?.data?.user) {
+      setUser(data.data.user);
+      setAuthenticated(true);
+    }
+  }, [data, setUser, setAuthenticated]);
+
+  // Handle error
+  useEffect(() => {
+    if (isError) {
       clearAuth();
     }
-  });
+  }, [isError, clearAuth]);
 
   useEffect(() => {
     if (!localStorage.getItem('accessToken')) {
@@ -56,7 +64,6 @@ const AuthProvider = ({ children }) => {
     }
   }, [setLoading, setAuthenticated]);
 
-  // Show loading screen while authenticating
   if (isLoading) {
     return (
       <div style={{
@@ -78,7 +85,6 @@ const AuthProvider = ({ children }) => {
 // Protected routes wrapper
 const ProtectedRoutes = () => {
   const { isAuthenticated, isLoading , user } = useAuthStore();
-
   if (!isAuthenticated && !isLoading && user.role !== 'user' ) {
     // Redirect to login if not authenticated
     return <Navigate to="/login" replace />;
@@ -106,6 +112,7 @@ const ProtectedRoutes = () => {
           <Route path='merch' element={<MerchStore />} />
           <Route path='mahi-ai' element={<MahiAI />} />
           <Route path='help' element={<HelpSupport />} />
+          <Route path='fan-link' element={<FanLinksBuilder />} />
           <Route path='settings' element={<SettingsPage />} />
         </Route>
     </Routes>

@@ -37,7 +37,7 @@ const AppSidebar = () => {
         { icon: Megaphone, label: "MV Marketing", url: "/app/mv-marketing" },
         { icon: Megaphone, label: "Advertisement", url: "/app/advertisement" },
         { icon: Video, label: "MV Production", url: "/app/mv-production" },
-        { icon: Wrench, label: "Fan Links Builder", url: "/app/fan-links" },
+        { icon: Wrench, label: "Fan Links Builder", url: "/app/fan-link" },
         { icon: Store, label: "Merch Store", url: "/app/merch" }
       ]
     },
