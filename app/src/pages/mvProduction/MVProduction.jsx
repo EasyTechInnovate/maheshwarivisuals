@@ -6,9 +6,9 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Film } from "lucide-react"
+import { Eye, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Film, Trash2 } from "lucide-react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createMVProduction, getMyMVProductions } from "../../services/api.services"
+import { createMVProduction, getMyMVProductions, deleteMVProduction } from "../../services/api.services"
 import { showToast } from "../../utils/toast"
 import MVProductionView from "./MVProductionView"
 
@@ -18,6 +18,7 @@ export default function MVProduction() {
   const [viewData, setViewData] = useState(null)
   const [currentStep, setCurrentStep] = useState(1)
   const [currentPage, setCurrentPage] = useState(1)
+  const [deleteConfirm, setDeleteConfirm] = useState(null)
   const itemsPerPage = 10
 
   const queryClient = useQueryClient()
@@ -81,15 +82,60 @@ export default function MVProduction() {
   // Mutation for creating MV Production
   const createMutation = useMutation({
     mutationFn: createMVProduction,
-    onSuccess: () => {
+    onSuccess: (newData) => {
       showToast.success("MV Production request submitted successfully!")
-      queryClient.invalidateQueries(['mvProductions'])
+      
+      // Update query data directly instead of invalidating
+      queryClient.setQueryData(['mvProductions', 1], (oldData) => {
+        if (!oldData) return oldData
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            productions: [newData.data, ...oldData.data.productions].slice(0, 10),
+            pagination: {
+              ...oldData.data.pagination,
+              totalCount: oldData.data.pagination.totalCount + 1
+            }
+          }
+        }
+      })
+      
       setShowForm(false)
       setCurrentStep(1)
       resetForm()
     },
     onError: (error) => {
       showToast.error(error.response?.data?.message || "Failed to submit MV Production request.")
+    }
+  })
+
+  // Mutation for deleting MV Production
+  const deleteMutation = useMutation({
+    mutationFn: (id) => deleteMVProduction(id),
+    onSuccess: (_, deletedId) => {
+      showToast.success("MV Production request deleted successfully!")
+      
+      // Update query data directly - remove the deleted item
+      queryClient.setQueryData(['mvProductions', currentPage], (oldData) => {
+        if (!oldData) return oldData
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            productions: oldData.data.productions.filter(item => item._id !== deletedId),
+            pagination: {
+              ...oldData.data.pagination,
+              totalCount: oldData.data.pagination.totalCount - 1
+            }
+          }
+        }
+      })
+      
+      setDeleteConfirm(null)
+    },
+    onError: (error) => {
+      showToast.error(error.response?.data?.message || "Failed to delete MV Production request.")
     }
   })
 
@@ -778,6 +824,22 @@ export default function MVProduction() {
     </div>
   )
 
+  const handleDelete = (id) => {
+    setDeleteConfirm(id)
+  }
+
+  const confirmDelete = () => {
+    console.log('Delete confirm - deleteConfirm ID:', deleteConfirm)
+    if (deleteConfirm) {
+      console.log('Calling deleteMutation with ID:', deleteConfirm)
+      deleteMutation.mutate(deleteConfirm)
+    }
+  }
+
+  const cancelDelete = () => {
+    setDeleteConfirm(null)
+  }
+
   if (showViewOnly && viewData) {
     return <MVProductionView request={viewData} onBack={handleBackFromView} />
   }
@@ -897,15 +959,26 @@ export default function MVProduction() {
                             </td>
                             <td className="p-4">{new Date(request.createdAt).toLocaleDateString()}</td>
                             <td className="p-4">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleView(request)}
-                                className="flex items-center gap-2"
-                              >
-                                <Eye className="h-4 w-4" />
-                                View
-                              </Button>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleView(request)}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                  View
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleDelete(request._id)}
+                                  className="flex items-center gap-2 text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                  Delete
+                                </Button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -968,6 +1041,39 @@ export default function MVProduction() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <Card className="max-w-sm w-full">
+            <CardHeader>
+              <CardTitle className="text-lg">Delete Request</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                Are you sure you want to delete this MV Production request? This action cannot be undone.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={cancelDelete}
+                  disabled={deleteMutation.isLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={confirmDelete}
+                  disabled={deleteMutation.isPending}
+                  className="flex items-center gap-2"
+                >
+                  {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }

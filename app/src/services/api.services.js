@@ -263,3 +263,20 @@ export const getMyMVProductions = async (params) => {
     const response = await servicesAxiosInstance.get(`/v1/mv-production?${queryParams.toString()}`)
     return response.data
 }
+
+export const deleteMVProduction = async (productionId) => {
+  console.log('API call - Deleting production:', productionId)
+  const response = await servicesAxiosInstance.delete(`/v1/mv-production/${productionId}`)
+  return response.data
+}
+
+// Subscription APIs
+export const getMySubscription = async () => {
+    const response = await servicesAxiosInstance.get('/v1/subscription/my-subscription')
+    return response.data
+}
+
+export const getAllSubscriptionPlans = async () => {
+    const response = await servicesAxiosInstance.get('/v1/subscription/plans')
+    return response.data
+}

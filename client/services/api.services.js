@@ -67,3 +67,15 @@ export const verifyPayment = async (verificationData) => {
     const response = await servicesAxiosInstance.post('/v1/subscription/verify-payment', verificationData)
     return response.data
 }
+
+// ============= Aggregator APIs =============
+
+/**
+ * Submit aggregator application
+ * @param {Object} aggregatorData - Aggregator application data
+ * @returns {Promise} Response with application status
+ */
+export const submitAggregatorApplication = async (aggregatorData) => {
+    const response = await servicesAxiosInstance.post('/v1/aggregator/apply', aggregatorData)
+    return response.data
+}

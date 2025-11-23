@@ -68,7 +68,7 @@ const AppSidebar = () => {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
+      <SidebarContent className="px-2 pb-24">
         {sidebarSections.map((section) => (
           <SidebarGroup key={section.title}>
             <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-2">
