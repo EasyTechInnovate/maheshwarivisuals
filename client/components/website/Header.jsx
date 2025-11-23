@@ -176,7 +176,7 @@ export default function WebsiteHeader() {
                     <Link href='/signin' className="px-6 py-2 bg-violet-700 text-white rounded-lg font-semibold hover:bg-violet-600 transition-colors duration-200 shadow-lg cursor-pointer">
                         Login
                     </Link>
-                    <Link href='signin' className="px-6 py-2 border border-white text-white rounded-lg font-semibold hover:text-white cursor-pointer transition-colors duration-200">
+                    <Link href='/signup' className="px-6 py-2 border border-white text-white rounded-lg font-semibold hover:text-white cursor-pointer transition-colors duration-200">
                         Free Sign Up
                     </Link>
                 </div>
