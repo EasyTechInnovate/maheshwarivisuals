@@ -5,7 +5,7 @@ const baseURL = import.meta.env.VITE_API_URL;
 // const baseURL = 'http://localhost:5000';
 
 if (!baseURL) {
-    throw new Error('VITE_API_URL is not defined in the environment variables.');
+    throw new Error('VITE_API_URL is not right or defined in the environment variables.');
 }
 
 const servicesAxiosInstance = axios.create({
