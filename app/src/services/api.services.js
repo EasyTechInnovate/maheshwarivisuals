@@ -246,3 +246,20 @@ export const submitPlaylistPitchingRequest = async (data) => {
     const response = await servicesAxiosInstance.post('/v1/marketing/playlist-pitching/submit', data)
     return response.data
 }
+
+// MV Production APIs
+export const createMVProduction = async (data) => {
+    const response = await servicesAxiosInstance.post('/v1/mv-production', data)
+    return response.data
+}
+
+export const getMyMVProductions = async (params) => {
+    const { page = 1, limit = 10 } = params
+    const queryParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    })
+
+    const response = await servicesAxiosInstance.get(`/v1/mv-production?${queryParams.toString()}`)
+    return response.data
+}

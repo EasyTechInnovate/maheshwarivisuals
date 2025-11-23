@@ -6,75 +6,54 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, ArrowLeft, ArrowRight } from "lucide-react"
+import { Eye, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Film } from "lucide-react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { createMVProduction, getMyMVProductions } from "../../services/api.services"
+import { showToast } from "../../utils/toast"
+import MVProductionView from "./MVProductionView"
 
 export default function MVProduction() {
   const [showForm, setShowForm] = useState(false)
+  const [showViewOnly, setShowViewOnly] = useState(false)
+  const [viewData, setViewData] = useState(null)
   const [currentStep, setCurrentStep] = useState(1)
-  
-  // Fake data for the list
-  const mvRequests = [
-    {
-      label: "Rajesh Kumar",
-      product: "T-Shirts",
-      plan: "Yes",
-      channel: "Instagram",
-      assist: "No",
-      status: "Pending",
-      date: "2024-03-15"
-    },
-    {
-      label: "Rajesh Kumar",
-      product: "Hoodies",
-      plan: "No",
-      channel: "N/A",
-      assist: "Yes",
-      status: "Pending",
-      date: "2024-03-10"
-    },
-    {
-      label: "Rajesh Kumar",
-      product: "T-Shirts",
-      plan: "Yes",
-      channel: "YouTube",
-      assist: "No",
-      status: "Pending",
-      date: "2024-03-08"
-    },
-    {
-      label: "Rajesh Kumar",
-      product: "T-Shirts",
-      plan: "No",
-      channel: "N/A",
-      assist: "Yes",
-      status: "Pending",
-      date: "2024-03-05"
-    }
-  ]
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
-  // Form data state
+  const queryClient = useQueryClient()
+
+  // Fetch MV Productions
+  const { data: productionsData, isLoading } = useQuery({
+    queryKey: ['mvProductions', currentPage],
+    queryFn: () => getMyMVProductions({ page: currentPage, limit: itemsPerPage }),
+    enabled: !showForm && !showViewOnly,
+    keepPreviousData: true,
+  })
+
+  const mvRequests = productionsData?.data?.productions || []
+  const pagination = productionsData?.data?.pagination
+
+  // Form data state matching API structure
   const [formData, setFormData] = useState({
     // Step 1: Basic Details
     copyrightOwnerName: "",
+    mobileNumber: "",
     emailOfCopyrightHolder: "",
-    mobileNoCopyrightHolder: "",
     projectTitle: "",
     artistName: "",
     labelName: "",
     releaseTimeline: "",
-    genres: "",
+    genres: [],
     mood: "",
-    isAlbumOrEP: "",
+    isPartOfAlbumOrEP: "",
     language: "",
     theme: "",
-    beats: "",
-    locationPreferences: {
-      indoorStudio: false,
-      outdoorNatural: false,
-      urbanStreet: false
+    locationPreference: {
+      indoor_studio: false,
+      outdoor_natural: false,
+      urban_and_street: false
     },
-    others: "",
-    
+
     // Step 2: Budget Request
     totalBudgetRequested: "",
     proposedOwnershipDilution: "",
@@ -82,25 +61,36 @@ export default function MVProduction() {
     shootDay: "",
     postProduction: "",
     miscellaneousContingency: "",
-    personalFundsContribution: "",
+    willContributePersonalFunds: "",
     personalFundsAmount: "",
-    revenueSharingModel: {
-      flatBuyout: false,
-      revenueSplit: false,
-      hybridBuyoutRoyalties: false
-    },
-    
+    revenueSharingModelProposed: "",
+
     // Step 3: Marketing & Distribution
-    mvDistribution: "",
-    brandMerchTieIns: "",
-    adsInfluencerCampaigns: "",
-    adsInfluencerDescription: "",
-    
+    willBeReleasedViaMVDistribution: "",
+    anyBrandOrMerchTieIns: "",
+    brandOrMerchTieInsDescription: "",
+    planToRunAdsOrInfluencerCampaigns: "",
+
     // Step 4: Legal
-    retainCreativeOwnership: "",
-    creditMVProduction: "",
-    shareAssetsMV: "",
-    requireNDACustomAgreement: ""
+    confirmFullCreativeOwnership: "",
+    agreeToCreditMVProduction: "",
+    agreeToShareFinalAssets: "",
+    requireNDAOrCustomAgreement: ""
+  })
+
+  // Mutation for creating MV Production
+  const createMutation = useMutation({
+    mutationFn: createMVProduction,
+    onSuccess: () => {
+      showToast.success("MV Production request submitted successfully!")
+      queryClient.invalidateQueries(['mvProductions'])
+      setShowForm(false)
+      setCurrentStep(1)
+      resetForm()
+    },
+    onError: (error) => {
+      showToast.error(error.response?.data?.message || "Failed to submit MV Production request.")
+    }
   })
 
   const handleInputChange = (field, value) => {
@@ -120,8 +110,73 @@ export default function MVProduction() {
     }))
   }
 
-  const handleView = (index) => {
-    console.log('View item:', index)
+  const handleGenreToggle = (genre) => {
+    setFormData(prev => ({
+      ...prev,
+      genres: prev.genres.includes(genre)
+        ? prev.genres.filter(g => g !== genre)
+        : [...prev.genres, genre]
+    }))
+  }
+
+  const resetForm = () => {
+    setFormData({
+      copyrightOwnerName: "",
+      mobileNumber: "",
+      emailOfCopyrightHolder: "",
+      projectTitle: "",
+      artistName: "",
+      labelName: "",
+      releaseTimeline: "",
+      genres: [],
+      mood: "",
+      isPartOfAlbumOrEP: "",
+      language: "",
+      theme: "",
+      locationPreference: {
+        indoor_studio: false,
+        outdoor_natural: false,
+        urban_and_street: false
+      },
+      totalBudgetRequested: "",
+      proposedOwnershipDilution: "",
+      preProduction: "",
+      shootDay: "",
+      postProduction: "",
+      miscellaneousContingency: "",
+      willContributePersonalFunds: "",
+      personalFundsAmount: "",
+      revenueSharingModelProposed: "",
+      willBeReleasedViaMVDistribution: "",
+      anyBrandOrMerchTieIns: "",
+      brandOrMerchTieInsDescription: "",
+      planToRunAdsOrInfluencerCampaigns: "",
+      confirmFullCreativeOwnership: "",
+      agreeToCreditMVProduction: "",
+      agreeToShareFinalAssets: "",
+      requireNDAOrCustomAgreement: ""
+    })
+  }
+
+  const handleView = (item) => {
+    setViewData(item)
+    setShowViewOnly(true)
+  }
+
+  const handleBackFromView = () => {
+    setShowViewOnly(false)
+    setViewData(null)
+  }
+
+  const handleNewRequest = () => {
+    resetForm()
+    setShowForm(true)
+  }
+
+  const handleBackToList = () => {
+    setShowForm(false)
+    setCurrentStep(1)
+    resetForm()
   }
 
   const handleNextStep = () => {
@@ -137,15 +192,66 @@ export default function MVProduction() {
   }
 
   const handleFormSubmit = () => {
-    console.log('Form Data:', formData)
-    // Here you would typically send the data to your API
-    setShowForm(false)
-    setCurrentStep(1)
-    // Reset form or add to list
+    // Convert form data to API format
+    const selectedLocationPreferences = Object.keys(formData.locationPreference)
+      .filter(key => formData.locationPreference[key])
+
+    const payload = {
+      ownerInfo: {
+        copyrightOwnerName: formData.copyrightOwnerName,
+        mobileNumber: formData.mobileNumber,
+        emailOfCopyrightHolder: formData.emailOfCopyrightHolder
+      },
+      projectOverview: {
+        projectTitle: formData.projectTitle,
+        artistName: formData.artistName,
+        labelName: formData.labelName,
+        releaseTimeline: formData.releaseTimeline,
+        genres: formData.genres,
+        mood: formData.mood,
+        isPartOfAlbumOrEP: formData.isPartOfAlbumOrEP === "yes",
+        language: formData.language,
+        theme: formData.theme,
+        locationPreference: selectedLocationPreferences
+      },
+      budgetRequestAndOwnershipProposal: {
+        totalBudgetRequested: parseFloat(formData.totalBudgetRequested) || 0,
+        proposedOwnershipDilution: parseFloat(formData.proposedOwnershipDilution) || 0,
+        breakdown: {
+          preProduction: parseFloat(formData.preProduction) || 0,
+          shootDay: parseFloat(formData.shootDay) || 0,
+          postProduction: parseFloat(formData.postProduction) || 0,
+          miscellaneousContingency: parseFloat(formData.miscellaneousContingency) || 0
+        },
+        willContributePersonalFunds: formData.willContributePersonalFunds === "yes",
+        personalFundsAmount: parseFloat(formData.personalFundsAmount) || 0,
+        revenueSharingModelProposed: formData.revenueSharingModelProposed
+      },
+      marketingAndDistributionPlan: {
+        willBeReleasedViaMVDistribution: formData.willBeReleasedViaMVDistribution === "yes",
+        anyBrandOrMerchTieIns: formData.anyBrandOrMerchTieIns === "yes",
+        brandOrMerchTieInsDescription: formData.brandOrMerchTieInsDescription || null,
+        planToRunAdsOrInfluencerCampaigns: formData.planToRunAdsOrInfluencerCampaigns === "yes"
+      },
+      legalAndOwnershipDeclaration: {
+        confirmFullCreativeOwnership: formData.confirmFullCreativeOwnership === "yes",
+        agreeToCreditMVProduction: formData.agreeToCreditMVProduction === "yes",
+        agreeToShareFinalAssets: formData.agreeToShareFinalAssets === "yes",
+        requireNDAOrCustomAgreement: formData.requireNDAOrCustomAgreement === "yes"
+      }
+    }
+
+    createMutation.mutate(payload)
+  }
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= (pagination?.totalPages || 1)) {
+      setCurrentPage(newPage)
+    }
   }
 
   const renderStepIndicator = () => (
-    <div className="flex items-center justify-center  md:space-x-4">
+    <div className="flex items-center justify-center md:space-x-4">
       {[
         { number: 1, label: "Basic Details" },
         { number: 2, label: "Budget Request" },
@@ -153,17 +259,17 @@ export default function MVProduction() {
         { number: 4, label: "Legal" }
       ].map((step) => (
         <div key={step.number} className="flex items-center">
-          
+
           <div className={`w-6 h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center shrink-0 text-xs lg:text-sm font-medium ${
-            currentStep >= step.number 
-              ? 'bg-[#711CE9] text-white' 
+            currentStep >= step.number
+              ? 'bg-[#711CE9] text-white'
               : 'bg-muted-foreground/10 text-muted-foreground'
           }`}>
             {step.number}
           </div>
-          <span className={`sm:ml-2 max-lg:text-center max-sm:hidden text-sm max-lg:text-xs  ${
-            currentStep >= step.number 
-              ? 'text-foreground' 
+          <span className={`sm:ml-2 max-lg:text-center max-sm:hidden text-sm max-lg:text-xs ${
+            currentStep >= step.number
+              ? 'text-foreground'
               : 'text-muted-foreground'
           }`}>
             {step.label}
@@ -193,26 +299,29 @@ export default function MVProduction() {
               value={formData.copyrightOwnerName}
               onChange={(e) => handleInputChange('copyrightOwnerName', e.target.value)}
               className="bg-background border-border"
+              disabled={showViewOnly}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="mobileNoCopyrightHolder">Mobile No. Of the copyright Holder</Label>
+            <Label htmlFor="mobileNumber">Mobile No. Of the copyright Holder</Label>
             <Input
-              id="mobileNoCopyrightHolder"
-              placeholder="Name"
-              value={formData.mobileNoCopyrightHolder}
-              onChange={(e) => handleInputChange('mobileNoCopyrightHolder', e.target.value)}
+              id="mobileNumber"
+              placeholder="+91-9876543210"
+              value={formData.mobileNumber}
+              onChange={(e) => handleInputChange('mobileNumber', e.target.value)}
               className="bg-background border-border"
+              disabled={showViewOnly}
             />
           </div>
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="emailOfCopyrightHolder">Email Of the copyright Holder</Label>
             <Input
               id="emailOfCopyrightHolder"
-              placeholder="Artist Name"
+              placeholder="artist@example.com"
               value={formData.emailOfCopyrightHolder}
               onChange={(e) => handleInputChange('emailOfCopyrightHolder', e.target.value)}
               className="bg-background border-border"
+              disabled={showViewOnly}
             />
           </div>
         </div>
@@ -226,62 +335,71 @@ export default function MVProduction() {
             <Label htmlFor="projectTitle">Project Title</Label>
             <Input
               id="projectTitle"
-              placeholder="Artist"
+              placeholder="My Music Video Project"
               value={formData.projectTitle}
               onChange={(e) => handleInputChange('projectTitle', e.target.value)}
               className="bg-background border-border"
+              disabled={showViewOnly}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="artistName">Artist Name</Label>
             <Input
               id="artistName"
-              placeholder="Name"
+              placeholder="Artist Name"
               value={formData.artistName}
               onChange={(e) => handleInputChange('artistName', e.target.value)}
               className="bg-background border-border"
+              disabled={showViewOnly}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="labelName">Label name</Label>
             <Input
               id="labelName"
-              placeholder="Artist Name"
+              placeholder="Label Name"
               value={formData.labelName}
               onChange={(e) => handleInputChange('labelName', e.target.value)}
               className="bg-background border-border"
+              disabled={showViewOnly}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="releaseTimeline">Release Timeline</Label>
             <Input
               id="releaseTimeline"
-              placeholder="9856674676476"
+              placeholder="Q1 2025"
               value={formData.releaseTimeline}
               onChange={(e) => handleInputChange('releaseTimeline', e.target.value)}
               className="bg-background border-border"
+              disabled={showViewOnly}
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="genres">Genres</Label>
-            <Select onValueChange={(value) => handleInputChange('genres', value)}>
-              <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder="Pop" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pop">Pop</SelectItem>
-                <SelectItem value="rock">Rock</SelectItem>
-                <SelectItem value="hip-hop">Hip Hop</SelectItem>
-                <SelectItem value="electronic">Electronic</SelectItem>
-                <SelectItem value="classical">Classical</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="space-y-2 md:col-span-2">
+            <Label>Genres (Select multiple)</Label>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {['pop', 'rock', 'hip-hop', 'electronic', 'classical', 'jazz', 'r&b'].map(genre => (
+                <div key={genre} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`genre-${genre}`}
+                    checked={formData.genres.includes(genre)}
+                    onCheckedChange={() => handleGenreToggle(genre)}
+                    disabled={showViewOnly}
+                  />
+                  <label htmlFor={`genre-${genre}`} className="text-sm capitalize">{genre}</label>
+                </div>
+              ))}
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="mood">Mood</Label>
-            <Select onValueChange={(value) => handleInputChange('mood', value)}>
+            <Select
+              value={formData.mood}
+              onValueChange={(value) => handleInputChange('mood', value)}
+              disabled={showViewOnly}
+            >
               <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder="Uplifting" />
+                <SelectValue placeholder="Select mood" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="uplifting">Uplifting</SelectItem>
@@ -292,10 +410,14 @@ export default function MVProduction() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="isAlbumOrEP">Is this part of an album or EP?</Label>
-            <Select onValueChange={(value) => handleInputChange('isAlbumOrEP', value)}>
+            <Label htmlFor="isPartOfAlbumOrEP">Is this part of an album or EP?</Label>
+            <Select
+              value={formData.isPartOfAlbumOrEP}
+              onValueChange={(value) => handleInputChange('isPartOfAlbumOrEP', value)}
+              disabled={showViewOnly}
+            >
               <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder="Yes" />
+                <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="yes">Yes</SelectItem>
@@ -305,9 +427,13 @@ export default function MVProduction() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="language">Language</Label>
-            <Select onValueChange={(value) => handleInputChange('language', value)}>
+            <Select
+              value={formData.language}
+              onValueChange={(value) => handleInputChange('language', value)}
+              disabled={showViewOnly}
+            >
               <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder="Beats" />
+                <SelectValue placeholder="Select language" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="english">English</SelectItem>
@@ -317,17 +443,22 @@ export default function MVProduction() {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2 md:col-span-2">
+          <div className="space-y-2">
             <Label htmlFor="theme">Theme</Label>
-            <Select onValueChange={(value) => handleInputChange('theme', value)}>
+            <Select
+              value={formData.theme}
+              onValueChange={(value) => handleInputChange('theme', value)}
+              disabled={showViewOnly}
+            >
               <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder="Journey & Travel" />
+                <SelectValue placeholder="Select theme" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="journey-travel">Journey & Travel</SelectItem>
-                <SelectItem value="love-romance">Love & Romance</SelectItem>
-                <SelectItem value="party-celebration">Party & Celebration</SelectItem>
-                <SelectItem value="nature-environment">Nature & Environment</SelectItem>
+                <SelectItem value="journey & travel">Journey & Travel</SelectItem>
+                <SelectItem value="love & romance">Love & Romance</SelectItem>
+                <SelectItem value="party & celebration">Party & Celebration</SelectItem>
+                <SelectItem value="nature & environment">Nature & Environment</SelectItem>
+                <SelectItem value="love">Love</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -335,44 +466,36 @@ export default function MVProduction() {
 
         {/* Location Preference Tick Boxes */}
         <div className="mt-6">
-          <Label className="text-sm font-medium">Location Preference Tick Boxes</Label>
+          <Label className="text-sm font-medium">Location Preference</Label>
           <div className="flex items-center space-x-6 mt-3">
             <div className="flex items-center space-x-2">
               <Checkbox
-                id="indoorStudio"
-                checked={formData.locationPreferences.indoorStudio}
-                onCheckedChange={(checked) => handleCheckboxChange('locationPreferences', 'indoorStudio', checked)}
+                id="indoor_studio"
+                checked={formData.locationPreference.indoor_studio}
+                onCheckedChange={(checked) => handleCheckboxChange('locationPreference', 'indoor_studio', checked)}
+                disabled={showViewOnly}
               />
-              <label htmlFor="indoorStudio" className="text-sm">Indoor Studio</label>
+              <label htmlFor="indoor_studio" className="text-sm">Indoor Studio</label>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
-                id="outdoorNatural"
-                checked={formData.locationPreferences.outdoorNatural}
-                onCheckedChange={(checked) => handleCheckboxChange('locationPreferences', 'outdoorNatural', checked)}
+                id="outdoor_natural"
+                checked={formData.locationPreference.outdoor_natural}
+                onCheckedChange={(checked) => handleCheckboxChange('locationPreference', 'outdoor_natural', checked)}
+                disabled={showViewOnly}
               />
-              <label htmlFor="outdoorNatural" className="text-sm">Outdoor / Natural</label>
+              <label htmlFor="outdoor_natural" className="text-sm">Outdoor / Natural</label>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
-                id="urbanStreet"
-                checked={formData.locationPreferences.urbanStreet}
-                onCheckedChange={(checked) => handleCheckboxChange('locationPreferences', 'urbanStreet', checked)}
+                id="urban_and_street"
+                checked={formData.locationPreference.urban_and_street}
+                onCheckedChange={(checked) => handleCheckboxChange('locationPreference', 'urban_and_street', checked)}
+                disabled={showViewOnly}
               />
-              <label htmlFor="urbanStreet" className="text-sm">Urban / Street</label>
+              <label htmlFor="urban_and_street" className="text-sm">Urban / Street</label>
             </div>
           </div>
-        </div>
-
-        {/* Others */}
-        <div className="mt-6">
-          <Label htmlFor="others">Others:</Label>
-          <Input
-            id="others"
-            value={formData.others}
-            onChange={(e) => handleInputChange('others', e.target.value)}
-            className="bg-background border-border mt-2"
-          />
         </div>
       </div>
     </div>
@@ -381,26 +504,30 @@ export default function MVProduction() {
   const renderStep2 = () => (
     <div className="space-y-8">
       <h3 className="text-lg font-semibold">Budget Request & Ownership Proposal</h3>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="totalBudgetRequested">Total Budget Requested (INR)</Label>
           <Input
             id="totalBudgetRequested"
-            placeholder="Artist"
+            placeholder="500000"
+            type="number"
             value={formData.totalBudgetRequested}
             onChange={(e) => handleInputChange('totalBudgetRequested', e.target.value)}
             className="bg-background border-border"
+            disabled={showViewOnly}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="proposedOwnershipDilution">Proposed Ownership Dilution (% of video IP)</Label>
+          <Label htmlFor="proposedOwnershipDilution">Proposed Ownership Dilution (%)</Label>
           <Input
             id="proposedOwnershipDilution"
-            placeholder="10%, 20%, negotiable"
+            placeholder="20"
+            type="number"
             value={formData.proposedOwnershipDilution}
             onChange={(e) => handleInputChange('proposedOwnershipDilution', e.target.value)}
             className="bg-background border-border"
+            disabled={showViewOnly}
           />
         </div>
       </div>
@@ -412,40 +539,48 @@ export default function MVProduction() {
             <Label htmlFor="preProduction">Pre-Production:</Label>
             <Input
               id="preProduction"
-              placeholder="Artist"
+              placeholder="100000"
+              type="number"
               value={formData.preProduction}
               onChange={(e) => handleInputChange('preProduction', e.target.value)}
               className="bg-background border-border"
+              disabled={showViewOnly}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="shootDay">Shoot Day:</Label>
             <Input
               id="shootDay"
-              placeholder="Artist"
+              placeholder="250000"
+              type="number"
               value={formData.shootDay}
               onChange={(e) => handleInputChange('shootDay', e.target.value)}
               className="bg-background border-border"
+              disabled={showViewOnly}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="postProduction">Post-Production:</Label>
             <Input
               id="postProduction"
-              placeholder="Artist"
+              placeholder="120000"
+              type="number"
               value={formData.postProduction}
               onChange={(e) => handleInputChange('postProduction', e.target.value)}
               className="bg-background border-border"
+              disabled={showViewOnly}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="miscellaneousContingency">Miscellaneous / Contingency:</Label>
             <Input
               id="miscellaneousContingency"
-              placeholder="Artist"
+              placeholder="30000"
+              type="number"
               value={formData.miscellaneousContingency}
               onChange={(e) => handleInputChange('miscellaneousContingency', e.target.value)}
               className="bg-background border-border"
+              disabled={showViewOnly}
             />
           </div>
         </div>
@@ -453,10 +588,14 @@ export default function MVProduction() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="personalFundsContribution">Will you contribute any personal funds?</Label>
-          <Select onValueChange={(value) => handleInputChange('personalFundsContribution', value)}>
+          <Label htmlFor="willContributePersonalFunds">Will you contribute any personal funds?</Label>
+          <Select
+            value={formData.willContributePersonalFunds}
+            onValueChange={(value) => handleInputChange('willContributePersonalFunds', value)}
+            disabled={showViewOnly}
+          >
             <SelectTrigger className="bg-background border-border">
-              <SelectValue placeholder="Yes" />
+              <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="yes">Yes</SelectItem>
@@ -468,42 +607,32 @@ export default function MVProduction() {
           <Label htmlFor="personalFundsAmount">If yes, amount</Label>
           <Input
             id="personalFundsAmount"
-            placeholder="7 crore"
+            placeholder="100000"
+            type="number"
             value={formData.personalFundsAmount}
             onChange={(e) => handleInputChange('personalFundsAmount', e.target.value)}
             className="bg-background border-border"
+            disabled={showViewOnly}
           />
         </div>
       </div>
 
-      <div>
-        <Label className="text-sm font-medium">Revenue Sharing Model Proposed</Label>
-        <div className="flex items-center space-x-6 mt-3">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="flatBuyout"
-              checked={formData.revenueSharingModel.flatBuyout}
-              onCheckedChange={(checked) => handleCheckboxChange('revenueSharingModel', 'flatBuyout', checked)}
-            />
-            <label htmlFor="flatBuyout" className="text-sm">Flat Buyout</label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="revenueSplit"
-              checked={formData.revenueSharingModel.revenueSplit}
-              onCheckedChange={(checked) => handleCheckboxChange('revenueSharingModel', 'revenueSplit', checked)}
-            />
-            <label htmlFor="revenueSplit" className="text-sm">Revenue Split</label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="hybridBuyoutRoyalties"
-              checked={formData.revenueSharingModel.hybridBuyoutRoyalties}
-              onCheckedChange={(checked) => handleCheckboxChange('revenueSharingModel', 'hybridBuyoutRoyalties', checked)}
-            />
-            <label htmlFor="hybridBuyoutRoyalties" className="text-sm">Hybrid (Buyout + Royalties)</label>
-          </div>
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="revenueSharingModelProposed">Revenue Sharing Model Proposed</Label>
+        <Select
+          value={formData.revenueSharingModelProposed}
+          onValueChange={(value) => handleInputChange('revenueSharingModelProposed', value)}
+          disabled={showViewOnly}
+        >
+          <SelectTrigger className="bg-background border-border">
+            <SelectValue placeholder="Select model" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="flat_buyout">Flat Buyout</SelectItem>
+            <SelectItem value="revenue_split">Revenue Split</SelectItem>
+            <SelectItem value="hybrid_buyout_royalties">Hybrid (Buyout + Royalties)</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   )
@@ -511,13 +640,17 @@ export default function MVProduction() {
   const renderStep3 = () => (
     <div className="space-y-8">
       <h3 className="text-lg font-semibold">Marketing & Distribution Plan</h3>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="mvDistribution">Will this be released via MV Distribution?</Label>
-          <Select onValueChange={(value) => handleInputChange('mvDistribution', value)}>
+          <Label htmlFor="willBeReleasedViaMVDistribution">Will this be released via MV Distribution?</Label>
+          <Select
+            value={formData.willBeReleasedViaMVDistribution}
+            onValueChange={(value) => handleInputChange('willBeReleasedViaMVDistribution', value)}
+            disabled={showViewOnly}
+          >
             <SelectTrigger className="bg-background border-border">
-              <SelectValue placeholder="Yes" />
+              <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="yes">Yes</SelectItem>
@@ -526,10 +659,14 @@ export default function MVProduction() {
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="adsInfluencerCampaigns">Do you plan to run ads or influencer campaigns?</Label>
-          <Select onValueChange={(value) => handleInputChange('adsInfluencerCampaigns', value)}>
+          <Label htmlFor="planToRunAdsOrInfluencerCampaigns">Do you plan to run ads or influencer campaigns?</Label>
+          <Select
+            value={formData.planToRunAdsOrInfluencerCampaigns}
+            onValueChange={(value) => handleInputChange('planToRunAdsOrInfluencerCampaigns', value)}
+            disabled={showViewOnly}
+          >
             <SelectTrigger className="bg-background border-border">
-              <SelectValue placeholder="Yes" />
+              <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="yes">Yes</SelectItem>
@@ -538,10 +675,14 @@ export default function MVProduction() {
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="brandMerchTieIns">Any brand or merch tie-ins?</Label>
-          <Select onValueChange={(value) => handleInputChange('brandMerchTieIns', value)}>
+          <Label htmlFor="anyBrandOrMerchTieIns">Any brand or merch tie-ins?</Label>
+          <Select
+            value={formData.anyBrandOrMerchTieIns}
+            onValueChange={(value) => handleInputChange('anyBrandOrMerchTieIns', value)}
+            disabled={showViewOnly}
+          >
             <SelectTrigger className="bg-background border-border">
-              <SelectValue placeholder="Yes" />
+              <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="yes">Yes</SelectItem>
@@ -550,18 +691,15 @@ export default function MVProduction() {
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="adsInfluencerDescription">If yes, describe</Label>
-          <Select onValueChange={(value) => handleInputChange('adsInfluencerDescription', value)}>
-            <SelectTrigger className="bg-background border-border">
-              <SelectValue placeholder="Yes" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="social-media">Social Media Campaign</SelectItem>
-              <SelectItem value="influencer-collab">Influencer Collaboration</SelectItem>
-              <SelectItem value="brand-partnership">Brand Partnership</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label htmlFor="brandOrMerchTieInsDescription">If yes, describe</Label>
+          <Input
+            id="brandOrMerchTieInsDescription"
+            placeholder="Description"
+            value={formData.brandOrMerchTieInsDescription}
+            onChange={(e) => handleInputChange('brandOrMerchTieInsDescription', e.target.value)}
+            className="bg-background border-border"
+            disabled={showViewOnly}
+          />
         </div>
       </div>
     </div>
@@ -570,13 +708,17 @@ export default function MVProduction() {
   const renderStep4 = () => (
     <div className="space-y-8">
       <h3 className="text-lg font-semibold">Legal & Ownership Declaration</h3>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="retainCreativeOwnership">Do you confirm that you retain full creative ownership of the project?</Label>
-          <Select onValueChange={(value) => handleInputChange('retainCreativeOwnership', value)}>
+          <Label htmlFor="confirmFullCreativeOwnership">Do you confirm that you retain full creative ownership of the project?</Label>
+          <Select
+            value={formData.confirmFullCreativeOwnership}
+            onValueChange={(value) => handleInputChange('confirmFullCreativeOwnership', value)}
+            disabled={showViewOnly}
+          >
             <SelectTrigger className="bg-background border-border">
-              <SelectValue placeholder="Yes" />
+              <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="yes">Yes</SelectItem>
@@ -585,10 +727,14 @@ export default function MVProduction() {
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="creditMVProduction">Do you agree to credit MV Production for budget support?</Label>
-          <Select onValueChange={(value) => handleInputChange('creditMVProduction', value)}>
+          <Label htmlFor="agreeToCreditMVProduction">Do you agree to credit MV Production for budget support?</Label>
+          <Select
+            value={formData.agreeToCreditMVProduction}
+            onValueChange={(value) => handleInputChange('agreeToCreditMVProduction', value)}
+            disabled={showViewOnly}
+          >
             <SelectTrigger className="bg-background border-border">
-              <SelectValue placeholder="Yes" />
+              <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="yes">Yes</SelectItem>
@@ -597,10 +743,14 @@ export default function MVProduction() {
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="shareAssetsMV">Do you agree to share final assets with MV for portfolio and showcase use?</Label>
-          <Select onValueChange={(value) => handleInputChange('shareAssetsMV', value)}>
+          <Label htmlFor="agreeToShareFinalAssets">Do you agree to share final assets with MV for portfolio and showcase use?</Label>
+          <Select
+            value={formData.agreeToShareFinalAssets}
+            onValueChange={(value) => handleInputChange('agreeToShareFinalAssets', value)}
+            disabled={showViewOnly}
+          >
             <SelectTrigger className="bg-background border-border">
-              <SelectValue placeholder="Yes" />
+              <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="yes">Yes</SelectItem>
@@ -609,10 +759,14 @@ export default function MVProduction() {
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="requireNDACustomAgreement">Do you require an NDA or custom agreement?</Label>
-          <Select onValueChange={(value) => handleInputChange('requireNDACustomAgreement', value)}>
+          <Label htmlFor="requireNDAOrCustomAgreement">Do you require an NDA or custom agreement?</Label>
+          <Select
+            value={formData.requireNDAOrCustomAgreement}
+            onValueChange={(value) => handleInputChange('requireNDAOrCustomAgreement', value)}
+            disabled={showViewOnly}
+          >
             <SelectTrigger className="bg-background border-border">
-              <SelectValue placeholder="Yes" />
+              <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="yes">Yes</SelectItem>
@@ -624,18 +778,29 @@ export default function MVProduction() {
     </div>
   )
 
+  if (showViewOnly && viewData) {
+    return <MVProductionView request={viewData} onBack={handleBackFromView} />
+  }
+
   if (showForm) {
     return (
       <div className="min-h-screen bg-background text-foreground p-6">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">MV Production</h1>
-          <p className="text-muted-foreground">Apply for music and video production funding to enhance your creative projects</p>
+        <div className="flex items-center gap-4 mb-6">
+          <Button variant="outline" size="icon" onClick={handleBackToList}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">New MV Production Request</h1>
+            <p className="text-muted-foreground">
+              Apply for music and video production funding to enhance your creative projects
+            </p>
+          </div>
         </div>
 
         <Card className="max-w-6xl mx-auto">
           <CardContent className="p-8">
-            
+
             {currentStep === 1 && renderStep1()}
             {currentStep === 2 && renderStep2()}
             {currentStep === 3 && renderStep3()}
@@ -643,37 +808,37 @@ export default function MVProduction() {
 
             {/* Navigation */}
             <div className="flex justify-between items-center flex-wrap mt-8 pt-6 space-y-5 border-t border-border">
-            {renderStepIndicator()}
-            <div className="flex justify-end w-full flex-wrap items-center gap-4">
+              {renderStepIndicator()}
+              <div className="flex justify-end w-full flex-wrap items-center gap-4">
+                <Button
+                  variant="outline"
+                  onClick={handlePreviousStep}
+                  disabled={currentStep === 1}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Previous
+                </Button>
 
-              <Button
-                variant="outline"
-                onClick={handlePreviousStep}
-                disabled={currentStep === 1}
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Previous
-              </Button>
-              
-              {currentStep < 4 ? (
-                <Button
-                  onClick={handleNextStep}
-                  className="bg-[#711CE9] hover:bg-[#6f14ef] text-white flex items-center gap-2"
-                >
-                  Next Step
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleFormSubmit}
-                  className="bg-[#711CE9] hover:bg-[#6f14ef] text-white flex items-center gap-2"
-                >
-                  Submit Request
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
+                {currentStep < 4 ? (
+                  <Button
+                    onClick={handleNextStep}
+                    className="bg-[#711CE9] hover:bg-[#6f14ef] text-white flex items-center gap-2"
+                  >
+                    Next Step
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleFormSubmit}
+                    disabled={createMutation.isLoading}
+                    className="bg-[#711CE9] hover:bg-[#6f14ef] text-white flex items-center gap-2"
+                  >
+                    {createMutation.isLoading ? 'Submitting...' : 'Submit Request'}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -689,82 +854,120 @@ export default function MVProduction() {
           <h1 className="text-2xl font-bold">MV Production</h1>
           <p className="text-muted-foreground">Apply for music and video production funding to enhance your creative projects</p>
         </div>
-        <Button onClick={() => setShowForm(true)} className="bg-[#711CE9] hover:bg-[#6f14ef] text-white">
+        <Button onClick={handleNewRequest} className="bg-[#711CE9] hover:bg-[#6f14ef] text-white">
           + New Request
         </Button>
       </div>
 
       {/* Main Content */}
-      {mvRequests.length > 0 ? (
-        <Card>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto custom-scroll">
-              <table className="w-full text-sm">
-                <thead className="text-left text-muted-foreground border-b border-border">
-                  <tr>
-                    <th className="p-4">Artist's Label Name</th>
-                    <th className="p-4">Product Preferences</th>
-                    <th className="p-4">Marketing & Launch Plan</th>
-                    <th className="p-4">Channel</th>
-                    <th className="p-4">MMC Assist</th>
-                    <th className="p-4">Status</th>
-                    <th className="p-4">Submit Date</th>
-                    <th className="p-4">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mvRequests.map((request, index) => (
-                    <tr key={index} className="border-b border-border hover:bg-muted/50">
-                      <td className="p-4">{request.label}</td>
-                      <td className="p-4">{request.product}</td>
-                      <td className="p-4">{request.plan}</td>
-                      <td className="p-4">{request.channel}</td>
-                      <td className="p-4">{request.assist}</td>
-                      <td className="p-4">
-                        <span className="px-2 py-1 rounded text-xs bg-yellow-500/20 text-yellow-600 dark:bg-yellow-500/10 dark:text-yellow-400">
-                          {request.status}
-                        </span>
-                      </td>
-                      <td className="p-4">{request.date}</td>
-                      <td className="p-4">
+      <Card>
+        <CardContent className="p-0">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <>
+              {mvRequests.length > 0 ? (
+                <>
+                  <div className="overflow-x-auto custom-scroll">
+                    <table className="w-full text-sm">
+                      <thead className="text-left text-muted-foreground border-b border-border">
+                        <tr>
+                          <th className="p-4">Project Title</th>
+                          <th className="p-4">Artist Name</th>
+                          <th className="p-4">Label Name</th>
+                          <th className="p-4">Budget Requested</th>
+                          <th className="p-4">Status</th>
+                          <th className="p-4">Submit Date</th>
+                          <th className="p-4">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {mvRequests.map((request) => (
+                          <tr key={request._id} className="border-b border-border hover:bg-muted/50">
+                            <td className="p-4">{request.projectOverview.projectTitle}</td>
+                            <td className="p-4">{request.projectOverview.artistName}</td>
+                            <td className="p-4">{request.projectOverview.labelName}</td>
+                            <td className="p-4">₹{request.budgetRequestAndOwnershipProposal.totalBudgetRequested.toLocaleString()}</td>
+                            <td className="p-4">
+                              <span className="px-2 py-1 rounded text-xs bg-yellow-500/20 text-yellow-600 dark:bg-yellow-500/10 dark:text-yellow-400 capitalize">
+                                {request.status}
+                              </span>
+                            </td>
+                            <td className="p-4">{new Date(request.createdAt).toLocaleDateString()}</td>
+                            <td className="p-4">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleView(request)}
+                                className="flex items-center gap-2"
+                              >
+                                <Eye className="h-4 w-4" />
+                                View
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination */}
+                  {pagination && pagination.totalPages > 1 && (
+                    <div className="flex items-center justify-between mt-6 p-4 border-t">
+                      <div className="text-sm text-muted-foreground">
+                        Showing {((pagination.currentPage - 1) * itemsPerPage) + 1} to {Math.min(pagination.currentPage * itemsPerPage, pagination.totalCount)} of {pagination.totalCount} requests
+                      </div>
+                      <div className="flex gap-2">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleView(index)}
-                          className="flex items-center gap-2"
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
                         >
-                          <Eye className="h-4 w-4" />
-                          View
+                          <ChevronLeft className="w-4 h-4" />
+                          Previous
                         </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="text-center py-16">
-          <div className="max-w-md mx-auto">
-            <div className="mb-6">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Eye className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">No MV Production Requests</h3>
-              <p className="text-muted-foreground">
-                You haven't submitted any music video production requests yet. Create your first request to get started with professional video production funding.
-              </p>
-            </div>
-            <Button 
-              onClick={() => setShowForm(true)} 
-              className="bg-[#711CE9] hover:bg-[#6f14ef] text-white"
-            >
-              + Create Your First Request
-            </Button>
-          </div>
-        </div>
-      )}
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === pagination.totalPages}
+                        >
+                          Next
+                          <ChevronRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-16">
+                  <div className="max-w-md mx-auto">
+                    <div className="mb-6">
+                      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Film className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2">No MV Production Requests</h3>
+                      <p className="text-muted-foreground">
+                        You haven't submitted any music video production requests yet. Create your first request to get started with professional video production funding.
+                      </p>
+                    </div>
+                    <Button
+                      onClick={handleNewRequest}
+                      className="bg-[#711CE9] hover:bg-[#6f14ef] text-white"
+                    >
+                      + Create Your First Request
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

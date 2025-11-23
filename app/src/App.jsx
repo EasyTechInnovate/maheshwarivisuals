@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Route, Routes, Navigate } from 'react-router-dom'
+import { Route, Routes, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useQuery } from '@tanstack/react-query'
@@ -34,6 +34,8 @@ import FanLinksBuilder from './pages/fanLink/FanLink'
 
 const AuthProvider = ({ children }) => {
   const { setUser, setAuthenticated, setLoading, clearAuth } = useAuthStore();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const { isLoading, data, isError } = useQuery({
     queryKey: ['userProfile'],
@@ -58,11 +60,13 @@ const AuthProvider = ({ children }) => {
   }, [isError, clearAuth]);
 
   useEffect(() => {
-    if (!localStorage.getItem('accessToken')) {
+    const publicPaths = ['/signin', '/signup']; // Add any other public paths
+    if (!localStorage.getItem('accessToken') && !publicPaths.includes(location.pathname)) {
       setLoading(false);
       setAuthenticated(false);
+      navigate('/signin');
     }
-  }, [setLoading, setAuthenticated]);
+  }, [setLoading, setAuthenticated, navigate, location.pathname]);
 
   if (isLoading) {
     return (
@@ -87,7 +91,7 @@ const ProtectedRoutes = () => {
   const { isAuthenticated, isLoading , user } = useAuthStore();
   if (!isAuthenticated && !isLoading && user.role !== 'user' ) {
     // Redirect to login if not authenticated
-    return <Navigate to="/sigin" replace />;
+    return <Navigate to="/signin" replace />;
   }
 
   return (
