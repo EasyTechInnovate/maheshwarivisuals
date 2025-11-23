@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Next.js environment variable (must start with NEXT_PUBLIC_ for client-side)
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/v1';
+const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://mv.easytechinnovate.site/v1';
 
 // Fallback URLs for development
 // const baseURL = 'https://mv.easytechinnovate.site/v1';

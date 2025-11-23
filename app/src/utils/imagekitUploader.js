@@ -2,7 +2,7 @@ import ImageKit from 'imagekit-javascript';
 import axios from 'axios';
 import { showToast } from './toast';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const apiBaseUrl = import.meta.env.VITE_API_URL;
 
 const imagekit = new ImageKit({
   publicKey: import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY,

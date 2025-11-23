@@ -87,7 +87,7 @@ const ProtectedRoutes = () => {
   const { isAuthenticated, isLoading , user } = useAuthStore();
   if (!isAuthenticated && !isLoading && user.role !== 'user' ) {
     // Redirect to login if not authenticated
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/sigin" replace />;
   }
 
   return (
