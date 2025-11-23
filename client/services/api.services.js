@@ -2,7 +2,7 @@ import { servicesAxiosInstance } from "./config"
 
 // ============= Health Check =============
 export const getServerHealth = async () => {
-    const response = await servicesAxiosInstance.get('/health')
+    const response = await servicesAxiosInstance.get('/v1/health')
     return response.data
 }
 
@@ -14,7 +14,7 @@ export const getServerHealth = async () => {
  * @returns {Promise} Response with user data and tokens
  */
 export const registerUser = async (userData) => {
-    const response = await servicesAxiosInstance.post('/auth/register', userData)
+    const response = await servicesAxiosInstance.post('/v1/auth/register', userData)
     return response.data
 }
 
@@ -24,7 +24,7 @@ export const registerUser = async (userData) => {
  * @returns {Promise} Response with user data and tokens
  */
 export const loginUser = async (credentials) => {
-    const response = await servicesAxiosInstance.post('/auth/login', credentials)
+    const response = await servicesAxiosInstance.post('/v1/auth/login', credentials)
     return response.data
 }
 
@@ -33,7 +33,7 @@ export const loginUser = async (credentials) => {
  * @returns {Promise} Response with user profile data
  */
 export const getUserProfile = async () => {
-    const response = await servicesAxiosInstance.get('/auth/profile')
+    const response = await servicesAxiosInstance.get('/v1/auth/profile')
     return response.data
 }
 
@@ -44,7 +44,7 @@ export const getUserProfile = async () => {
  * @returns {Promise} Response with list of subscription plans
  */
 export const getSubscriptionPlans = async () => {
-    const response = await servicesAxiosInstance.get('/subscription/plans')
+    const response = await servicesAxiosInstance.get('/v1/subscription/plans')
     return response.data
 }
 
@@ -54,7 +54,7 @@ export const getSubscriptionPlans = async () => {
  * @returns {Promise} Response with payment intent details
  */
 export const createPaymentIntent = async (paymentData) => {
-    const response = await servicesAxiosInstance.post('/subscription/create-payment-intent', paymentData)
+    const response = await servicesAxiosInstance.post('/v1/subscription/create-payment-intent', paymentData)
     return response.data
 }
 
@@ -64,6 +64,6 @@ export const createPaymentIntent = async (paymentData) => {
  * @returns {Promise} Response with verification status
  */
 export const verifyPayment = async (verificationData) => {
-    const response = await servicesAxiosInstance.post('/subscription/verify-payment', verificationData)
+    const response = await servicesAxiosInstance.post('/v1/subscription/verify-payment', verificationData)
     return response.data
 }

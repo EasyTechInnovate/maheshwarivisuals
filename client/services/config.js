@@ -1,13 +1,13 @@
 import axios from 'axios';
 
 // Next.js environment variable (must start with NEXT_PUBLIC_ for client-side)
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://mv.easytechinnovate.site/v1';
+const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://mv.easytechinnovate.site';
 
 // Fallback URLs for development
-// const baseURL = 'https://mv.easytechinnovate.site/v1';
-// const baseURL = 'http://localhost:5000/v1';
+// const baseURL = 'https://mv.easytechinnovate.site';
+// const baseURL = 'http://localhost:5000';
 
-console.log('API Base URL:', baseURL);
+// console.log('API Base URL:', baseURL);
 
 const servicesAxiosInstance = axios.create({
     baseURL: baseURL
