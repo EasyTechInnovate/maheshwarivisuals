@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { IndianRupee, Calendar, BarChart3 } from "lucide-react";
-import { mockMonthManagementData } from "./MonthManagementData";
+import { mockMonthManagementData } from "../../pages/month-management/MonthManagementData";
 
-export default function RoyaltyMonthManagement({ theme = "dark", onBack }) {
+export default function MCNMonthManagement({ theme = "dark", onBack }) {
   const isDark = theme === "dark";
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -22,9 +22,9 @@ export default function RoyaltyMonthManagement({ theme = "dark", onBack }) {
 
 
   const monthList = [
-    { id: "jan", name: "January", active: true },
-    { id: "feb", name: "February", active: true },
-    { id: "mar", name: "March", active: true },
+    { id: "jan", name: "January", active: false },
+    { id: "feb", name: "February", active: false },
+    { id: "mar", name: "March", active: false },
   ];
 
 
@@ -51,7 +51,7 @@ export default function RoyaltyMonthManagement({ theme = "dark", onBack }) {
 
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Royality Month Management</h1>
+          <h1 className="text-2xl font-semibold">MCN Month Management</h1>
           <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
             Organize monthly data entries for royalty and analytics management
           </p>

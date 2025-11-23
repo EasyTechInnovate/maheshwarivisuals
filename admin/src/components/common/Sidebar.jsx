@@ -6,7 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Users, Rocket, IdCard, DollarSign, ChartColumnIncreasing, CalendarDays, Wallet , ShoppingBag , CreditCard ,Megaphone , BookOpen, Globe, Database , Bell, Headset, FileText, Package, Newspaper, Settings, Mail    } from "lucide-react";
+import { Users, Rocket, IdCard, DollarSign, ChartColumnIncreasing, CalendarDays, Wallet , ShoppingBag , CreditCard ,Megaphone , BookOpen, Globe, Database , Bell, Headset, FileText, Package, Newspaper, Settings    } from "lucide-react";
 
 export default function Sidebar({ isCollapsed = false, theme }) {
   const isDark = theme === "dark";
@@ -187,8 +187,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
                 </span>
               ),
               links: [
-                { label: "Social Links", icon: <Globe  className="w-4 h-4" /> },
-                { label: "Contact Details", icon: <Mail  className="w-4 h-4" /> },
+                { label: "Company Settings", icon: <Globe  className="w-4 h-4" /> },
                 ],
             },
           ].map((section) => (

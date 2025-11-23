@@ -1,25 +1,26 @@
-// app/(admin)/company-settings/CompanySettingsPage.jsx
-"use client";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import GlobalApi from "@/lib/GlobalApi";
 import SocialLinksEditor from "@/components/company-settings/SocialLinks";
 import ContactPage from "@/components/company-settings/ContactDetails";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export default function CompanySettingsPage({ theme = "dark", companySettingsId }) {
   const isDark = theme === "dark";
 
-  // Loading / saving flags
+
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  // Main company settings state (normalized)
+
+
   const [companyId, setCompanyId] = useState(companySettingsId || null);
   const [companySettings, setCompanySettings] = useState(null);
 
-  // Split pieces (kept in sync with companySettings)
+
   const [socialMedia, setSocialMedia] = useState({
     instagram: "",
     facebook: "",
@@ -46,136 +47,129 @@ export default function CompanySettingsPage({ theme = "dark", companySettingsId 
     businessHours: "",
   });
 
-  // UI editing toggle
+
   const [isEditing, setIsEditing] = useState(false);
 
-  // Fetch helpers -----------------------------------------------------------
- const normalizeAndSet = (data) => {
-  // If API returned null / undefined
-  if (!data) {
-    setCompanySettings(null);
-    setCompanyId(null);
 
-    // Reset Social
-    setSocialMedia({
-      instagram: "",
-      facebook: "",
-      linkedin: "",
-      youtube: "",
-      website: "",
-      x: "",
-      youtubeLinks: [],
-    });
+  const normalizeAndSet = (data) => {
 
-    // Reset Contact
-    setContactInfo({
-      primaryPhone: "",
-      secondaryPhone: "",
-      primaryEmail: "",
-      supportEmail: "",
-      businessEmail: "",
-      whatsappQRCode: "",
-      physicalAddress: {
-        street: "",
-        city: "",
-        state: "",
-        zipCode: "",
-        country: "",
-      },
-      businessHours: "",
-    });
-
-    return;
-  }
-
-  // --------------------------
-  // ✅ SOCIAL NORMALIZATION
-  // --------------------------
-  const social = data?.socialMedia || {};
-
-  setSocialMedia({
-    instagram: social.instagram || "",
-    facebook: social.facebook || "",
-    linkedin: social.linkedin || "",
-    youtube: social.youtube || "",
-    website: social.website || "",
-    x: social.x || "",
-    youtubeLinks: Array.isArray(social.youtubeLinks)
-      ? social.youtubeLinks
-      : [],
-  });
-
-  // --------------------------
-  // ✅ CONTACT NORMALIZATION
-  // --------------------------
-  const contact = data?.contactInfo || {};
-
-  setContactInfo({
-    primaryPhone: contact.primaryPhone || "",
-    secondaryPhone: contact.secondaryPhone || "",
-    primaryEmail: contact.primaryEmail || "",
-    supportEmail: contact.supportEmail || "",
-    businessEmail: contact.businessEmail || "",
-
-    whatsappQRCode: contact.whatsappQRCode || "",
-
-    physicalAddress: {
-      street: contact?.physicalAddress?.street || "",
-      city: contact?.physicalAddress?.city || "",
-      state: contact?.physicalAddress?.state || "",
-      zipCode: contact?.physicalAddress?.zipCode || "",
-      country: contact?.physicalAddress?.country || "",
-    },
-
-    businessHours: contact.businessHours || "",
-  });
-
-  // ✅ Save company settings + ID
-  setCompanySettings(data);
-  setCompanyId(data._id || null);
-};
+    if (!data) {
+      setCompanySettings(null);
+      setCompanyId(null);
 
 
-  // Fetch either by id or getAll -> first record --------------------------------
- const fetchCompanySettings = async () => {
-  setLoading(true);
-  try {
-    if (companySettingsId) {
-      const res = await GlobalApi.getCompanySettingsById(companySettingsId);
-      const data = res?.data?.data ?? null;
+      setSocialMedia({
+        instagram: "",
+        facebook: "",
+        linkedin: "",
+        youtube: "",
+        website: "",
+        x: "",
+        youtubeLinks: [],
+      });
 
-      console.log("✅ API RESPONSE (BY ID):", data);
-      normalizeAndSet(data);
-    } else {
-      const res = await GlobalApi.getAllCompanySettings(1, 10);
 
-      console.log("✅ RAW API RESPONSE (ALL):", res?.data?.data);
+      setContactInfo({
+        primaryPhone: "",
+        secondaryPhone: "",
+        primaryEmail: "",
+        supportEmail: "",
+        businessEmail: "",
+        whatsappQRCode: "",
+        physicalAddress: {
+          street: "",
+          city: "",
+          state: "",
+          zipCode: "",
+          country: "",
+        },
+        businessHours: "",
+      });
 
-      // ✅ Backend returns ONE SINGLE OBJECT, not an array
-      const data = res?.data?.data ?? null;
-
-      normalizeAndSet(data);
+      return;
     }
-  } catch (err) {
-    console.error("fetchCompanySettings:", err);
-    toast.error("Failed to fetch company settings");
-    normalizeAndSet(null);
-  } finally {
-    setLoading(false);
-  }
-};
+
+
+    const social = data?.socialMedia || {};
+
+    setSocialMedia({
+      instagram: social.instagram || "",
+      facebook: social.facebook || "",
+      linkedin: social.linkedin || "",
+      youtube: social.youtube || "",
+      website: social.website || "",
+      x: social.x || "",
+      youtubeLinks: Array.isArray(social.youtubeLinks)
+        ? social.youtubeLinks
+        : [],
+    });
+
+
+    const contact = data?.contactInfo || {};
+
+    setContactInfo({
+      primaryPhone: contact.primaryPhone || "",
+      secondaryPhone: contact.secondaryPhone || "",
+      primaryEmail: contact.primaryEmail || "",
+      supportEmail: contact.supportEmail || "",
+      businessEmail: contact.businessEmail || "",
+
+      whatsappQRCode: contact.whatsappQRCode || "",
+
+      physicalAddress: {
+        street: contact?.physicalAddress?.street || "",
+        city: contact?.physicalAddress?.city || "",
+        state: contact?.physicalAddress?.state || "",
+        zipCode: contact?.physicalAddress?.zipCode || "",
+        country: contact?.physicalAddress?.country || "",
+      },
+
+      businessHours: contact.businessHours || "",
+    });
+
+
+    setCompanySettings(data);
+    setCompanyId(data._id || null);
+  };
+
+
+
+  const fetchCompanySettings = async () => {
+    setLoading(true);
+    try {
+      if (companySettingsId) {
+        const res = await GlobalApi.getCompanySettingsById(companySettingsId);
+        const data = res?.data?.data ?? null;
+
+        console.log("✅ API RESPONSE (BY ID):", data);
+        normalizeAndSet(data);
+      } else {
+        const res = await GlobalApi.getAllCompanySettings(1, 10);
+
+        console.log("✅ RAW API RESPONSE (ALL):", res?.data?.data);
+
+
+        const data = res?.data?.data ?? null;
+
+        normalizeAndSet(data);
+      }
+    } catch (err) {
+      console.error("fetchCompanySettings:", err);
+      toast.error("Failed to fetch company settings");
+      normalizeAndSet(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
 
   useEffect(() => {
-    // If parent gave a companySettingsId prop, use it; otherwise fetch all
+
     fetchCompanySettings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [companySettingsId]);
 
-  // Parent-level operations -------------------------------------------------
-
-  // Submit (create or update entire company settings)
   const handleSubmit = async () => {
     const payload = {
       socialMedia: {
@@ -221,7 +215,6 @@ export default function CompanySettingsPage({ theme = "dark", companySettingsId 
         }
       }
 
-      // refresh data from server to get normalized format & server IDs for youtubeLinks
       await fetchCompanySettings();
       setIsEditing(false);
     } catch (err) {
@@ -232,20 +225,18 @@ export default function CompanySettingsPage({ theme = "dark", companySettingsId 
     }
   };
 
-  // Delete entire company settings record
+
   const handleDelete = async () => {
     if (!companyId) {
       toast.error("No company settings to delete");
       return;
     }
-    const confirmed = window.confirm("Delete company settings? This action cannot be undone.");
-    if (!confirmed) return;
 
     setDeleting(true);
     try {
       await GlobalApi.deleteCompanySettings(companyId);
       toast.success("Company settings deleted");
-      // reset local state
+
       setCompanyId(null);
       normalizeAndSet(null);
     } catch (err) {
@@ -253,12 +244,14 @@ export default function CompanySettingsPage({ theme = "dark", companySettingsId 
       toast.error("Failed to delete company settings");
     } finally {
       setDeleting(false);
+      setShowConfirm(false);
     }
   };
 
-  // YouTube links independent operations (use endpoints you gave)
+
+
   const handleAddYouTubeLink = async (payload) => {
-    // payload: { title, url }
+
     if (!companyId) {
       toast.error("Create company settings first before adding YouTube links");
       return;
@@ -274,13 +267,13 @@ export default function CompanySettingsPage({ theme = "dark", companySettingsId 
   };
 
   const handleUpdateYouTubeLinks = async (payloadArray) => {
-    // payloadArray - the API expects a put with the updated array
+
     if (!companyId) {
       toast.error("Create company settings first before updating YouTube links");
       return;
     }
     try {
-      // call updateYouTubeLinks which PUTs the entire array
+
       await GlobalApi.updateYouTubeLinks(companyId, payloadArray);
       toast.success("YouTube links updated");
       await fetchCompanySettings();
@@ -305,14 +298,11 @@ export default function CompanySettingsPage({ theme = "dark", companySettingsId 
     }
   };
 
-  // Helpers to let children update parent state locally (children will call these)
-  // We pass these setters directly, but wrapping allows logging or normalization if needed
   const updateSocialMediaLocally = (partial) => {
     setSocialMedia((prev) => ({ ...prev, ...partial }));
   };
 
   const updateContactInfoLocally = (partial) => {
-    // merge into contactInfo, allowing nested updates to physicalAddress too
     setContactInfo((prev) => {
       const merged = { ...prev, ...partial };
       if (partial.physicalAddress) {
@@ -322,13 +312,11 @@ export default function CompanySettingsPage({ theme = "dark", companySettingsId 
     });
   };
 
-  // Render -----------------------------------------------------------------
   if (loading) {
     return (
       <div
-        className={`flex items-center justify-center min-h-screen ${
-          isDark ? "bg-[#111A22] text-white" : "bg-gray-50 text-[#111A22]"
-        }`}
+        className={`flex items-center justify-center min-h-screen ${isDark ? "bg-[#111A22] text-white" : "bg-gray-50 text-[#111A22]"
+          }`}
       >
         <p className="text-gray-400">Loading company settings...</p>
       </div>
@@ -337,11 +325,10 @@ export default function CompanySettingsPage({ theme = "dark", companySettingsId 
 
   return (
     <div
-      className={`min-h-screen p-6 ${
-        isDark ? "bg-[#111A22] text-white" : "bg-gray-50 text-[#111A22]"
-      }`}
+      className={`min-h-screen p-6 ${isDark ? "bg-[#111A22] text-white" : "bg-gray-50 text-[#111A22]"
+        }`}
     >
-      {/* HEADER */}
+
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold">Company Settings</h1>
@@ -350,8 +337,8 @@ export default function CompanySettingsPage({ theme = "dark", companySettingsId 
           </p>
         </div>
 
-        {/* Controls: Edit / Save / Delete */}
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-center gap-2 text-white">
           {!isEditing ? (
             <Button onClick={() => setIsEditing(true)}>Edit</Button>
           ) : (
@@ -365,7 +352,7 @@ export default function CompanySettingsPage({ theme = "dark", companySettingsId 
               <Button
                 variant="ghost"
                 onClick={() => {
-                  // reset to fetched state
+
                   normalizeAndSet(companySettings);
                   setIsEditing(false);
                 }}
@@ -376,59 +363,65 @@ export default function CompanySettingsPage({ theme = "dark", companySettingsId 
           )}
 
           <Button
-            className="ml-2"
-            variant="destructive"
-            onClick={handleDelete}
+            className={`ml-2 ${isDark
+                ? "bg-red-600 hover:bg-red-700 text-white"
+                : "bg-red-100 hover:bg-red-200 text-red-700 border border-red-300"
+              }`}
+            onClick={() => setShowConfirm(true)}
             disabled={deleting}
           >
-            {deleting ? "Deleting..." : "Delete"}
+            Delete
           </Button>
+
+
         </div>
       </div>
 
-      {/* SOCIAL LINKS SECTION */}
       <section className="mb-12">
         <SocialLinksEditor
           theme={theme}
-          // data props (children expect socialMedia / youtubeLinks props)
           socialMedia={socialMedia}
           youtubeLinks={socialMedia.youtubeLinks || []}
-          // pass setters so child can write to parent-local state
           setSocialMedia={updateSocialMediaLocally}
           setYoutubeLinks={(arr) => updateSocialMediaLocally({ youtubeLinks: arr })}
-          // pass editing flag so child can enable/disable inputs if you later add that prop
           isEditing={isEditing}
-          // allow child to call independent youtube endpoints if UI includes that option
           addYouTubeLink={handleAddYouTubeLink}
           updateYouTubeLinks={handleUpdateYouTubeLinks}
           deleteYouTubeLink={handleDeleteYouTubeLink}
-          // convenience callback for children to request re-fetch
           onRefresh={fetchCompanySettings}
           companySettingsId={companyId}
         />
       </section>
 
-      {/* CONTACT DETAILS SECTION */}
       <section className="mb-12">
         <ContactPage
           theme={theme}
           companySettingsId={companyId}
           contactInfo={contactInfo}
           physicalAddress={contactInfo.physicalAddress || {}}
-          // allow child to update parent-local contact state
+          websiteLink={socialMedia?.website || ""}
           setContactInfo={updateContactInfoLocally}
           isEditing={isEditing}
           onRefresh={fetchCompanySettings}
         />
       </section>
 
-      {/* BUSINESS DETAILS (optional) */}
       {companySettings?.physicalAddress && (
         <section className="mb-12">
-          {/* leave BusinessDetails alone for now; it will receive physicalAddress if implemented */}
           <div />
         </section>
       )}
+
+      {showConfirm && (
+        <ConfirmDialog
+          theme={theme}
+          title="Delete Company Settings"
+          message="Are you sure you want to permanently delete all company settings? This action cannot be undone."
+          onConfirm={handleDelete}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
+
     </div>
   );
 }

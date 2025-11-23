@@ -319,6 +319,35 @@ const deleteYouTubeLink = (companySettingsId) =>
 
 
 
+// ---------------------- Month Management (Admin) ----------------------
+
+const createMonth = (payload) =>
+  axiosClient.post(`/v1/admin/months`, payload);
+
+const getAllMonths = (page = 1, limit = 10) =>
+  axiosClient.get(`/v1/admin/months?page=${page}&limit=${limit}`);
+
+const getMonthsStats = () =>
+  axiosClient.get(`/v1/admin/months/stats`);
+
+const getMonthsByType = (type, includeInactive = false) =>
+  axiosClient.get(`/v1/admin/months/type/${type}?includeInactive=${includeInactive}`);
+
+const getMonthById = (monthId) =>
+  axiosClient.get(`/v1/admin/months/${monthId}`);
+
+const updateMonth = (monthId, payload) =>
+  axiosClient.patch(`/v1/admin/months/${monthId}`, payload);
+
+const deleteMonth = (monthId) =>
+  axiosClient.delete(`/v1/admin/months/${monthId}`);
+
+const toggleMonthStatus = (monthId, payload) =>
+  axiosClient.patch(`/v1/admin/months/${monthId}/toggle-status`, payload);
+
+
+
+
 export default {
   getHealth,
   getSubscriptionPlans,
@@ -396,5 +425,13 @@ export default {
   addYouTubeLink,
   updateYouTubeLinks,
   deleteYouTubeLink,
+  createMonth,
+  getAllMonths,
+  getMonthsStats,
+  getMonthsByType,
+  getMonthById,
+  updateMonth,
+  deleteMonth,
+  toggleMonthStatus,
 
 };
