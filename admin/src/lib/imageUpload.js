@@ -5,8 +5,8 @@ import { toast } from "sonner";
 const apiBaseUrl = import.meta.env.VITE_API_URL;
 
 const imagekit = new ImageKit({
-  publicKey: import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY,
-  urlEndpoint: import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT,
+  publicKey: "public_IIhuu7gbjT1cTmhikcZ/iDKFSIw=",
+  urlEndpoint: "https://ik.imagekit.io/qwooukwpv/",
 });
 
 export const uploadToImageKit = async (file, folder = 'uploads') => {
