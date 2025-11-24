@@ -2,7 +2,7 @@ import ImageKit from 'imagekit-javascript';
 import axios from 'axios';
 import { toast } from "sonner";
 
-const apiBaseUrl = import.meta.env.VITE_API_URL;
+const apiBaseUrl = "https://mv.easytechinnovate.site";
 
 const imagekit = new ImageKit({
   publicKey: "public_IIhuu7gbjT1cTmhikcZ/iDKFSIw=",
