@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 import { Calendar, Paperclip, Send, Download, User, SquarePen, Tag } from "lucide-react";
 import EditTicketModal from "./EditTicketModal";
 import AssignTicketModal from "./AssignTicketModal";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { toast } from "sonner";
 import AttachmentModal from "./AttachmentModal";
+import InternalNoteModal from "./InternalNoteModal";
 
 export default function TicketDetailPanel({ theme = "dark", ticket, onBack }) {
   const isDark = theme === "dark";
@@ -20,7 +21,34 @@ const [draftAttachments, setDraftAttachments] = useState([]);
 const [sendingReply, setSendingReply] = useState(false);
 const [showAttachmentModal, setShowAttachmentModal] = useState(false);
 const [isInternal, setIsInternal] = useState(false);
+const [showInternalModal, setShowInternalModal] = useState(false);
+const [allPeople, setAllPeople] = useState([]);
 
+
+useEffect(() => {
+  async function fetchAllPeople() {
+    try {
+      const res = await GlobalApi.getUsers(1, 9999);
+      setAllPeople(res.data.data.users || []);
+    } catch (err) {
+      console.error("Failed to fetch users", err);
+    }
+  }
+
+  fetchAllPeople();
+}, []);
+
+const getResponderName = (id) => {
+  if (!id) return "Unknown";
+
+  const user = allPeople.find((u) => u._id === id);
+
+  if (user) {
+    return `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim();
+  }
+
+  return "Unknown";
+};
 
 const handleSendReply = async () => {
   if (!replyMessage.trim()) {
@@ -43,17 +71,11 @@ const handleSendReply = async () => {
 
 
     const res = await GlobalApi.addAdminResponse(currentTicket.ticketId, payload);
-
-    // Update UI thread
  setCurrentTicket((prev) => ({
   ...prev,
   responses: [
     ...prev.responses,
     {
-      // For frontend UI only
-      senderType: "admin",
-
-      // Actual backend fields
       message: replyMessage,
       isInternal: isInternal,
       createdAt: new Date().toISOString(),
@@ -129,7 +151,6 @@ const handleEscalateTicket = async () => {
       }}
     >
       <div className="max-w-[1200px] mx-auto grid grid-cols-12 gap-6">
-        {/* Header */}
         <div className="col-span-12 flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
             <button
@@ -156,9 +177,7 @@ const handleEscalateTicket = async () => {
           </button>
         </div>
 
-        {/* Main content and sidebar */}
         <div className="col-span-8">
-          {/* TICKET INFORMATION */}
           <div
             className="rounded-2xl p-6 mb-6 shadow-sm"
             style={{
@@ -183,10 +202,8 @@ const handleEscalateTicket = async () => {
               </button>
             </div>
 
-            {/* ROW 1 — FIXED ALIGNMENT */}
             <div className="grid grid-cols-3 gap-8">
 
-              {/* USER — LEFT */}
               <div className="flex flex-col items-start">
                 <div className="text-xs mb-1" style={{ color: "var(--muted)" }}>User</div>
 
@@ -207,7 +224,6 @@ const handleEscalateTicket = async () => {
                 </div>
               </div>
 
-              {/* CREATED — CENTER */}
               <div className="flex flex-col items-center text-center">
                 <div className="text-xs mb-1" style={{ color: "var(--muted)" }}>Created</div>
 
@@ -240,10 +256,7 @@ const handleEscalateTicket = async () => {
               </div>
             </div>
 
-            {/* ROW 2 — NO CHANGE NEEDED */}
             <div className="grid grid-cols-3 gap-8 mt-10">
-
-              {/* SUBJECT — LEFT */}
               <div>
                 <div className="text-xs mb-1" style={{ color: "var(--muted)" }}>Subject</div>
 
@@ -252,7 +265,6 @@ const handleEscalateTicket = async () => {
                 </div>
               </div>
 
-              {/* TAGS — CENTER */}
               <div className="flex flex-col items-center text-center">
                 <div className="text-xs mb-1" style={{ color: "var(--muted)" }}>Tags</div>
 
@@ -278,10 +290,7 @@ const handleEscalateTicket = async () => {
                 )}
               </div>
 
-              {/* EMPTY RIGHT COLUMN */}
               <div>
-
-                {/* ESCALATION LEVEL */}
                 <div className="flex flex-col items-end text-right">
                   <div className="text-xs mb-1" style={{ color: "var(--muted)" }}>
                     Escalation Level
@@ -302,7 +311,6 @@ const handleEscalateTicket = async () => {
             </div>
           </div>
 
-          {/* Conversation */}
           <div
             className="rounded-2xl p-6 mb-6 shadow-sm"
             style={{ background: "var(--bg-surface)" }}
@@ -314,25 +322,31 @@ const handleEscalateTicket = async () => {
             </div>
 
             <div className="space-y-4">
-              {currentTicket.responses?.map((chat, index) => (
-                <MessageBubble
-                  key={index}
-                  message={{
-                    id: index,
-                    author:
-                      chat.senderType === "admin"
-                        ? "Support Agent"
-                        : currentTicket.userId?.firstName,
-                    role: chat.senderType === "admin" ? "agent" : "user",
-                    time: new Date(chat.createdAt).toLocaleString(),   // ✅ FIXED HERE
-                    message: chat.message,
-                  }}
-                />
-              ))}
+           {currentTicket.responses?.map((chat, index) => {
+  const responder = allPeople.find((u) => u._id === chat.respondedBy);
 
+  const authorName = responder
+    ? `${responder.firstName ?? ""} ${responder.lastName ?? ""}`.trim()
+    : "Unknown";
+
+  const isAgent =
+    responder && responder._id !== currentTicket.userId?._id;
+
+  return (
+    <MessageBubble
+      key={index}
+      message={{
+        id: index,
+        author: authorName,
+        role: isAgent ? "agent" : "user",
+        time: new Date(chat.createdAt).toLocaleString(),
+        message: chat.message,
+      }}
+    />
+  );
+})}
             </div>
 
-            {/* Reply Box */}
             <div className="mt-6">
             
 
@@ -362,7 +376,6 @@ const handleEscalateTicket = async () => {
 
               <div className="flex items-center justify-between mt-3">
 
-                {/* LEFT SIDE — Attach */}
                <Button
   className="px-4 py-2 rounded-lg text-xs font-medium"
   style={{
@@ -374,24 +387,21 @@ const handleEscalateTicket = async () => {
 >
   Add Files
 </Button>
-
-
-                {/* RIGHT BUTTON GROUP */}
                 <div className="flex items-center gap-3">
 
-                  {/* INTERNAL NOTE (SUBTLE GRAY BUTTON) */}
                   <button
-                    className="px-4 py-2 rounded-lg text-xs font-medium transition"
-                    style={{
-                      background: "rgba(255,255,255,0.03)",
-                      border: "1px solid rgba(255,255,255,0.06)",
-                      color: "var(--muted)",
-                    }}
-                  >
-                    Add Internal Note
-                  </button>
+  className="px-4 py-2 rounded-lg text-xs font-medium transition"
+  style={{
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.06)",
+    color: "var(--muted)",
+  }}
+  onClick={() => setShowInternalModal(true)}
+>
+  Add Internal Note
+</button>
 
-                  {/* ESCALATE TICKET (PURPLE OUTLINE — THEME RESPONSIVE) */}
+
                   <Button
                     onClick={() => setShowDialog(true)}
                     className="bg-orange-600 hover:bg-orange-700 text-white"
@@ -399,9 +409,6 @@ const handleEscalateTicket = async () => {
                     Escalate Ticket
                   </Button>
 
-
-
-                  {/* SEND BUTTON */}
                   <button
   onClick={handleSendReply}
   disabled={sendingReply}
@@ -425,7 +432,6 @@ const handleEscalateTicket = async () => {
           </div>
         </div>
 
-        {/* Sidebar */}
         <aside className="col-span-4">
           <div
             className="rounded-2xl p-6 sticky top-8"
@@ -435,7 +441,6 @@ const handleEscalateTicket = async () => {
 
             <div className="space-y-6">
 
-              {/* STATUS */}
               <div>
                 <label className="text-xs" style={{ color: "var(--muted)" }}>
                   Status
@@ -468,8 +473,6 @@ const handleEscalateTicket = async () => {
                 </div>
               </div>
 
-
-              {/* PRIORITY */}
               <div>
                 <label className="text-xs" style={{ color: "var(--muted)" }}>
                   Priority
@@ -503,12 +506,10 @@ const handleEscalateTicket = async () => {
               </div>
 
 
-              {/* ASSIGNED TO */}
+            
               <div>
                 <label className="text-xs" style={{ color: "var(--muted)" }}>Assigned To</label>
 
-                {/* BADGE */}
-                {/* ASSIGNED TO BADGE */}
                 <div className="mt-2">
                   <span
                     className="inline-flex items-center gap-2 px-3 py-1 text-xs font-medium rounded-full"
@@ -524,10 +525,7 @@ const handleEscalateTicket = async () => {
                       : "Unassigned"}
                   </span>
                 </div>
-
-
-                {/* SELECT + BUTTON */}
-                {/* SELECT + BUTTON */}
+                
                 <div className="mt-2 flex items-center gap-3">
                   <select
                     className="rounded-lg px-3 py-2 text-sm flex-1"
@@ -536,11 +534,11 @@ const handleEscalateTicket = async () => {
                       color: "var(--text)",
                       border: "1px solid rgba(255,255,255,0.08)",
                     }}
-                    value={currentTicket.assignedDepartment || ""}      // ✅ FIX
+                    value={currentTicket.assignedDepartment || ""} 
                     onChange={(e) =>
                       setCurrentTicket((prev) => ({
                         ...prev,
-                        assignedDepartment: e.target.value,              // ✅ FIX
+                        assignedDepartment: e.target.value,
                       }))
                     }
                   >
@@ -560,7 +558,7 @@ const handleEscalateTicket = async () => {
                         : "1px solid rgba(0,0,0,0.1)",
                       color: "var(--text)"
                     }}
-                    onClick={() => setShowAssignModal(true)}   // ← OPEN MODAL
+                    onClick={() => setShowAssignModal(true)}  
                   >
                     Assign
                   </button>
@@ -579,7 +577,7 @@ const handleEscalateTicket = async () => {
         ticket={currentTicket}
         theme={theme}
         onSave={(updatedTicket) => {
-          setCurrentTicket(updatedTicket);   // <— FIXES UI not updating
+          setCurrentTicket(updatedTicket);  
         }}
       />
 
@@ -611,11 +609,24 @@ const handleEscalateTicket = async () => {
   onSaveDraft={(files) => setDraftAttachments(files)}
 />
 
+<InternalNoteModal
+  isOpen={showInternalModal}
+  onClose={() => setShowInternalModal(false)}
+  theme={theme}
+  ticketId={currentTicket.ticketId}
+  existingNotes={currentTicket.internalNotes || []}
+  onAdded={(newNote) =>
+    setCurrentTicket((prev) => ({
+      ...prev,
+      internalNotes: [...prev.internalNotes, newNote],
+    }))
+  }
+/>
+
     </div>
   );
 }
 
-// 💬 Chat message UI component
 function MessageBubble({ message }) {
   const isAgent = message.role === "agent";
 

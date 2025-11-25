@@ -21,8 +21,11 @@ export default function AdminLogin() {
 
     try {
       const res = await GlobalApi.login(credentials);
-    //   console.log("Login Response:", res.data);
-      localStorage.setItem("token", res.data.data.tokens.accessToken);
+
+localStorage.setItem("token", res.data.data.tokens.accessToken);
+localStorage.setItem("refreshToken", res.data.data.tokens.refreshToken);
+localStorage.setItem("user", JSON.stringify(res.data.data.user));
+
       navigate("/admin/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials");

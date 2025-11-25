@@ -1,12 +1,6 @@
-// components/support/AssignTicketModal.jsx
-"use client";
-
 import React, { useState, useEffect } from "react";
 import GlobalApi from "@/lib/GlobalApi";
 
-/* ---------------------------
-   NORMALIZERS
---------------------------- */
 const normalizeAssignedTo = (raw) => {
   if (!raw) return "";
   if (typeof raw === "string") return raw;
@@ -44,9 +38,7 @@ export default function AssignTicketModal({
     "--accent": isDark ? "#7C3AED" : "#6B46C1",
   };
 
-  /* ---------------------------
-     FORM STATE
-  --------------------------- */
+ 
   const [assignedTo, setAssignedTo] = useState("");
   const [assignedDepartment, setAssignedDepartment] = useState("");
 
@@ -57,9 +49,7 @@ export default function AssignTicketModal({
     setAssignedDepartment(normalizeDepartment(ticket.assignedDepartment));
   }, [ticket]);
 
-  /* ---------------------------
-     FETCH TEAM MEMBERS
-  --------------------------- */
+
   const [teamMembers, setTeamMembers] = useState([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
 
@@ -87,13 +77,10 @@ export default function AssignTicketModal({
     load();
   }, [isOpen]);
 
-  /* ---------------------------
-     SAVE HANDLER — ALWAYS SEND STRING ID
-  --------------------------- */
   const handleAssign = async () => {
     try {
       const payload = {
-        assignedTo: assignedTo || null, // must be string (ObjectId)
+        assignedTo: assignedTo || null, 
         assignedDepartment: assignedDepartment || null,
       };
 
@@ -110,9 +97,6 @@ export default function AssignTicketModal({
     }
   };
 
-  /* ---------------------------
-     UI
-  --------------------------- */
 
   return (
     <div
@@ -130,7 +114,6 @@ export default function AssignTicketModal({
       >
         <h2 className="text-lg font-semibold mb-4">Assign Ticket</h2>
 
-        {/* Assigned To */}
         <div className="mb-4">
           <label className="text-xs mb-1 block" style={{ color: "var(--muted)" }}>
             Assign To (Team Member)
@@ -158,7 +141,6 @@ export default function AssignTicketModal({
           </select>
         </div>
 
-        {/* Department */}
         <div className="mb-6">
           <label className="text-xs mb-1 block" style={{ color: "var(--muted)" }}>
             Assigned Department
@@ -185,7 +167,6 @@ export default function AssignTicketModal({
           </select>
         </div>
 
-        {/* ACTION BUTTONS */}
         <div className="flex justify-end gap-3">
           <button
             className="px-4 py-2 rounded-lg text-sm"

@@ -1,9 +1,16 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, MoreHorizontal, Music, Lock, Upload } from "lucide-react";
-import ManageLabelsModal from "@/components/user-management/ManageLabelsModal";
-import UserInfoPage from "../../components/user-management/UserModal";
+import {
+  Download,
+  FolderKanban,
+  KeyRound,
+  MoreHorizontal,
+  Music,
+  Upload,
+} from "lucide-react";
+import SublabelModal from "../../components/user-management/CreateSublabelModal.jsx";
+import ManageLabelsModal from "../../components/user-management/ManageLabelsModal.jsx";
 import GlobalApi from "@/lib/GlobalApi";
 import { toast } from "sonner";
 
@@ -20,20 +27,28 @@ export default function UserManagement({ theme }) {
   const [users, setUsers] = useState([]);
   const [isManageLabelsOpen, setIsManageLabelsOpen] = useState(false);
   const [selectedLabelData, setSelectedLabelData] = useState([]);
-  const [activePage, setActivePage] = useState("list"); // list | userInfo
+  const [activePage, setActivePage] = useState("list");
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch users from API
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
+  // =============================
+  // FETCH USERS (WITH PAGINATION)
+  // =============================
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await GlobalApi.getUsers(1, 10);
+
+      const res = await GlobalApi.getUsers(
+        currentPage,
+        10,
+        "&role=user"
+      );
+
       setUsers(res.data.data.users || []);
+      setTotalPages(res.data.data.pagination?.totalPages || 1);
     } catch (err) {
       console.error(err);
       toast.error("Failed to load users");
@@ -42,34 +57,48 @@ export default function UserManagement({ theme }) {
     }
   };
 
-  const handleAddNewUser = () => {
-    setSelectedUser({});
-    setActivePage("userInfo");
-  };
+  useEffect(() => {
+    fetchUsers();
+  }, [currentPage]);
 
-  const handleEditUser = (user) => {
-    setSelectedUser(user);
-    setActivePage("userInfo");
-  };
+
 
   const handleBack = () => setActivePage("list");
 
-  const handleSave = (formData) => {
-    console.log("Saving user data:", formData);
-    setActivePage("list");
-  };
+const handleManageLabels = (user) => {
+  setSelectedUser(user);   // pass full user object
+  setIsManageLabelsOpen(true);
+};
 
-  const handleManageLabels = (user) => {
-    setSelectedUser(user);
-    setSelectedLabelData([]); // will be fetched later
-    setIsManageLabelsOpen(true);
-  };
+const handleTopManageLabels = () => {
+  setSelectedUser(null);   // no user selected
+  setIsManageLabelsOpen(true);
+};
 
-  const filteredUsers = users.filter((u) =>
-    u.emailAddress?.toLowerCase().includes(search.toLowerCase())
+
+
+ const filteredUsers = users.filter((u) => {
+  const s = search.toLowerCase();
+
+  const stageName =
+    u.userType === "artist"
+      ? u?.artistData?.artistName
+      : u.userType === "label"
+      ? u?.labelData?.labelName
+      : u.userType === "aggregator"
+      ? u?.aggregatorData?.companyName
+      : "";
+
+  return (
+    u.emailAddress?.toLowerCase().includes(s) ||
+    stageName?.toLowerCase().includes(s) ||
+    u.userType?.toLowerCase().includes(s) ||
+    u.accountId?.toString().includes(s)
   );
+});
 
-  // Compute stats
+
+  // Stats
   const totalUsers = users.length;
   const aggregators = users.filter((u) => u.userType === "aggregator").length;
   const artists = users.filter((u) => u.userType === "artist").length;
@@ -82,23 +111,26 @@ export default function UserManagement({ theme }) {
     { label: "Labels", value: labels },
   ];
 
+  // =============================
+  // USER FORM PAGE
+  // =============================
   if (activePage === "userInfo") {
     return (
       <UserInfoPage
         theme={theme}
         defaultData={selectedUser}
         onBack={handleBack}
-        onSave={handleSave}
       />
     );
   }
 
+  // =============================
+  // MAIN PAGE
+  // =============================
   return (
     <div
-      className={`p-4 md:p-6 space-y-6 transition-colors duration-300 ${
-        isDark
-          ? "bg-[#111A22] text-gray-200"
-          : "bg-gray-50 text-[#151F28]"
+      className={`p-4 md:p-6 space-y-6 ${
+        isDark ? "bg-[#111A22] text-gray-200" : "bg-gray-50 text-[#151F28]"
       }`}
     >
       {/* Header */}
@@ -113,19 +145,20 @@ export default function UserManagement({ theme }) {
             Manage artists, labels, and aggregators in Maheshwari Visuals
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant={isDark ? "outline" : "secondary"}
-            className="flex items-center gap-2 px-4"
-          >
+
+        {/* RIGHT SIDE BUTTONS — INLINE */}
+        <div className="flex flex-row gap-2 whitespace-nowrap">
+          <Button variant={isDark ? "outline" : "secondary"}>
             <Download className="h-4 w-4" /> Import CSV/Excel
           </Button>
-          <Button
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4"
-            onClick={handleAddNewUser}
-          >
-            Add New User
-          </Button>
+
+         <Button
+  className="bg-purple-600 hover:bg-purple-700 text-white"
+  onClick={handleTopManageLabels}
+>
+  Manage Labels
+</Button>
+
         </div>
       </div>
 
@@ -134,7 +167,7 @@ export default function UserManagement({ theme }) {
         {stats.map((stat, i) => (
           <div
             key={i}
-            className={`rounded-lg p-4 shadow-md flex flex-col justify-center ${
+            className={`rounded-lg p-4 shadow-md ${
               isDark ? "bg-[#151F28]" : "bg-white"
             }`}
           >
@@ -144,115 +177,167 @@ export default function UserManagement({ theme }) {
         ))}
       </div>
 
-      {/* Search + Filters + Export */}
-      <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
-        <Input
-          placeholder="Search users by email..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className={`w-full md:w-1/3 ${
-            isDark
-              ? "bg-[#151F28] border-gray-700 text-gray-200"
-              : "bg-white"
-          }`}
-        />
-        <div className="flex flex-wrap gap-2 items-center">
-          <Button
-            variant={isDark ? "outline" : "secondary"}
-            className="flex items-center gap-2 px-4"
-          >
-            <Download className="h-4 w-4" /> Export
-          </Button>
-        </div>
-      </div>
-
-      {/* User Table */}
-      <div
-        className={`rounded-lg overflow-x-auto shadow-md ${
-          isDark ? "bg-[#151F28]" : "bg-white"
+      {/* Search */}
+      <Input
+        placeholder="Search users by email..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className={`w-full md:w-1/3 ${
+          isDark ? "bg-[#151F28] border-gray-700 text-gray-200" : "bg-white"
         }`}
-      >
-        {loading ? (
-          <div className="p-6 text-center text-gray-400">Loading users...</div>
-        ) : filteredUsers.length === 0 ? (
-          <div className="p-6 text-center text-gray-400">No users found</div>
-        ) : (
-          <table className="w-full text-sm min-w-[1000px]">
-            <thead
-              className={`${
-                isDark ? "text-gray-400" : "text-gray-600"
-              } text-left`}
-            >
-              <tr>
-                {[
-                  "User ID",
-                  "Email",
-                  "Role",
-                  "Type",
-                  "Status",
-                  "Join Date",
-                  "Actions",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className="px-4 py-3 font-medium whitespace-nowrap"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((user) => (
+      />
+
+      {/* TABLE */}
+      {/* TABLE */}
+<div
+  className={`rounded-lg shadow-md ${
+    isDark ? "bg-[#151F28]" : "bg-white"
+  }`}
+>
+  {loading ? (
+    <div className="p-6 text-center text-gray-400">Loading users...</div>
+  ) : users.length === 0 ? (
+    <div className="p-6 text-center text-gray-400">No users found</div>
+  ) : (
+    <>
+      {/* TABLE */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[1500px]">
+          <thead
+            className={`${isDark ? "text-gray-400" : "text-gray-600"} text-left`}
+          >
+            <tr>
+              {[
+                "User ID",
+                "Stage Name",
+                "Account Type",
+                "Status",
+                "Membership",
+                "Email",
+                "Join Date",
+                "Actions",
+              ].map((header) => (
+                <th key={header} className="px-4 py-3 font-medium">
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+
+          <tbody>
+              {filteredUsers.map((u) => {
+              const stageName =
+                u.userType === "artist"
+                  ? u?.artistData?.artistName
+                  : u.userType === "label"
+                  ? u?.labelData?.labelName
+                  : u.userType === "aggregator"
+                  ? u?.aggregatorData?.companyName
+                  : "—";
+
+              return (
                 <tr
-                  key={user._id}
+                  key={u._id}
                   className={`border-t ${
                     isDark ? "border-gray-700" : "border-gray-200"
                   }`}
                 >
-                  <td className="px-4 py-3">{user._id}</td>
-                  <td className="px-4 py-3">{user.emailAddress}</td>
-                  <td className="px-4 py-3">{user.role}</td>
-                  <td className="px-4 py-3">
-                    {user.userType ? user.userType : "-"}
-                  </td>
+                  <td className="px-4 py-3">{u.accountId}</td>
+                  <td className="px-4 py-3">{stageName}</td>
+
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        user.isActive
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        u.userType === "artist"
+                          ? "bg-purple-500/20 text-purple-400"
+                          : u.userType === "label"
+                          ? "bg-blue-500/20 text-blue-400"
+                          : "bg-orange-500/20 text-orange-400"
+                      }`}
+                    >
+                      {u.userType}
+                    </span>
+                  </td>
+
+                  <td className="px-4 py-3">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        u.isActive
                           ? "bg-green-500/20 text-green-400"
                           : "bg-gray-500/20 text-gray-400"
                       }`}
                     >
-                      {user.isActive ? "Active" : "Inactive"}
+                      {u.isActive ? "Active" : "Inactive"}
                     </span>
                   </td>
+
                   <td className="px-4 py-3">
-                    {new Date(user.createdAt).toLocaleDateString()}
+                    <span className="bg-green-500/20 px-2 py-1 rounded-full text-xs text-green-400">
+                      Active
+                    </span>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="flex gap-2 min-w-max">
+
+                  <td className="px-4 py-3">{u.emailAddress}</td>
+
+                  <td className="px-4 py-3">
+                    {new Date(u.createdAt).toLocaleDateString()}
+                  </td>
+
+                  {/* ACTION BUTTONS */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-2 whitespace-nowrap">
                       <Button
                         size="sm"
-                        className="bg-purple-600 text-white rounded-full px-3"
-                        onClick={() => handleManageLabels(user)}
+                        className="bg-purple-600 hover:bg-purple-700 text-white px-3 rounded-lg flex items-center gap-1"
                       >
+                        <Music className="h-4 w-4" />
+                        Manage Release
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        className="bg-purple-600 hover:bg-purple-700 text-white px-3 rounded-lg flex items-center gap-1"
+                        onClick={() => handleManageLabels(u)}
+                      >
+                        <FolderKanban className="h-4 w-4" />
                         Manage Label
                       </Button>
+
+                      <Button
+                        size="sm"
+                        className="bg-purple-600 hover:bg-purple-700 text-white px-3 rounded-lg flex items-center gap-1"
+                      >
+                        <KeyRound className="h-4 w-4" />
+                        Reset Password
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        className="bg-purple-600 hover:bg-purple-700 text-white px-3 rounded-lg flex items-center gap-1"
+                      >
+                        <Upload className="h-4 w-4" />
+                        Upload Catalog
+                      </Button>
+
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button size="icon" variant="ghost">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="rounded-lg border border-white/20"
+                          >
                             <MoreHorizontal className="h-5 w-5" />
                           </Button>
                         </DropdownMenuTrigger>
+
                         <DropdownMenuContent
-                          className={`${
+                          className={`rounded-lg ${
                             isDark
-                              ? "bg-[#151F28] border border-gray-700 text-gray-200"
-                              : "bg-white border border-gray-200 text-gray-800"
-                          } rounded-lg shadow-md`}
+                              ? "bg-[#151F28] text-gray-200 border-gray-700"
+                              : "bg-white text-gray-700 border-gray-200"
+                          }`}
                         >
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
+                          <DropdownMenuItem>KYC Details</DropdownMenuItem>
                           <DropdownMenuItem className="text-red-500">
                             Delete
                           </DropdownMenuItem>
@@ -261,20 +346,76 @@ export default function UserManagement({ theme }) {
                     </div>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
-      <ManageLabelsModal
-        isOpen={isManageLabelsOpen}
-        onClose={() => setIsManageLabelsOpen(false)}
-        data={selectedLabelData}
-        theme={theme}
-        userId={selectedUser?._id}
-        userName={selectedUser?.emailAddress}
-      />
+      {/* PAGINATION — CLEAN, RIGHT ALIGNED */}
+      <div className="flex justify-end items-center gap-3 px-4 py-4">
+
+        <Button
+          disabled={currentPage === 1}
+          variant="outline"
+          onClick={() => setCurrentPage((p) => p - 1)}
+        >
+          Previous
+        </Button>
+
+        <div className="flex gap-1">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 rounded-md text-sm ${
+                currentPage === i + 1
+                  ? "bg-purple-600 text-white"
+                  : isDark
+                  ? "bg-[#151F28] text-gray-300"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+
+        <Button
+          disabled={currentPage === totalPages}
+          variant="outline"
+          onClick={() => setCurrentPage((p) => p + 1)}
+        >
+          Next
+        </Button>
+      </div>
+    </>
+  )}
+</div>
+
+
+   <SublabelModal
+  isOpen={isManageLabelsOpen}
+  onClose={() => setIsManageLabelsOpen(false)}
+  userData={selectedUser}   // full user object here
+  theme={theme}
+/>
+
+<ManageLabelsModal
+  isOpen={isManageLabelsOpen}
+  onClose={() => setIsManageLabelsOpen(false)}
+  theme={theme}
+  userId={selectedUser?._id || null}
+  userName={
+    selectedUser
+      ? selectedUser.artistData?.artistName ||
+        selectedUser.labelData?.labelName ||
+        selectedUser.aggregatorData?.companyName
+      : "All Labels"
+  }
+/>
+
+
     </div>
   );
 }

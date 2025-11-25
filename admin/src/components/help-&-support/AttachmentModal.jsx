@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { X, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { uploadToImageKit } from "@/lib/imageUpload"; // your upload tool
+import { uploadToImageKit } from "@/lib/imageUpload"; 
 
 export default function AttachmentModal({
   isOpen,
@@ -10,7 +10,7 @@ export default function AttachmentModal({
   onSaveDraft,
 }) {
   const isDark = theme === "dark";
-  const [files, setFiles] = useState([]); // ← final uploaded attachments
+  const [files, setFiles] = useState([]); 
 
   const vars = isDark
     ? {
@@ -28,7 +28,6 @@ export default function AttachmentModal({
 
   if (!isOpen) return null;
 
-  /** Convert ImageKit response → backend schema */
   const convertIKToAttachment = (ik) => {
     return {
       fileName: ik.name,
@@ -37,19 +36,16 @@ export default function AttachmentModal({
     };
   };
 
-  /** Handle upload */
   const handleFileSelect = async (e) => {
     const selectedFiles = Array.from(e.target.files);
 
     for (let file of selectedFiles) {
       try {
-        // Upload to ImageKit
+      
         const uploaded = await uploadToImageKit(file, "ticket-attachments");
 
-        // Convert to backend-ready attachment
         const formatted = convertIKToAttachment(uploaded);
 
-        // Save to state
         setFiles((prev) => [...prev, formatted]);
 
       } catch (err) {
@@ -63,7 +59,7 @@ export default function AttachmentModal({
   };
 
   const handleSave = () => {
-    onSaveDraft(files); // send uploaded attachments to parent
+    onSaveDraft(files); 
     onClose();
   };
 
@@ -76,7 +72,7 @@ export default function AttachmentModal({
         className="w-[450px] rounded-2xl p-6 shadow-xl"
         style={{ background: "var(--surface)", color: "var(--text)" }}
       >
-        {/* HEADER */}
+
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Add Attachments</h2>
 
@@ -85,7 +81,6 @@ export default function AttachmentModal({
           </button>
         </div>
 
-        {/* FILE INPUT */}
         <div
           className="border border-dashed rounded-xl p-6 flex flex-col items-center cursor-pointer"
           style={{
@@ -108,7 +103,6 @@ export default function AttachmentModal({
           />
         </div>
 
-        {/* FILE LIST */}
         {files.length > 0 && (
           <div className="mt-4 space-y-3 max-h-[200px] overflow-y-auto pr-2">
             {files.map((file, index) => (
@@ -133,7 +127,6 @@ export default function AttachmentModal({
           </div>
         )}
 
-        {/* FOOTER */}
         <div className="mt-6 flex justify-end gap-3">
           <Button
             variant="outline"

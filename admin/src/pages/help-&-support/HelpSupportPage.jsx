@@ -87,7 +87,6 @@ export default function HelpSupport({ theme = "dark" }) {
     },
   };
 
-  // 🟢 Fetch all tickets
   useEffect(() => {
     const fetchTickets = async () => {
       try {
@@ -105,7 +104,7 @@ export default function HelpSupport({ theme = "dark" }) {
     fetchTickets();
   }, [page, limit]);
 
-  // 🟢 Fetch stats
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -118,7 +117,7 @@ export default function HelpSupport({ theme = "dark" }) {
     fetchStats();
   }, []);
 
-  // 🟣 Filtering logic (client side)
+
   const filteredTickets = tickets.filter((t) => {
     const matchesSearch =
       t.ticketId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -153,11 +152,6 @@ export default function HelpSupport({ theme = "dark" }) {
     );
   }
 
-
-
-
-
-
   return (
 
 
@@ -165,7 +159,7 @@ export default function HelpSupport({ theme = "dark" }) {
       className={`${theme === "dark" ? "bg-[#111A22] text-white" : "bg-gray-100 text-black"
         } min-h-screen p-4 sm:p-6 rounded-2xl`}
     >
-      {/* Heading */}
+
       <h1 className={`text-xl sm:text-2xl font-bold mb-2 ${textColors.primary}`}>
         Help & Support (Tickets)
       </h1>
@@ -173,7 +167,6 @@ export default function HelpSupport({ theme = "dark" }) {
         Manage support tickets with filters by status, priority, and user ID
       </p>
 
-      {/* Stats */}
       {stats ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
@@ -215,7 +208,6 @@ export default function HelpSupport({ theme = "dark" }) {
             </div>
           </div>
 
-          {/* Extra small details */}
           <div
             className={`grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 mt-2 text-sm ${textColors.secondary}`}
           >
@@ -243,7 +235,6 @@ export default function HelpSupport({ theme = "dark" }) {
         <p className={`mb-6 ${textColors.secondary}`}>Loading stats...</p>
       )}
 
-      {/* Search + Filters */}
       <div
         className={`${theme === "dark" ? "bg-[#151F28]" : "bg-white"
           } p-4 rounded-2xl shadow mb-6 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between`}
@@ -310,7 +301,6 @@ export default function HelpSupport({ theme = "dark" }) {
         </div>
       </div>
 
-      {/* Table */}
       <div
         className={`${theme === "dark" ? "bg-[#151F28]" : "bg-white"
           } rounded-2xl shadow overflow-x-auto`}
@@ -433,7 +423,6 @@ export default function HelpSupport({ theme = "dark" }) {
         )}
       </div>
 
-      {/* Pagination */}
       {!loading && pagination.totalPages > 1 && (
         <div className="flex justify-center items-center gap-3 mt-6">
           <button

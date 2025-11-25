@@ -31,9 +31,6 @@ export const EDepartment = Object.freeze({
   SUPPORT: "Support",
 });
 
-// ---------------------------
-// NORMALIZERS
-// ---------------------------
 const normalizeAssignedTo = (raw) => {
   if (!raw) return "";
   if (typeof raw === "string") return raw;
@@ -72,9 +69,6 @@ export default function EditTicketModal({
     "--border": isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)",
   };
 
-  // --------------------------------------------------
-  // FORM STATE
-  // --------------------------------------------------
   const [form, setForm] = useState({
     subject: ticket.subject || "",
     description: ticket.description || "",
@@ -86,7 +80,7 @@ export default function EditTicketModal({
     assignedDepartment: normalizeDepartment(ticket.assignedDepartment),
   });
 
-  // Refill on ticket change
+
   useEffect(() => {
     setForm({
       subject: ticket.subject || "",
@@ -103,9 +97,6 @@ export default function EditTicketModal({
   const updateField = (field, value) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
-  // --------------------------------------------------
-  // GET TEAM MEMBERS
-  // --------------------------------------------------
   const [teamMembers, setTeamMembers] = useState([]);
   const [membersLoading, setMembersLoading] = useState(false);
   const [membersError, setMembersError] = useState(null);
@@ -141,9 +132,6 @@ export default function EditTicketModal({
     return () => (mounted = false);
   }, [isOpen]);
 
-  // --------------------------------------------------
-  // SAVE HANDLER — ALWAYS STRING, NEVER OBJECT
-  // --------------------------------------------------
   const handleSave = async () => {
     try {
       const payload = {};
@@ -173,10 +161,6 @@ export default function EditTicketModal({
     }
   };
 
-  // --------------------------------------------------
-  // MODAL UI
-  // --------------------------------------------------
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
@@ -196,7 +180,7 @@ export default function EditTicketModal({
           ...vars,
         }}
       >
-        {/* HEADER */}
+ 
         <div
           className="flex items-center justify-between mb-4 pb-2 border-b"
           style={{ borderColor: "var(--border)" }}
@@ -207,12 +191,10 @@ export default function EditTicketModal({
           </button>
         </div>
 
-        {/* BODY */}
         <div className="max-h-[65vh] overflow-y-auto pr-2 custom-scrollbar">
 
-          {/* Subject + Category */}
           <div className="grid grid-cols-2 gap-4 mb-4">
-            {/* Subject */}
+       
             <div>
               <label className="text-xs" style={{ color: "var(--muted)" }}>
                 Subject
@@ -229,7 +211,6 @@ export default function EditTicketModal({
               />
             </div>
 
-            {/* Category */}
             <div>
               <label className="text-xs" style={{ color: "var(--muted)" }}>
                 Category
@@ -254,7 +235,6 @@ export default function EditTicketModal({
             </div>
           </div>
 
-          {/* Tags */}
           <div className="mb-4">
             <label className="text-xs" style={{ color: "var(--muted)" }}>
               Tags (comma separated)
@@ -271,9 +251,8 @@ export default function EditTicketModal({
             />
           </div>
 
-          {/* Status + Priority */}
           <div className="grid grid-cols-2 gap-4 mb-4">
-            {/* Status */}
+         
             <div>
               <label className="text-xs" style={{ color: "var(--muted)" }}>
                 Status
@@ -296,7 +275,6 @@ export default function EditTicketModal({
               </select>
             </div>
 
-            {/* Priority */}
             <div>
               <label className="text-xs" style={{ color: "var(--muted)" }}>
                 Priority
@@ -320,9 +298,8 @@ export default function EditTicketModal({
             </div>
           </div>
 
-          {/* Department + AssignedTo */}
           <div className="grid grid-cols-2 gap-4 mb-4">
-            {/* Department */}
+           
             <div>
               <label className="text-xs" style={{ color: "var(--muted)" }}>
                 Assigned Department
@@ -348,7 +325,6 @@ export default function EditTicketModal({
               </select>
             </div>
 
-            {/* Assigned To */}
             <div>
               <label className="text-xs" style={{ color: "var(--muted)" }}>
                 Assigned To
@@ -377,7 +353,6 @@ export default function EditTicketModal({
             </div>
           </div>
 
-          {/* Description */}
           <div className="mb-2">
             <label className="text-xs" style={{ color: "var(--muted)" }}>
               Description
@@ -396,7 +371,6 @@ export default function EditTicketModal({
           </div>
         </div>
 
-        {/* ACTIONS */}
         <div
           className="flex justify-end gap-3 mt-6 pt-4 border-t"
           style={{ borderColor: "var(--border)" }}

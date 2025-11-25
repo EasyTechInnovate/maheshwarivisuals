@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: "https://mv.easytechinnovate.site",
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 
@@ -247,8 +247,9 @@ const toggleUserSubLabels = (userId, payload) =>
   axiosClient.post(`/v1/admin/users/${userId}/sublabels`, payload);
 
 
-const getUsers = (page = 1, limit = 10) =>
-  axiosClient.get(`/v1/admin/users?page=${page}&limit=${limit}`);
+const getUsers = (page = 1, limit = 10, extraParams = "") =>
+  axiosClient.get(`/v1/admin/users?page=${page}&limit=${limit}${extraParams}`);
+
 
 
 
