@@ -286,3 +286,17 @@ export const getContactInfo = async () => {
     const response = await servicesAxiosInstance.get('/v1/company-settings/contact')
     return response.data
 }
+
+// Analytics APIs
+export const getAnalyticsDashboard = async (params) => {
+    const { timeframe = 'last_6_months', groupBy = 'day', topTracksLimit = 10, countriesLimit = 20 } = params
+    const queryParams = new URLSearchParams({
+        timeframe,
+        groupBy,
+        topTracksLimit: topTracksLimit.toString(),
+        countriesLimit: countriesLimit.toString()
+    })
+
+    const response = await servicesAxiosInstance.get(`/v1/reports/analytics/dashboard?${queryParams.toString()}`)
+    return response.data
+}
