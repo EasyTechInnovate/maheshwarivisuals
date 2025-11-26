@@ -280,3 +280,9 @@ export const getAllSubscriptionPlans = async () => {
     const response = await servicesAxiosInstance.get('/v1/subscription/plans')
     return response.data
 }
+
+// Company Settings APIs
+export const getContactInfo = async () => {
+    const response = await servicesAxiosInstance.get('/v1/company-settings/contact')
+    return response.data
+}

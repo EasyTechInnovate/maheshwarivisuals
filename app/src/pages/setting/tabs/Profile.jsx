@@ -47,14 +47,31 @@ const Profile = () => {
       instagram: '',
       youtube: '',
       spotify: '',
-      website: ''
+      website: '',
+      tiktok: '',
+      linkedin: '',
+      facebook: '',
+      twitter: ''
     },
     kyc: {
-      aadhaarNumber: '',
-      panNumber: '',
-      bankNumber: '',
-      ifscCode: '',
-      status: 'approved'
+      documents: {
+        aadhaar: {
+          number: '',
+        },
+        pan: {
+          number: '',
+        }
+      },
+      bankDetails: {
+        accountNumber: '',
+        ifscCode: '',
+        accountHolderName: '',
+        bankName: '',
+      },
+      upiDetails: {
+        upiId: '',
+      },
+      status: 'unverified',
     },
     subscription: {
       plan: '',
@@ -110,7 +127,14 @@ const Profile = () => {
         primaryGenre: user.primaryGenre || '',
         location: user.location || '',
         socialMedia: user.socialMedia || prev.socialMedia,
-        kyc: user.kyc || prev.kyc,
+        kyc: {
+          ...prev.kyc,
+          ...user.kyc,
+          documents: user.kyc?.documents || prev.kyc.documents,
+          bankDetails: user.kyc?.bankDetails || prev.kyc.bankDetails,
+          upiDetails: user.kyc?.upiDetails || prev.kyc.upiDetails,
+          status: user.kyc?.status || 'unverified'
+        },
       }));
     }
   }, [user]);
@@ -156,12 +180,15 @@ const Profile = () => {
     }));
   };
 
-  const handleKycChange = (field, value) => {
+  const handleKycChange = (section, field, value) => {
     setFormData(prev => ({
       ...prev,
       kyc: {
         ...prev.kyc,
-        [field]: value
+        [section]: {
+          ...prev.kyc[section],
+          [field]: value
+        }
       }
     }));
   };
@@ -434,6 +461,42 @@ const Profile = () => {
               className="border-slate-700"
             />
           </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Facebook</label>
+            <Input
+              value={formData.socialMedia.facebook}
+              onChange={(e) => handleSocialMediaChange('facebook', e.target.value)}
+              placeholder="https://facebook.com/yourprofile"
+              className="border-slate-700"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Twitter / X</label>
+            <Input
+              value={formData.socialMedia.twitter}
+              onChange={(e) => handleSocialMediaChange('twitter', e.target.value)}
+              placeholder="https://twitter.com/yourhandle"
+              className="border-slate-700"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">TikTok</label>
+            <Input
+              value={formData.socialMedia.tiktok}
+              onChange={(e) => handleSocialMediaChange('tiktok', e.target.value)}
+              placeholder="https://tiktok.com/@yourhandle"
+              className="border-slate-700"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">LinkedIn</label>
+            <Input
+              value={formData.socialMedia.linkedin}
+              onChange={(e) => handleSocialMediaChange('linkedin', e.target.value)}
+              placeholder="https://linkedin.com/in/yourprofile"
+              className="border-slate-700"
+            />
+          </div>
         </CardContent>
       </Card>
 
@@ -444,7 +507,7 @@ const Profile = () => {
             <Shield className="w-5 h-5" />
             <CardTitle>KYC Details</CardTitle>
             <Badge className="bg-green-600 text-white">
-              {formData.kyc.status === 'approved' ? 'Approved' : 'Pending'}
+              {formData.kyc.status === 'verified' ? 'Verified' : formData.kyc.status.charAt(0).toUpperCase() + formData.kyc.status.slice(1)}
             </Badge>
           </div>
           <Button 
@@ -460,39 +523,61 @@ const Profile = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium">Aadhaar Number</label>
               <Input
-                value={formData.kyc.aadhaarNumber}
-                onChange={(e) => handleKycChange('aadhaarNumber', e.target.value)}
+                value={formData.kyc.documents.aadhaar.number}
+                onChange={(e) => handleKycChange('documents', 'aadhaar', { ...formData.kyc.documents.aadhaar, number: e.target.value })}
                 placeholder="1234 5678 9012 3456"
                 className="border-slate-700"
-                disabled={formData.kyc.status === 'approved'}
+                disabled={formData.kyc.status === 'verified'}
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">PAN Card Number</label>
               <Input
-                value={formData.kyc.panNumber}
-                onChange={(e) => handleKycChange('panNumber', e.target.value)}
+                value={formData.kyc.documents.pan.number}
+                onChange={(e) => handleKycChange('documents', 'pan', { ...formData.kyc.documents.pan, number: e.target.value })}
                 placeholder="ABCDE1234F"
                 className="border-slate-700"
-                disabled={formData.kyc.status === 'approved'}
+                disabled={formData.kyc.status === 'verified'}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Account Holder Name</label>
+              <Input
+                value={formData.kyc.bankDetails.accountHolderName}
+                onChange={(e) => handleKycChange('bankDetails', 'accountHolderName', e.target.value)}
+                placeholder="John Doe"
+                className="border-slate-700"
+                disabled={formData.kyc.status === 'verified'}
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Bank Number</label>
               <Input
-                value={formData.kyc.bankNumber}
-                onChange={(e) => handleKycChange('bankNumber', e.target.value)}
+                value={formData.kyc.bankDetails.accountNumber}
+                onChange={(e) => handleKycChange('bankDetails', 'accountNumber', e.target.value)}
                 placeholder="1234567890123456"
                 className="border-slate-700"
+                disabled={formData.kyc.status === 'verified'}
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">IFSC Code</label>
               <Input
-                value={formData.kyc.ifscCode}
-                onChange={(e) => handleKycChange('ifscCode', e.target.value)}
+                value={formData.kyc.bankDetails.ifscCode}
+                onChange={(e) => handleKycChange('bankDetails', 'ifscCode', e.target.value)}
                 placeholder="HDFC0000123"
                 className="border-slate-700"
+                disabled={formData.kyc.status === 'verified'}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Bank Name</label>
+              <Input
+                value={formData.kyc.bankDetails.bankName}
+                onChange={(e) => handleKycChange('bankDetails', 'bankName', e.target.value)}
+                placeholder="HDFC Bank"
+                className="border-slate-700"
+                disabled={formData.kyc.status === 'verified'}
               />
             </div>
           </div>

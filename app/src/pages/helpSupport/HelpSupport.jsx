@@ -61,7 +61,8 @@ import {
   getTicketById,
   addTicketResponse,
   addTicketRating,
-  getFaqs
+  getFaqs,
+  getContactInfo
 } from '@/services/api.services';
 import toast from 'react-hot-toast';
 
@@ -69,6 +70,7 @@ const HelpSupport = () => {
   const [activeTab, setActiveTab] = useState('tickets');
   const [modalState, setModalState] = useState({ type: null, ticket: null });
   const [openFAQ, setOpenFAQ] = useState(null);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [faqSearchQuery, setFaqSearchQuery] = useState('');
 
   const getStatusColor = (status) => {
@@ -145,6 +147,11 @@ const HelpSupport = () => {
   const { data: faqsData, isLoading: isLoadingFaqs, isError: isFaqsError } = useQuery({
     queryKey: ['faqs'],
     queryFn: getFaqs,
+  });
+
+  const { data: contactInfoData, isLoading: isLoadingContactInfo } = useQuery({
+    queryKey: ['contactInfo'],
+    queryFn: getContactInfo,
   });
 
   const { data: ticketDetails, isLoading: isLoadingTicketDetails } = useQuery({
@@ -1109,11 +1116,25 @@ const HelpSupport = () => {
                     <MessageCircle className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Live Chat</h3>
-                  <p className="mb-3">Get instant help from our support team</p>
-                  <p className="text-sm mb-4">Mon-Fri: 9 AM - 6 PM IST</p>
-                  <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
-                    Start Chat
-                  </Button>
+                  <p className="mb-3">Chat with us on WhatsApp for instant help.</p>
+                  {/* <p className="text-sm mb-4">{contactInfoData?.data?.businessHours || 'Mon-Fri: 9 AM - 6 PM IST'}</p> */}
+                  <Dialog open={isQrModalOpen} onOpenChange={setIsQrModalOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
+                        Start Chat
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-xs border-slate-700">
+                      <DialogHeader>
+                        <DialogTitle>Scan to Chat on WhatsApp</DialogTitle>
+                      </DialogHeader>
+                      <div className="flex items-center justify-center p-4">
+                        {contactInfoData?.data?.whatsappQRCode ? (
+                          <img src={contactInfoData.data.whatsappQRCode} alt="WhatsApp QR Code" className="w-48 h-48" />
+                        ) : <p>QR Code not available.</p>}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </CardContent>
               </Card>
 
@@ -1124,10 +1145,12 @@ const HelpSupport = () => {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Email Support</h3>
                   <p className="mb-3">Send us a detailed message</p>
-                  <p className="text-sm mb-4">Response within 24 hours</p>
-                  <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
-                    Send Email
-                  </Button>
+                  <p className="font-semibold mb-4">{contactInfoData?.data?.supportEmail || 'support@example.com'}</p>
+                  <a href={`mailto:${contactInfoData?.data?.supportEmail}`}>
+                    <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
+                      Send Email
+                    </Button>
+                  </a>
                 </CardContent>
               </Card>
 
@@ -1138,13 +1161,55 @@ const HelpSupport = () => {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Phone Support</h3>
                   <p className="mb-3">Speak directly with our team</p>
-                  <p className="text-sm mb-4">Premium members only</p>
-                  <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
-                    Schedule Call
-                  </Button>
+                  <p className="font-semibold mb-4">{contactInfoData?.data?.primaryPhone || '+91-xxxxxxxxxx'}</p>
+                  <a href={`tel:${contactInfoData?.data?.primaryPhone}`}>
+                    <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
+                      Call Now
+                    </Button>
+                  </a>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Contact Information */}
+            <Card className=" border-slate-700">
+              <CardHeader>
+                <CardTitle>Contact Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoadingContactInfo ? <p>Loading contact information...</p> : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4">Email Addresses</h4>
+                      <div className="space-y-2">
+                        <p><span className="font-semibold">Primary:</span> {contactInfoData?.data?.primaryEmail}</p>
+                        <p><span className="font-semibold">Support:</span> {contactInfoData?.data?.supportEmail}</p>
+                        <p><span className="font-semibold">Business:</span> {contactInfoData?.data?.businessEmail}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4">Phone Numbers</h4>
+                      <div className="space-y-2">
+                        <p><span className="font-semibold">Primary:</span> {contactInfoData?.data?.primaryPhone}</p>
+                        <p><span className="font-semibold">Secondary:</span> {contactInfoData?.data?.secondaryPhone}</p>
+                      </div>
+                    </div>
+                    <div className="md:col-span-2">
+                      <h4 className="text-lg font-semibold mb-4">Physical Address</h4>
+                      {contactInfoData?.data?.physicalAddress ? (
+                        <p>
+                          {contactInfoData.data.physicalAddress.street}, <br />
+                          {contactInfoData.data.physicalAddress.city}, {contactInfoData.data.physicalAddress.state} - {contactInfoData.data.physicalAddress.zipCode}, <br />
+                          {contactInfoData.data.physicalAddress.country}
+                        </p>
+                      ) : (
+                        <p>Address not available.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Support Hours & Response Times */}
             <Card className=" border-slate-700">
@@ -1155,20 +1220,7 @@ const HelpSupport = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
                     <h4 className="text-lg font-semibold mb-4">Support Hours</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span>Monday - Friday:</span>
-                        <span>9:00 AM - 6:00 PM IST</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Saturday:</span>
-                        <span>10:00 AM - 4:00 PM IST</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Sunday:</span>
-                        <span>Closed</span>
-                      </div>
-                    </div>
+                    <p>{contactInfoData?.data?.businessHours || 'Loading...'}</p>
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold mb-4">Response Times</h4>
@@ -1204,14 +1256,18 @@ const HelpSupport = () => {
                       For urgent issues affecting your releases or payments, contact our emergency support line.
                     </p>
                     <div className="flex gap-3">
-                      <Button variant="outline" className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white">
-                        <Phone className="w-4 h-4 mr-2" />
-                        Call Emergency Line
-                      </Button>
-                      <Button variant="outline" className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white">
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Priority Chat
-                      </Button>
+                      <a href={`tel:${contactInfoData?.data?.primaryPhone}`}>
+                        <Button variant="outline" className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white">
+                          <Phone className="w-4 h-4 mr-2" />
+                          Call Emergency Line
+                        </Button>
+                      </a>
+                      <a href={`mailto:${contactInfoData?.data?.supportEmail}`}>
+                        <Button variant="outline" className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white">
+                          <MessageCircle className="w-4 h-4 mr-2" />
+                          Priority Email
+                        </Button>
+                      </a>
                     </div>
                   </div>
                 </div>
