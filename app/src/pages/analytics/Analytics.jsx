@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +7,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Download, Play, Users, Globe, IndianRupee } from 'lucide-react';
 import { getAnalyticsDashboard } from '@/services/api.services';
+
+// Country code to name mapping
+const COUNTRY_NAMES = {
+  'IN': 'India', 'PK': 'Pakistan', 'GB': 'United Kingdom', 'AE': 'UAE',
+  'US': 'United States', 'SA': 'Saudi Arabia', 'ZA': 'South Africa',
+  'NL': 'Netherlands', 'AU': 'Australia', 'MY': 'Malaysia', 'CA': 'Canada',
+  'NZ': 'New Zealand', 'TR': 'Turkey', 'FR': 'France', 'SG': 'Singapore',
+  'OM': 'Oman', 'JP': 'Japan', 'NO': 'Norway', 'DE': 'Germany',
+  'KW': 'Kuwait', 'IT': 'Italy', 'QA': 'Qatar', 'UA': 'Ukraine',
+  'YE': 'Yemen', 'ES': 'Spain', 'MX': 'Mexico', 'BE': 'Belgium',
+  'ID': 'Indonesia', 'BR': 'Brazil', 'RU': 'Russia', 'KR': 'South Korea',
+  'TH': 'Thailand', 'PH': 'Philippines', 'VN': 'Vietnam', 'EG': 'Egypt'
+};
+
+const getCountryName = (code) => COUNTRY_NAMES[code] || code;
 
 export default function Analytics() {
   const [timeframe, setTimeframe] = useState('last_30_days');
@@ -59,12 +74,83 @@ export default function Analytics() {
     return '₹' + (num || 0).toLocaleString('en-IN');
   };
 
-  // Extract data from API response
-  const overview = analyticsData?.data?.overview || {};
-  const charts = analyticsData?.data?.charts || {};
-  const topTracksData = analyticsData?.data?.topTracks?.tracks || [];
-  const platformsData = analyticsData?.data?.distribution?.platforms || [];
-  const countriesData = analyticsData?.data?.distribution?.countries?.data || [];
+  // Format period for chart display
+  const formatPeriod = (period) => {
+    if (!period) return '';
+    const { year, month, day, week } = period;
+    if (day) return `${month} ${day}`;
+    if (week) return `Week ${week}, ${year}`;
+    if (month) return `${month} ${year}`;
+    return `${year}`;
+  };
+
+  // Process and transform API data
+  const processedData = useMemo(() => {
+    if (!analyticsData?.data) return null;
+
+    const data = analyticsData.data;
+    const overview = data.overview || {};
+
+    // Transform chart data - add date field from period
+    const streamsChartData = data.charts?.streamsOverTime?.data?.map(item => ({
+      ...item,
+      date: formatPeriod(item.period),
+      streams: item.totalStreams
+    })) || [];
+
+    const revenueChartData = data.charts?.revenueOverTime?.data?.map(item => ({
+      ...item,
+      date: formatPeriod(item.period),
+      revenue: item.totalRevenue
+    })) || [];
+
+    // Transform top tracks data - map field names
+    const topTracks = data.topTracks?.tracks?.map(track => ({
+      trackName: track.trackTitle,
+      artistName: track.artistName,
+      albumName: track.albumTitle,
+      streams: track.totalStreams,
+      revenue: track.totalRevenue,
+      platforms: track.platforms,
+      platformCount: track.platformCount,
+      countryCount: track.countryCount
+    })) || [];
+
+    // Transform platforms data - calculate percentages
+    const totalStreams = data.distribution?.platforms?.reduce((sum, p) => sum + (p.totalStreams || 0), 0) || 1;
+    const platforms = data.distribution?.platforms?.map(platform => ({
+      platformName: platform.platform,
+      streams: platform.totalStreams,
+      revenue: platform.totalRevenue,
+      percentage: (platform.totalStreams / totalStreams) * 100,
+      trackCount: platform.trackCount
+    })) || [];
+
+    // Transform countries data - add country names
+    const countries = data.distribution?.countries?.data?.map(country => ({
+      countryCode: country.countryCode,
+      countryName: getCountryName(country.countryCode),
+      streams: country.totalStreams,
+      revenue: country.totalRevenue,
+      trackCount: country.trackCount
+    })) || [];
+
+    return {
+      overview,
+      streamsChartData,
+      revenueChartData,
+      topTracks,
+      platforms,
+      countries
+    };
+  }, [analyticsData]);
+
+  const overview = processedData?.overview || {};
+  const streamsChartData = processedData?.streamsChartData || [];
+  const revenueChartData = processedData?.revenueChartData || [];
+  const topTracksData = processedData?.topTracks || [];
+  const platformsData = processedData?.platforms || [];
+  const countriesData = processedData?.countries || [];
 
   return (
     <div className="min-h-screen bg-background text-foreground p-6">
@@ -202,9 +288,9 @@ export default function Analytics() {
                     <CardDescription>Streaming performance over selected period</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {charts?.streamsOverTime?.data?.length > 0 ? (
+                    {streamsChartData.length > 0 ? (
                       <ResponsiveContainer width="100%" height={300}>
-                        <AreaChart data={charts.streamsOverTime.data}>
+                        <AreaChart data={streamsChartData}>
                           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                           <XAxis dataKey="date" className="text-muted-foreground" />
                           <YAxis className="text-muted-foreground " />
@@ -231,9 +317,9 @@ export default function Analytics() {
                     <CardDescription>Revenue performance over selected period</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {charts?.revenueOverTime?.data?.length > 0 ? (
+                    {revenueChartData.length > 0 ? (
                       <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={charts.revenueOverTime.data}>
+                        <LineChart data={revenueChartData}>
                           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                           <XAxis dataKey="date" className="text-muted-foreground" />
                           <YAxis className="text-muted-foreground" />
@@ -267,7 +353,7 @@ export default function Analytics() {
                   {topTracksData.length > 0 ? (
                     <div className="space-y-4">
                       {topTracksData.map((track, index) => (
-                        <div key={track.trackId || index} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                           <div className="flex items-center space-x-4">
                             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-semibold">
                               {index + 1}
@@ -275,17 +361,23 @@ export default function Analytics() {
                             <div>
                               <h3 className="font-semibold">{track.trackName || 'Unknown Track'}</h3>
                               <p className="text-sm text-muted-foreground">
-                                {formatNumber(track.streams || 0)} streams
+                                {track.artistName}
                               </p>
+                              <div className="flex gap-3 mt-1">
+                                <span className="text-xs text-muted-foreground">
+                                  {formatNumber(track.streams || 0)} streams
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  • {track.platformCount || 0} platforms
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  • {track.countryCount || 0} countries
+                                </span>
+                              </div>
                             </div>
                           </div>
                           <div className="text-right">
                             <p className="font-semibold">{formatCurrency(track.revenue || 0)}</p>
-                            {track.growth !== undefined && (
-                              <p className={`text-sm ${track.growth >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                                {track.growth >= 0 ? '+' : ''}{track.growth.toFixed(1)}%
-                              </p>
-                            )}
                           </div>
                         </div>
                       ))}
