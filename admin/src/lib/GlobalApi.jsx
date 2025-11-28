@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: "https://mv.easytechinnovate.site",
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 
