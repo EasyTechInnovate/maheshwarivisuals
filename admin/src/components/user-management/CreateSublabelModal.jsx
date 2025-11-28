@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/select";
 import GlobalApi from "@/lib/GlobalApi";
 
-// Sublabel membership statuses
 const ESublabelMembershipStatus = {
   ACTIVE: "active",
   INACTIVE: "inactive",
@@ -40,7 +39,7 @@ export default function CreateSublabelModal({
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ---------- PREFILL FROM USER DATA ----------
+
   useEffect(() => {
     if (!userData) return;
 
@@ -49,12 +48,10 @@ export default function CreateSublabelModal({
     setName(userData.artistData?.artistName || "");
   }, [userData]);
 
-  // Theme colors
   const bg = theme === "dark" ? "bg-[#111A22]" : "bg-white";
-  const border = theme === "dark" ? "border-[#151F28]" : "border-gray-300";
+  const border = theme === "dark" ? "border-gray-700" : "border-gray-300";
   const text = theme === "dark" ? "text-white" : "text-gray-900";
 
-  // ----------------- API SUBMIT -----------------
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -87,7 +84,7 @@ export default function CreateSublabelModal({
         <h2 className="text-xl font-semibold mb-1">Create Sublabel</h2>
         <p className="text-sm opacity-70 mb-6">Fill details to add a new sublabel</p>
 
-        {/* Sublabel Name */}
+
         <div className="mb-4">
           <label className="text-sm mb-1 block">Sublabel Name</label>
           <Input
@@ -98,7 +95,6 @@ export default function CreateSublabelModal({
           />
         </div>
 
-        {/* Membership Status */}
         <div className="mb-4">
           <label className="text-sm mb-1 block">Membership Status</label>
 
@@ -112,7 +108,6 @@ export default function CreateSublabelModal({
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
 
-            {/* FIXED DARK MODE DROPDOWN */}
             <SelectContent
               className={`${
                 theme === "dark" ? "bg-[#1B2834] text-white" : "bg-white"
@@ -131,7 +126,7 @@ export default function CreateSublabelModal({
           </Select>
         </div>
 
-        {/* Contract Dates */}
+      
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="text-sm mb-1 block">Contract Start Date</label>
@@ -153,7 +148,7 @@ export default function CreateSublabelModal({
           </div>
         </div>
 
-        {/* Description */}
+      
         <div className="mb-4">
           <label className="text-sm mb-1 block">Description</label>
           <Textarea
@@ -165,7 +160,7 @@ export default function CreateSublabelModal({
           />
         </div>
 
-        {/* Contact */}
+    
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="text-sm mb-1 block">Email</label>
@@ -188,7 +183,7 @@ export default function CreateSublabelModal({
           </div>
         </div>
 
-        {/* Buttons */}
+       
         <div className="flex justify-end gap-3 mt-6">
           <Button
             onClick={onClose}

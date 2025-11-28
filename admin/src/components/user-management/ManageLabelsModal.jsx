@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import {
   Dialog,
@@ -38,7 +37,7 @@ export default function ManageLabelsModal({
     totalPages: 1,
   });
 
-  // Fetch sublabels
+ 
   const fetchSublabels = async (currentPage = 1) => {
     try {
       setLoading(true);
@@ -65,7 +64,7 @@ export default function ManageLabelsModal({
     if (shouldRefresh) fetchSublabels(page);
   };
 
-  // DELETE LOGIC
+ 
   const handleDelete = async () => {
     try {
       await GlobalApi.deleteSubLabel(deleteDialog.id);
@@ -90,7 +89,7 @@ export default function ManageLabelsModal({
               : "bg-white text-gray-900 border border-gray-200"
           }`}
         >
-          {/* Header */}
+ 
           <DialogHeader className="flex flex-row items-center justify-between">
             <div>
               <DialogTitle className="text-lg font-semibold">
@@ -113,7 +112,6 @@ export default function ManageLabelsModal({
             </Button>
           </DialogHeader>
 
-          {/* Table */}
           <div
             className={`mt-6 border ${
               isDark ? "border-gray-700" : "border-gray-200"
@@ -190,7 +188,6 @@ export default function ManageLabelsModal({
                         <Switch checked={item.isActive} />
                       </td>
 
-                      {/* DELETE BUTTON */}
                       <td className="py-3 px-4 text-center">
                         <button
                           onClick={() =>
@@ -218,7 +215,6 @@ export default function ManageLabelsModal({
             </table>
           </div>
 
-          {/* Pagination */}
           <div className="flex items-center justify-between mt-4 text-sm">
             <p className="text-gray-400">
               Showing {(page - 1) * 10 + 1}–
@@ -245,7 +241,6 @@ export default function ManageLabelsModal({
             </div>
           </div>
 
-            {/* DELETE CONFIRMATION */}
       {deleteDialog.open && (
         <ConfirmDialog
           theme={theme}
@@ -258,7 +253,6 @@ export default function ManageLabelsModal({
       )}
         </DialogContent>
 
-        {/* Create Sublabel Modal */}
         <CreateSublabelModal
           open={isCreateModalOpen}
           onClose={handleCloseCreate}

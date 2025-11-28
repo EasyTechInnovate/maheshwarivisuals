@@ -347,6 +347,40 @@ const toggleMonthStatus = (monthId, payload) =>
   axiosClient.patch(`/v1/admin/months/${monthId}/toggle-status`, payload);
 
 
+// ---------------------- Release Management (Admin) ----------------------
+
+const getAllReleases = (page = 1, limit = 10) =>
+  axiosClient.get(`/v1/admin/releases?page=${page}&limit=${limit}`);
+
+const getPendingReleaseReviews = (page = 1, limit = 10) =>
+  axiosClient.get(`/v1/admin/releases/pending-reviews?page=${page}&limit=${limit}`);
+
+const getReleaseStats = () =>
+  axiosClient.get(`/v1/admin/releases/stats`);
+
+const getReleaseDetails = (releaseId) =>
+  axiosClient.get(`/v1/admin/releases/${releaseId}`);
+
+const approveRelease = (releaseId, payload) =>
+  axiosClient.post(`/v1/admin/releases/${releaseId}/approve`, payload);
+
+const startProcessingRelease = (releaseId) =>
+  axiosClient.post(`/v1/admin/releases/${releaseId}/start-processing`);
+
+const publishRelease = (releaseId) =>
+  axiosClient.post(`/v1/admin/releases/${releaseId}/publish`);
+
+const goLiveRelease = (releaseId) =>
+  axiosClient.post(`/v1/admin/releases/${releaseId}/go-live`);
+
+const processTakedownRequest = (releaseId) =>
+  axiosClient.post(`/v1/admin/releases/${releaseId}/process-takedown`);
+
+const rejectRelease = (releaseId, payload) =>
+  axiosClient.post(`/v1/admin/releases/${releaseId}/reject`, payload);
+
+
+
 
 
 export default {
@@ -434,5 +468,15 @@ export default {
   updateMonth,
   deleteMonth,
   toggleMonthStatus,
+  getAllReleases,
+  getPendingReleaseReviews,
+  getReleaseStats,
+  getReleaseDetails,
+  approveRelease,
+  startProcessingRelease,
+  publishRelease,
+  goLiveRelease,
+  rejectRelease,
+  processTakedownRequest
 
 };
