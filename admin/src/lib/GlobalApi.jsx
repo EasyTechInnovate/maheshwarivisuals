@@ -235,10 +235,10 @@ const updateSubLabel = (sublabelId, payload) =>
 
 const deleteSubLabel = (sublabelId) => axiosClient.delete(`/v1/admin/sublabels/${sublabelId}`);
 
-const assignUserToSubLabel = (sublabelId, payload) =>
+const assignSubLabelToUser = (sublabelId, payload) =>
   axiosClient.post(`/v1/admin/sublabels/${sublabelId}/assign-user`, payload);
 
-const removeUserFromSubLabel = (sublabelId, payload) =>
+const removeSubLabelFromUser = (sublabelId, payload) =>
   axiosClient.post(`/v1/admin/sublabels/${sublabelId}/remove-user`, payload);
 
 const getUserSubLabels = (userId) => axiosClient.get(`/v1/admin/users/${userId}/sublabels`);
@@ -436,8 +436,8 @@ export default {
   getSubLabelById,
   updateSubLabel,
   deleteSubLabel,
-  assignUserToSubLabel,
-  removeUserFromSubLabel,
+  assignSubLabelToUser,
+  removeSubLabelFromUser,
   getUserSubLabels,
   toggleUserSubLabels,
   getUsers,

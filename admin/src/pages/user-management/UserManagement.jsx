@@ -9,12 +9,12 @@ import {
   Music,
   Upload,
 } from "lucide-react";
-import SublabelModal from "../../components/user-management/CreateSublabelModal.jsx";
+
 import ManageLabelsModal from "../../components/user-management/ManageLabelsModal.jsx";
 import GlobalApi from "@/lib/GlobalApi";
 import { toast } from "sonner";
 import ResetPasswordModal from "@/components/user-management/ResetPasswordModal.jsx";
-
+import AssignedSublabels from "@/components/user-management/AssignedLabels.jsx";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +31,7 @@ export default function UserManagement({ theme }) {
   const [activePage, setActivePage] = useState("list");
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isSublabelModalOpen, setIsSublabelModalOpen] = useState(false);
+  const [isAssignedLabelsOpen, setIsAssignedLabelsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
@@ -65,10 +65,7 @@ export default function UserManagement({ theme }) {
 
   const handleBack = () => setActivePage("list");
 
-  const handleManageLabels = (user) => {
-    setSelectedUser(user);
-    setIsSublabelModalOpen(true);
-  };
+
 
   const handleTopManageLabels = () => {
     setSelectedUser(null);
@@ -277,11 +274,16 @@ export default function UserManagement({ theme }) {
                             <Button
                               size="sm"
                               className="bg-purple-600 hover:bg-purple-700 text-white px-3 rounded-lg flex items-center gap-1"
-                              onClick={() => handleManageLabels(u)}
+                              onClick={() => {
+                                setSelectedUser(u);
+                                setIsAssignedLabelsOpen(true);   // OPEN assigned labels modal
+                              }}
+
                             >
                               <FolderKanban className="h-4 w-4" />
                               Manage Label
                             </Button>
+
 
 
                             <Button
@@ -377,26 +379,22 @@ export default function UserManagement({ theme }) {
       </div>
 
 
-      <SublabelModal
-        isOpen={isSublabelModalOpen}
-        onClose={() => setIsSublabelModalOpen(false)}
-        userData={selectedUser}
-        theme={theme}
-      />
 
-      <ManageLabelsModal
-        isOpen={isManageLabelsOpen}
-        onClose={() => setIsManageLabelsOpen(false)}
-        theme={theme}
-        userId={selectedUser?._id || null}
-        userName={
-          selectedUser
-            ? selectedUser.artistData?.artistName ||
-            selectedUser.labelData?.labelName ||
-            selectedUser.aggregatorData?.companyName
-            : "All Labels"
-        }
-      />
+
+   <ManageLabelsModal
+  isOpen={isManageLabelsOpen}
+  onClose={() => setIsManageLabelsOpen(false)}
+  theme={theme}
+  userId={null}            // ✅ Always null → global label manager
+  userName="All Labels"    // ✅ Always global
+/>
+
+     <AssignedSublabels
+  isOpen={isAssignedLabelsOpen}
+  onClose={() => setIsAssignedLabelsOpen(false)}
+  userId={selectedUser?._id}
+   theme={theme}  
+/>
 
       <ResetPasswordModal
         isOpen={isResetPasswordOpen}
