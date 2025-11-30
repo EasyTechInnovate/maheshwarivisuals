@@ -22,11 +22,13 @@ const ESublabelMembershipStatus = {
 export default function CreateSublabelModal({
   isOpen,
   onClose,
-  userData,
-  onCreated,
+  onSaved,      // create or update callback
+  editData = null,  // if provided → PUT mode
   theme = "dark",
 }) {
   if (!isOpen) return null;
+
+  const isEdit = Boolean(editData);
 
   const [name, setName] = useState("");
   const [membershipStatus, setMembershipStatus] = useState(
@@ -39,52 +41,81 @@ export default function CreateSublabelModal({
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
-
+  // Prefill only if editData exists
   useEffect(() => {
-    if (!userData) return;
+    if (!isOpen) return;
 
-    setEmail(userData.emailAddress || "");
-    setPhone(userData.phoneNumber?.internationalNumber || "");
-    setName(userData.artistData?.artistName || "");
-  }, [userData]);
+    if (isEdit) {
+      setName(editData.name || "");
+      setMembershipStatus(editData.membershipStatus || ESublabelMembershipStatus.ACTIVE);
+      setContractStartDate(editData.contractStartDate || "");
+      setContractEndDate(editData.contractEndDate || "");
+      setDescription(editData.description || "");
+      setEmail(editData.email || "");
+      setPhone(editData.phone || "");
+    } else {
+      // Fresh clean modal for create
+      setName("");
+      setMembershipStatus(ESublabelMembershipStatus.ACTIVE);
+      setContractStartDate("");
+      setContractEndDate("");
+      setDescription("");
+      setEmail("");
+      setPhone("");
+    }
+  }, [isOpen, editData]);
+
+ const handleSubmit = async () => {
+  try {
+    setLoading(true);
+
+    const payload = {
+      name,
+      membershipStatus,
+      contractStartDate,
+      contractEndDate,
+      description,
+      contactInfo: {
+        email,
+        phone,
+      },
+    };
+
+    let res;
+
+    if (isEdit) {
+      res = await GlobalApi.updateSubLabel(editData._id, payload);
+    } else {
+      res = await GlobalApi.createSubLabel(payload);
+    }
+
+    onSaved?.(res.data);
+    onClose();
+  } catch (err) {
+    console.error("Sublabel save failed:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const bg = theme === "dark" ? "bg-[#111A22]" : "bg-white";
   const border = theme === "dark" ? "border-gray-700" : "border-gray-300";
   const text = theme === "dark" ? "text-white" : "text-gray-900";
 
-  const handleSubmit = async () => {
-    try {
-      setLoading(true);
-
-      const payload = {
-        name,
-        membershipStatus,
-        contractStartDate,
-        contractEndDate,
-        description,
-        email,
-        phone,
-        userId: userData._id,
-      };
-
-      const res = await GlobalApi.createSubLabel(payload);
-
-      onCreated?.(res.data);
-      onClose();
-    } catch (err) {
-      console.error("Create sublabel failed:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
       <div className={`w-[650px] rounded-2xl p-6 shadow-xl ${bg} ${text}`}>
-        <h2 className="text-xl font-semibold mb-1">Create Sublabel</h2>
-        <p className="text-sm opacity-70 mb-6">Fill details to add a new sublabel</p>
+        <h2 className="text-xl font-semibold mb-1">
+          {isEdit ? "Edit Sublabel" : "Create Sublabel"}
+        </h2>
+        <p className="text-sm opacity-70 mb-6">
+          {isEdit
+            ? "Update the sublabel details."
+            : "Fill details to add a new sublabel"}
+        </p>
 
-
+        {/* NAME */}
         <div className="mb-4">
           <label className="text-sm mb-1 block">Sublabel Name</label>
           <Input
@@ -95,13 +126,11 @@ export default function CreateSublabelModal({
           />
         </div>
 
+        {/* STATUS */}
         <div className="mb-4">
           <label className="text-sm mb-1 block">Membership Status</label>
 
-          <Select
-            value={membershipStatus}
-            onValueChange={setMembershipStatus}
-          >
+          <Select value={membershipStatus} onValueChange={setMembershipStatus}>
             <SelectTrigger
               className={`w-full bg-transparent ${border} border rounded-xl ${text}`}
             >
@@ -110,15 +139,13 @@ export default function CreateSublabelModal({
 
             <SelectContent
               className={`${
-                theme === "dark" ? "bg-[#1B2834] text-white" : "bg-white"
-              } border border-[#2A3A44]`}
+                theme === "dark"
+                  ? "bg-[#1B2834] text-white"
+                  : "bg-white text-gray-900"
+              } border`}
             >
               {Object.values(ESublabelMembershipStatus).map((s) => (
-                <SelectItem
-                  key={s}
-                  value={s}
-                  className="capitalize cursor-pointer"
-                >
+                <SelectItem key={s} value={s} className="capitalize">
                   {s}
                 </SelectItem>
               ))}
@@ -126,7 +153,7 @@ export default function CreateSublabelModal({
           </Select>
         </div>
 
-      
+        {/* DATES */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="text-sm mb-1 block">Contract Start Date</label>
@@ -148,7 +175,7 @@ export default function CreateSublabelModal({
           </div>
         </div>
 
-      
+        {/* DESCRIPTION */}
         <div className="mb-4">
           <label className="text-sm mb-1 block">Description</label>
           <Textarea
@@ -160,7 +187,7 @@ export default function CreateSublabelModal({
           />
         </div>
 
-    
+        {/* CONTACT */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="text-sm mb-1 block">Email</label>
@@ -183,7 +210,7 @@ export default function CreateSublabelModal({
           </div>
         </div>
 
-       
+        {/* BUTTONS */}
         <div className="flex justify-end gap-3 mt-6">
           <Button
             onClick={onClose}
@@ -197,7 +224,7 @@ export default function CreateSublabelModal({
             disabled={loading}
             className="rounded-xl px-6 bg-violet-600 hover:bg-violet-700 text-white"
           >
-            {loading ? "Creating..." : "Create"}
+            {loading ? "Saving..." : isEdit ? "Update" : "Create"}
           </Button>
         </div>
       </div>

@@ -18,3 +18,32 @@ export const ETicketStatus = Object.freeze({
     RESOLVED: 'resolved',
     CLOSED: 'closed'
 });
+
+// data/territories.js
+
+
+
+// data/partners.js
+
+export const PARTNERS = [
+  "7 Digital",
+  "Tik Tok",
+  "Akazoo",
+  "Amazon",
+  "Apple Music",
+  "Beatport",
+
+  "Juno Download",
+  "Napster",
+  "Shazam",
+  "Simfy Africa",
+  "Soundcloud",
+  "Tidal",
+
+  "Deezer",
+  "Dubset Media",
+  "Instagram",
+  "iTunes",
+  "Juke",
+  "Traxsource",
+];
