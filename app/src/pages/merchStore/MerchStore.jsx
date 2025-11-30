@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Eye, Plus, Upload, X, Check, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Eye, Plus, Upload, X, Check, ArrowLeft, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,12 +9,24 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { createMerchStore, getMerchStores, submitMerchDesigns, deleteMerchStore } from '@/services/api.services';
+import { uploadToImageKit } from '@/utils/imagekitUploader';
+import { showToast } from '@/utils/toast';
 
 const MerchStore = () => {
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'submitDesign', 'viewDesigns'
   const [selectedRequest, setSelectedRequest] = useState(null);
-  const [activeTab, setActiveTab] = useState('rejected');
+  const [activeTab, setActiveTab] = useState('active');
   const [uploadedFiles, setUploadedFiles] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [requests, setRequests] = useState([]);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalCount: 0,
+    hasNextPage: false,
+    hasPrevPage: false
+  });
   const [formData, setFormData] = useState({
     artistName: '',
     artistFacebookLink: '',
@@ -23,11 +35,11 @@ const MerchStore = () => {
     spotifyProfileLink: '',
     youtubeChannelLink: '',
     productPreferences: {
-      tshirts: false,
-      hoodies: false,
-      siperBottles: false,
+      t_shirt: false,
+      hoodie: false,
+      sipper_bottle: false,
       posters: false,
-      toteBags: false,
+      tote_bags: false,
       stickers: false,
       others: ''
     },
@@ -35,8 +47,8 @@ const MerchStore = () => {
     channels: {
       instagram: false,
       youtube: false,
-      emailNewsletter: false,
-      liveEvents: false,
+      email_newsletter: false,
+      live_events: false,
       others: ''
     },
     mmcAssist: 'Yes',
@@ -48,61 +60,77 @@ const MerchStore = () => {
     }
   });
 
-  // Fake data for requests
-  const [requests, setRequests] = useState([
-    {
-      id: 1,
-      artistName: 'Rajesh Kumar',
-      productPreferences: 'T-Shirts',
-      marketingPlan: 'Yes',
-      channel: 'Instagram',
-      mmcAssist: 'No',
-      status: 'Pending',
-      submitDate: '2024-03-15',
-      hasDesignSubmitted: false
-    },
-    {
-      id: 2,
-      artistName: 'Rajesh Kumar',
-      productPreferences: 'Hoodies',
-      marketingPlan: 'No',
-      channel: 'N/A',
-      mmcAssist: 'Yes',
-      status: 'Approved',
-      submitDate: '2024-03-10',
-      hasDesignSubmitted: false
-    },
-    {
-      id: 3,
-      artistName: 'Rajesh Kumar',
-      productPreferences: 'T-Shirts',
-      marketingPlan: 'Yes',
-      channel: 'Youtube',
-      mmcAssist: 'No',
-      status: 'Approved',
-      submitDate: '2024-03-08',
-      hasDesignSubmitted: true
-    },
-    {
-      id: 4,
-      artistName: 'Rajesh Kumar',
-      productPreferences: 'T-Shirts',
-      marketingPlan: 'No',
-      channel: 'N/A',
-      mmcAssist: 'Yes',
-      status: 'Approved',
-      submitDate: '2024-03-05',
-      hasDesignSubmitted: true
-    }
-  ]);
-
-  const [designs, setDesigns] = useState([
-    { id: 1, image: 'https://via.placeholder.com/300x200?text=Design+1', products: ['T-Shirt', 'T-Shirt', 'T-Shirt'] },
-    { id: 2, image: 'https://via.placeholder.com/300x200?text=Design+2', products: ['T-Shirt', 'T-Shirt', 'T-Shirt'] },
-    { id: 3, image: 'https://via.placeholder.com/300x200?text=Design+3', products: ['T-Shirt', 'T-Shirt', 'T-Shirt'] }
-  ]);
-
   const [designSlots, setDesignSlots] = useState(5);
+
+  // Helper function to map API product names to UI labels
+  const productMapping = {
+    't_shirt': 'T-Shirts',
+    'hoodie': 'Hoodies',
+    'sipper_bottle': 'Sipper Bottles',
+    'posters': 'Posters',
+    'tote_bags': 'Tote Bags',
+    'stickers': 'Stickers'
+  };
+
+  // Helper function to map API channel names to UI labels
+  const channelMapping = {
+    'instagram': 'Instagram',
+    'youtube': 'YouTube',
+    'email_newsletter': 'Email Newsletter',
+    'live_events': 'Live Events'
+  };
+
+  // Fetch merch stores on component mount and when page changes
+  useEffect(() => {
+    fetchMerchStores();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.currentPage]);
+
+  const fetchMerchStores = async () => {
+    setLoading(true);
+    try {
+      const response = await getMerchStores({ page: pagination.currentPage, limit: 10 });
+      if (response.success) {
+        // Map API response to UI format
+        const mappedRequests = response.data.merchStores.map(store => ({
+          id: store._id,
+          storeId: store._id,
+          artistName: store.artistInfo.artistName,
+          productPreferences: store.productPreferences.selectedProducts
+            .map(p => productMapping[p] || p)
+            .join(', ') + (store.productPreferences.otherProductDescription ? `, ${store.productPreferences.otherProductDescription}` : ''),
+          marketingPlan: store.marketingPlan.planToPromote ? 'Yes' : 'No',
+          channel: store.marketingPlan.promotionChannels
+            .map(c => channelMapping[c] || c)
+            .join(', ') + (store.marketingPlan.otherChannelDescription ? `, ${store.marketingPlan.otherChannelDescription}` : '') || 'N/A',
+          mmcAssist: store.marketingPlan.mmcMarketingAssistance ? 'Yes' : 'No',
+          status: mapStatusToUI(store.status),
+          submitDate: new Date(store.createdAt).toISOString().split('T')[0],
+          hasDesignSubmitted: store.status === 'design_submitted' || store.designs?.length > 0,
+          designs: store.designs || [],
+          rawData: store
+        }));
+        setRequests(mappedRequests);
+        setPagination(response.data.pagination);
+      }
+    } catch (error) {
+      console.error('Error fetching merch stores:', error);
+      showToast.error('Failed to fetch merch stores');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Map API status to UI status
+  const mapStatusToUI = (apiStatus) => {
+    const statusMap = {
+      'pending': 'Pending',
+      'design_pending': 'Design Pending',
+      'rejected': 'Rejected',
+      'design_submitted': 'Approved'
+    };
+    return statusMap[apiStatus] || 'Pending';
+  };
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -147,11 +175,11 @@ const MerchStore = () => {
       spotifyProfileLink: '',
       youtubeChannelLink: '',
       productPreferences: {
-        tshirts: false,
-        hoodies: false,
-        siperBottles: false,
+        t_shirt: false,
+        hoodie: false,
+        sipper_bottle: false,
         posters: false,
-        toteBags: false,
+        tote_bags: false,
         stickers: false,
         others: ''
       },
@@ -159,8 +187,8 @@ const MerchStore = () => {
       channels: {
         instagram: false,
         youtube: false,
-        emailNewsletter: false,
-        liveEvents: false,
+        email_newsletter: false,
+        live_events: false,
         others: ''
       },
       mmcAssist: 'Yes',
@@ -176,37 +204,41 @@ const MerchStore = () => {
   const handleViewRequest = (request) => {
     setSelectedRequest(request);
     setCurrentView('form');
-    // Populate form with request data
+
+    // Get raw data from API
+    const rawData = request.rawData;
+
+    // Map API response to form fields
     setFormData({
-      artistName: request.artistName,
-      artistFacebookLink: '',
-      appleProfileLink: '',
-      artistInstagramLink: '',
-      spotifyProfileLink: '',
-      youtubeChannelLink: '',
+      artistName: rawData.artistInfo.artistName,
+      artistFacebookLink: rawData.artistInfo.facebookLink || '',
+      appleProfileLink: rawData.artistInfo.appleMusicProfileLink || '',
+      artistInstagramLink: rawData.artistInfo.instagramLink || '',
+      spotifyProfileLink: rawData.artistInfo.spotifyProfileLink || '',
+      youtubeChannelLink: rawData.artistInfo.youtubeMusicProfileLink || '',
       productPreferences: {
-        tshirts: request.productPreferences.includes('T-Shirts'),
-        hoodies: request.productPreferences.includes('Hoodies'),
-        siperBottles: false,
-        posters: false,
-        toteBags: false,
-        stickers: false,
-        others: ''
+        t_shirt: rawData.productPreferences.selectedProducts.includes('t_shirt'),
+        hoodie: rawData.productPreferences.selectedProducts.includes('hoodie'),
+        sipper_bottle: rawData.productPreferences.selectedProducts.includes('sipper_bottle'),
+        posters: rawData.productPreferences.selectedProducts.includes('posters'),
+        tote_bags: rawData.productPreferences.selectedProducts.includes('tote_bags'),
+        stickers: rawData.productPreferences.selectedProducts.includes('stickers'),
+        others: rawData.productPreferences.otherProductDescription || ''
       },
-      marketingPlan: request.marketingPlan,
+      marketingPlan: rawData.marketingPlan.planToPromote ? 'Yes' : 'No',
       channels: {
-        instagram: request.channel === 'Instagram',
-        youtube: request.channel === 'Youtube',
-        emailNewsletter: false,
-        liveEvents: false,
-        others: ''
+        instagram: rawData.marketingPlan.promotionChannels.includes('instagram'),
+        youtube: rawData.marketingPlan.promotionChannels.includes('youtube'),
+        email_newsletter: rawData.marketingPlan.promotionChannels.includes('email_newsletter'),
+        live_events: rawData.marketingPlan.promotionChannels.includes('live_events'),
+        others: rawData.marketingPlan.otherChannelDescription || ''
       },
-      mmcAssist: request.mmcAssist,
+      mmcAssist: rawData.marketingPlan.mmcMarketingAssistance ? 'Yes' : 'No',
       legalTerms: {
-        reviewProcess: true,
-        revisionsRight: false,
+        reviewProcess: rawData.legalConsents.agreeToReviewProcess,
+        revisionsRight: rawData.legalConsents.understandRevisionRights,
         emailNewsletter: false,
-        showcasingConsent: false
+        showcasingConsent: rawData.legalConsents.consentToShowcase
       }
     });
   };
@@ -222,30 +254,60 @@ const MerchStore = () => {
     setCurrentView('viewDesigns');
   };
 
-  const handleApply = () => {
+  const handleApply = async () => {
     if (selectedRequest) {
-      // Update existing request
-      setRequests(prev => prev.map(req => 
-        req.id === selectedRequest.id 
-          ? { ...req, ...formData, status: 'Pending' }
-          : req
-      ));
-    } else {
-      // Create new request
-      const newRequest = {
-        id: Date.now(),
-        artistName: formData.artistName,
-        productPreferences: Object.keys(formData.productPreferences).filter(key => formData.productPreferences[key]).join(', '),
-        marketingPlan: formData.marketingPlan,
-        channel: Object.keys(formData.channels).filter(key => formData.channels[key]).join(', ') || 'N/A',
-        mmcAssist: formData.mmcAssist,
-        status: 'Pending',
-        submitDate: new Date().toISOString().split('T')[0],
-        hasDesignSubmitted: false
-      };
-      setRequests(prev => [...prev, newRequest]);
+      // Viewing mode - just go back to list
+      setCurrentView('list');
+      return;
     }
-    setCurrentView('list');
+
+    // Create new request - map form data to API format
+    setLoading(true);
+    try {
+      const selectedProducts = Object.keys(formData.productPreferences)
+        .filter(key => key !== 'others' && formData.productPreferences[key] === true);
+
+      const promotionChannels = Object.keys(formData.channels)
+        .filter(key => key !== 'others' && formData.channels[key] === true);
+
+      const requestData = {
+        artistInfo: {
+          artistName: formData.artistName,
+          instagramLink: formData.artistInstagramLink,
+          facebookLink: formData.artistFacebookLink,
+          spotifyProfileLink: formData.spotifyProfileLink,
+          appleMusicProfileLink: formData.appleProfileLink,
+          youtubeMusicProfileLink: formData.youtubeChannelLink
+        },
+        productPreferences: {
+          selectedProducts,
+          otherProductDescription: formData.productPreferences.others
+        },
+        marketingPlan: {
+          planToPromote: formData.marketingPlan === 'Yes',
+          promotionChannels,
+          otherChannelDescription: formData.channels.others,
+          mmcMarketingAssistance: formData.mmcAssist === 'Yes'
+        },
+        legalConsents: {
+          agreeToReviewProcess: formData.legalTerms.reviewProcess,
+          understandRevisionRights: formData.legalTerms.revisionsRight,
+          consentToShowcase: formData.legalTerms.showcasingConsent
+        }
+      };
+
+      const response = await createMerchStore(requestData);
+      if (response.success) {
+        showToast.success('Merch store request created successfully!');
+        setCurrentView('list');
+        fetchMerchStores(); // Refresh the list
+      }
+    } catch (error) {
+      console.error('Error creating merch store:', error);
+      showToast.error(error?.response?.data?.message || 'Failed to create merch store request');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const StatusBadge = ({ status }) => {
@@ -297,7 +359,20 @@ const MerchStore = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {requests.map((request) => (
+                  {loading && requests.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" className="p-8 text-center text-muted-foreground">
+                        Loading...
+                      </td>
+                    </tr>
+                  ) : requests.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" className="p-8 text-center text-muted-foreground">
+                        No merch store requests found. Click "New Request" to create one.
+                      </td>
+                    </tr>
+                  ) : (
+                    requests.map((request) => (
                     <tr key={request.id} className="border-b">
                       <td className="p-4">{request.artistName}</td>
                       <td className="p-4">{request.productPreferences}</td>
@@ -317,7 +392,7 @@ const MerchStore = () => {
                           >
                             <Eye className="w-4 h-4" /> View
                           </Button>
-                          {request.status === 'Approved' && !request.hasDesignSubmitted && (
+                          {request.status === 'Design Pending' && !request.hasDesignSubmitted && (
                             <Button
                               size="sm"
                               variant="outline"
@@ -342,15 +417,68 @@ const MerchStore = () => {
                               </Button>
                             </>
                           )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={async () => {
+                              if (window.confirm('Are you sure you want to delete this merch store request?')) {
+                                setLoading(true);
+                                try {
+                                  const response = await deleteMerchStore(request.storeId);
+                                  if (response.success) {
+                                    showToast.success('Merch store deleted successfully');
+                                    fetchMerchStores(); // Refresh the list
+                                  }
+                                } catch (error) {
+                                  console.error('Error deleting merch store:', error);
+                                  showToast.error(error?.response?.data?.message || 'Failed to delete merch store');
+                                } finally {
+                                  setLoading(false);
+                                }
+                              }
+                            }}
+                            className="text-red-400 border-red-500/30"
+                            disabled={loading}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  ))
+                  )}
                 </tbody>
               </table>
             </div>
           </CardContent>
         </Card>
+
+        {/* Pagination Controls */}
+        {pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6">
+            <div className="text-sm text-muted-foreground">
+              Showing page {pagination.currentPage} of {pagination.totalPages} ({pagination.totalCount} total requests)
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage - 1 }))}
+                disabled={!pagination.hasPrevPage || loading}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage + 1 }))}
+                disabled={!pagination.hasNextPage || loading}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -453,11 +581,11 @@ const MerchStore = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               {[
-                { key: 'tshirts', label: 'T-Shirts' },
-                { key: 'hoodies', label: 'Hoodies' },
-                { key: 'siperBottles', label: 'Siper Bottles' },
+                { key: 't_shirt', label: 'T-Shirts' },
+                { key: 'hoodie', label: 'Hoodies' },
+                { key: 'sipper_bottle', label: 'Sipper Bottles' },
                 { key: 'posters', label: 'Posters' },
-                { key: 'toteBags', label: 'Tote Bags' },
+                { key: 'tote_bags', label: 'Tote Bags' },
                 { key: 'stickers', label: 'Stickers' }
               ].map(product => (
                 <div key={product.key} className="flex items-center space-x-2">
@@ -512,8 +640,8 @@ const MerchStore = () => {
                 {[
                   { key: 'instagram', label: 'Instagram' },
                   { key: 'youtube', label: 'YouTube' },
-                  { key: 'emailNewsletter', label: 'Email Newsletter' },
-                  { key: 'liveEvents', label: 'Live Events' }
+                  { key: 'email_newsletter', label: 'Email Newsletter' },
+                  { key: 'live_events', label: 'Live Events' }
                 ].map(channel => (
                   <div key={channel.key} className="flex items-center space-x-2">
                     <Checkbox
@@ -588,8 +716,12 @@ const MerchStore = () => {
           <Button variant="outline" onClick={() => setCurrentView('list')}>
             Cancel
           </Button>
-          <Button onClick={handleApply} className="bg-[#711CE9] text-white hover:bg-[#6f14ef]" disabled={selectedRequest !== null}>
-            Apply
+          <Button
+            onClick={handleApply}
+            className="bg-[#711CE9] text-white hover:bg-[#6f14ef]"
+            disabled={selectedRequest !== null || loading}
+          >
+            {loading ? 'Submitting...' : 'Apply'}
           </Button>
         </div>
       </div>
@@ -719,18 +851,49 @@ const MerchStore = () => {
             Cancel
           </Button>
           <Button
-            onClick={() => {
-              // Update request to show design submitted
-              setRequests(prev => prev.map(req => 
-                req.id === selectedRequest.id 
-                  ? { ...req, hasDesignSubmitted: true }
-                  : req
-              ));
-              setCurrentView('list');
+            onClick={async () => {
+              const uploadedFileCount = Object.keys(uploadedFiles).length;
+
+              // Validate minimum 5 designs
+              if (uploadedFileCount < 5) {
+                showToast.error('Please upload at least 5 designs');
+                return;
+              }
+
+              setLoading(true);
+              try {
+                // Upload all files to ImageKit
+                const uploadPromises = Object.values(uploadedFiles).map(fileData =>
+                  uploadToImageKit(fileData.file, 'merch-designs')
+                );
+
+                const uploadResults = await Promise.all(uploadPromises);
+
+                // Extract design links from upload results
+                const designs = uploadResults.map(result => ({
+                  designLink: result.url
+                }));
+
+                // Submit designs to API
+                const response = await submitMerchDesigns(selectedRequest.storeId, designs);
+
+                if (response.success) {
+                  showToast.success('Designs submitted successfully!');
+                  setCurrentView('list');
+                  setUploadedFiles({});
+                  fetchMerchStores(); // Refresh the list
+                }
+              } catch (error) {
+                console.error('Error submitting designs:', error);
+                showToast.error(error?.response?.data?.message || 'Failed to submit designs');
+              } finally {
+                setLoading(false);
+              }
             }}
             className="bg-[#711CE9] hover:bg-[#6f14ef]"
+            disabled={loading}
           >
-            Submit Designs
+            {loading ? 'Submitting...' : 'Submit Designs'}
           </Button>
         </div>
       </div>
@@ -839,47 +1002,48 @@ const MerchStore = () => {
                 <CardDescription>Currently live merchandise products</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {designs.map((design) => (
-                    <Card key={design.id}>
-                      <CardHeader>
-                        <CardTitle className="text-lg">User Design</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="bg-muted rounded-lg p-4 mb-4">
-                          <img
-                            src={design.image}
-                            alt="User Design"
-                            className="w-full h-32 object-cover rounded"
-                          />
-                        </div>
-                        
-                        <div className="mb-4">
-                          <h4 className="text-sm font-medium mb-2 text-muted-foreground">Product Assigned</h4>
-                          <div className="space-y-2">
-                            <div className="flex justify-between items-center text-xs text-muted-foreground">
-                              <span>Name</span>
-                              <span>Link</span>
-                            </div>
-                            {design.products.map((product, idx) => (
-                              <div key={idx} className="flex justify-between items-center">
-                                <span className="text-sm">{product}</span>
-                                <Button variant="link" size="sm" className="text-[#711CE9] p-0 h-auto">
-                                  Link
-                                </Button>
-                              </div>
-                            ))}
+                {selectedRequest?.designs && selectedRequest.designs.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {selectedRequest.designs.map((design, index) => (
+                      <Card key={design._id || index}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">Design {index + 1}</CardTitle>
+                          <CardDescription className="text-xs">
+                            Uploaded: {new Date(design.uploadedAt).toLocaleDateString()}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="bg-muted rounded-lg p-4 mb-4">
+                            <img
+                              src={design.designLink}
+                              alt={`Design ${index + 1}`}
+                              className="w-full h-48 object-contain rounded"
+                              onError={(e) => {
+                                e.target.src = 'https://via.placeholder.com/300x200?text=Design+Preview';
+                              }}
+                            />
                           </div>
-                        </div>
 
-                        <Button className="w-full text-white bg-[#711CE9] hover:bg-[#6f14ef]">
-                          <Upload className="w-4 h-4 mr-2" />
-                          Send Opt Request
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                          <a
+                            href={design.designLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block"
+                          >
+                            <Button className="w-full text-white bg-[#711CE9] hover:bg-[#6f14ef]">
+                              <Eye className="w-4 h-4 mr-2" />
+                              View Full Design
+                            </Button>
+                          </a>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground">No designs submitted yet</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

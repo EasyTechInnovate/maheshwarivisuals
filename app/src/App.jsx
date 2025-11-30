@@ -14,7 +14,6 @@ import Dashboard from './pages/dashboard/Dashboard'
 import UploadRelease from './pages/uploadRelease/UploadRelease'
 import CatalogPage from './pages/catalog/Catalog'
 import Analytics from './pages/analytics/Analytics'
-import Royalties from './pages/royalties/Royalties'
 import FinanceWallet from './pages/financeAndWallet/FinanceWallet'
 import WithdrawFund from './pages/financeAndWallet/WithdrawFund'
 import YouTubeMCN from './pages/youtubeMCN/YoutubeMCN'
@@ -31,6 +30,7 @@ import Profile from './pages/profile/Profile'
 import Plan from './pages/plan/Plan'
 import MahiAI from './pages/mahiAI/MahiAI'
 import FanLinksBuilder from './pages/fanLink/FanLink'
+import Royalties from './pages/royalties/Royalties'
 
 const AuthProvider = ({ children }) => {
   const { setUser, setAuthenticated, setLoading, clearAuth } = useAuthStore();
