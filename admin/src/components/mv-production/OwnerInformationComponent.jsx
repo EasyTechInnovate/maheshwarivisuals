@@ -4,7 +4,7 @@ export default function OwnerInformation({ theme = "dark", className = "" }) {
   const isDark = theme === "dark";
 
   // theme-aware classes (dark uses your provided colors)
-  const containerBg = isDark ? "bg-[#151F28] text-white" : "bg-white text-black";
+  const containerBg = isDark ? "bg-[#151F28] border border-gray-800 text-white" : "bg-white text-black";
   const inputBg = isDark ? "bg-[#111A22]" : "bg-gray-50";
   const inputText = isDark ? "text-white placeholder-gray-400" : "text-black placeholder-gray-500";
   const labelText = isDark ? "text-gray-300" : "text-gray-600";

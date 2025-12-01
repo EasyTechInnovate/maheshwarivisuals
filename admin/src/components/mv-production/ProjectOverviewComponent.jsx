@@ -1,4 +1,4 @@
-export default function ProjectOverview({ theme = "dark" }) {
+export default function ProjectOverview({ theme = "dark", className = "" }) {
   const isDark = theme === "dark";
 
   const cardBg = isDark ? "#151F28" : "#ffffff";
@@ -8,7 +8,7 @@ export default function ProjectOverview({ theme = "dark" }) {
 
   return (
     <div
-      className={`w-full rounded-xl p-6 mt-8 ${textColor}`}
+      className={`w-full rounded-xl p-6 mt-8 ${textColor} ${className} ${isDark ? "text-white border border-gray-800" : "text-black"}`}
       style={{ backgroundColor: cardBg }}
     >
       <h2 className="text-lg font-semibold mb-6">Project Overview</h2>

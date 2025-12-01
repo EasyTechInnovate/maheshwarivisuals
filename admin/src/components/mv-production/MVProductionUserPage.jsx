@@ -2,6 +2,9 @@ import React from "react";
 import OwnerInformation from "@/components/mv-production/OwnerInformationComponent.jsx";
 import { ArrowLeft } from "lucide-react";
 import ProjectOverview from "./ProjectOverviewComponent";
+import BudgetRequestOwnership from "./BudgetRequestComponent.jsx";
+import LegalOwnershipDeclaration from "./LegalOwnershipComponent.jsx";
+import MarketingDistributionPlan from "./MarketingDistributionComponent.jsx";
 export default function MVProductionUserPage({
   theme = "dark",
   onBack,
@@ -41,6 +44,16 @@ export default function MVProductionUserPage({
 
         {/* Project Overview */}
         <ProjectOverview theme={theme} className="mt-4"/>
+
+        {/* Budget Request & Ownership */}
+        <BudgetRequestOwnership theme={theme} className="mt-4"/>
+
+        {/* Marketing & Distribution Plan */}
+        <MarketingDistributionPlan theme={theme} className="mt-4"/>
+        
+        {/* Legal & Ownership Declaration */}
+        <LegalOwnershipDeclaration theme={theme} className="mt-4"/>
+
     </div>
   );
 }
