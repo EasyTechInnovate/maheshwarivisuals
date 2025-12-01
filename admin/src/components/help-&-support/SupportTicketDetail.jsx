@@ -22,33 +22,22 @@ const [sendingReply, setSendingReply] = useState(false);
 const [showAttachmentModal, setShowAttachmentModal] = useState(false);
 const [isInternal, setIsInternal] = useState(false);
 const [showInternalModal, setShowInternalModal] = useState(false);
-const [allPeople, setAllPeople] = useState([]);
 
 
 useEffect(() => {
-  async function fetchAllPeople() {
-    try {
-      const res = await GlobalApi.getUsers(1, 9999);
-      setAllPeople(res.data.data.users || []);
-    } catch (err) {
-      console.error("Failed to fetch users", err);
-    }
+  if (!ticket?._id) return;
+  fetchTicket();
+}, [ticket?._id]);
+
+const fetchTicket = async () => {
+  try {
+    const res = await GlobalApi.getSupportTicketById(ticket._id);
+    setCurrentTicket(res.data);  // overwrite current ticket with fresh data
+  } catch (err) {
+    console.error("Failed to fetch ticket", err);
   }
-
-  fetchAllPeople();
-}, []);
-
-const getResponderName = (id) => {
-  if (!id) return "Unknown";
-
-  const user = allPeople.find((u) => u._id === id);
-
-  if (user) {
-    return `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim();
-  }
-
-  return "Unknown";
 };
+
 
 const handleSendReply = async () => {
   if (!replyMessage.trim()) {
@@ -59,32 +48,22 @@ const handleSendReply = async () => {
   try {
     setSendingReply(true);
 
-   const payload = {
-  message: replyMessage,
-  isInternal: isInternal,
-  attachments: draftAttachments.map((file) => ({
-    fileName: file.fileName,
-    fileUrl: file.fileUrl,
-    fileSize: file.fileSize
-  }))
-};
-
-
-    const res = await GlobalApi.addAdminResponse(currentTicket.ticketId, payload);
- setCurrentTicket((prev) => ({
-  ...prev,
-  responses: [
-    ...prev.responses,
-    {
+    const payload = {
       message: replyMessage,
       isInternal: isInternal,
-      createdAt: new Date().toISOString(),
-      attachments: payload.attachments
-    }
-  ]
-}));
+      attachments: draftAttachments.map((file) => ({
+        fileName: file.fileName,
+        fileUrl: file.fileUrl,
+        fileSize: file.fileSize
+      }))
+    };
 
+    await GlobalApi.addAdminResponse(currentTicket.ticketId, payload);
 
+    // 🔥🔥 Immediately refetch updated ticket from backend
+    await fetchTicket();
+
+    // CLEAR INPUT
     setReplyMessage("");
     setDraftAttachments([]);
 
@@ -97,6 +76,7 @@ const handleSendReply = async () => {
     setSendingReply(false);
   }
 };
+
 
 
 const handleEscalateTicket = async () => {
@@ -322,15 +302,10 @@ const handleEscalateTicket = async () => {
             </div>
 
             <div className="space-y-4">
-           {currentTicket.responses?.map((chat, index) => {
-  const responder = allPeople.find((u) => u._id === chat.respondedBy);
-
-  const authorName = responder
-    ? `${responder.firstName ?? ""} ${responder.lastName ?? ""}`.trim()
-    : "Unknown";
-
-  const isAgent =
-    responder && responder._id !== currentTicket.userId?._id;
+       {currentTicket.responses?.map((chat, index) => {
+  // Use respondedBy object from API directly
+  const responder = chat.respondedBy || {};
+  const authorName = `${responder.firstName ?? ""} ${responder.lastName ?? ""}`.trim() || "Unknown";
 
   return (
     <MessageBubble
@@ -338,13 +313,17 @@ const handleEscalateTicket = async () => {
       message={{
         id: index,
         author: authorName,
-        role: isAgent ? "agent" : "user",
+        role: responder.role ?? "user",
         time: new Date(chat.createdAt).toLocaleString(),
         message: chat.message,
+        isInternal: chat.isInternal ?? false,
       }}
     />
   );
 })}
+
+
+
             </div>
 
             <div className="mt-6">
@@ -628,7 +607,12 @@ const handleEscalateTicket = async () => {
 }
 
 function MessageBubble({ message }) {
-  const isAgent = message.role === "agent";
+
+  // admin + team_member on RIGHT
+  // user on LEFT
+  const isAgent =
+    message.role === "admin" ||
+    message.role === "team_member";
 
   return (
     <div className={`flex ${isAgent ? "justify-end" : "justify-start"}`}>
@@ -636,8 +620,8 @@ function MessageBubble({ message }) {
         className="max-w-[82%] rounded-xl p-4 shadow-sm text-sm leading-relaxed"
         style={{
           background: isAgent
-            ? "linear-gradient(90deg,#7C3AED,#6D28D9)"
-            : "var(--bg-surface)",
+            ? "linear-gradient(90deg,#7C3AED,#6D28D9)"   // purple bubble for staff/admin
+            : "var(--bg-surface)",                       // grey bubble for users
           color: isAgent ? "white" : "var(--text)",
         }}
       >
@@ -654,9 +638,8 @@ function MessageBubble({ message }) {
 
         <div>{message.message}</div>
       </div>
-
-
     </div>
   );
 }
+
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchMerchData } from "./MerchStoreManagementData";
 import { Search, Download, Check, X, Eye, Users, Clock, CheckCircle, } from "lucide-react";
-import DesignRequestTable from "../../components/MerchRequestTable";
+import DesignRequestTable from "../../components/merch-store-management/MerchRequestTable";
 
 const statusColors = {
   Pending: "bg-yellow-900/30 text-yellow-400",

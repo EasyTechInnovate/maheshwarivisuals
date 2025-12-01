@@ -47,28 +47,34 @@ export default function MCNManagement({ theme = "dark" }) {
       const res = await GlobalApi.getMcnRequests(1, 10);
       const apiData = res?.data?.data?.requests || [];
 
-      const formatted = apiData.map((r) => ({
-        id: r._id,
-        channelName: r.youtubeChannelName,
-        subscribers: r.subscriberCount,
-        submittedAt: new Date(r.createdAt).toLocaleDateString("en-IN", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        }),
-        accountId: r.userAccountId || "-",
-        totalViews28d: r.totalViewsCountsIn28Days,
-        adSenseEnabled: r.isAdSenseEnabled ? "Yes" : "No",
-        copyrightStrikes: r.hasCopyrightStrikes ? "Yes" : "No",
-        hundredPercentOriginal: r.isContentOriginal ? "Yes" : "No",
-        anotherMCN: r.isPartOfAnotherMCN ? "Yes" : "No",
-        lastMonthRevenue: r.channelRevenueLastMonth,
-        monetizationEligibility: r.monetizationEligibility ? "Eligible" : "Not Eligible",
-        status: r.status || "pending",
-        adminNotes: r.adminNotes,
-        rejectionReason: r.rejectionReason,
-        raw: r,
-      }));
+     const formatted = apiData.map((r) => {
+  const fullName = r.userId ? `${r.userId.firstName} ${r.userId.lastName}` : "-";
+
+  return {
+    id: r._id,
+    channelName: r.youtubeChannelName,
+    subscribers: r.subscriberCount,
+    submittedAt: new Date(r.createdAt).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }),
+    accountId: r.userAccountId || "-",
+    accountName: fullName, 
+    totalViews28d: r.totalViewsCountsIn28Days,
+    adSenseEnabled: r.isAdSenseEnabled ? "Yes" : "No",
+    copyrightStrikes: r.hasCopyrightStrikes ? "Yes" : "No",
+    hundredPercentOriginal: r.isContentOriginal ? "Yes" : "No",
+    anotherMCN: r.isPartOfAnotherMCN ? "Yes" : "No",
+    lastMonthRevenue: r.channelRevenueLastMonth,
+    monetizationEligibility: r.monetizationEligibility ? "Eligible" : "Not Eligible",
+    status: r.status || "pending",
+    adminNotes: r.adminNotes,
+    rejectionReason: r.rejectionReason,
+    raw: r,
+  };
+});
+
 
       setRows(formatted);
 
@@ -135,16 +141,19 @@ export default function MCNManagement({ theme = "dark" }) {
   const formatINR = (n) =>
     typeof n === "number" ? `₹${n.toLocaleString("en-IN")}` : String(n || "-");
 
-  const filteredRows = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter(
-      (r) =>
-        (r.channelName || "").toLowerCase().includes(q) ||
-        (String(r.subscribers) || "").includes(q) ||
-        (String(r.lastMonthRevenue) || "").includes(q)
-    );
-  }, [rows, search]);
+const filteredRows = useMemo(() => {
+  const q = search.trim().toLowerCase();
+  if (!q) return rows;
+
+  return rows.filter((r) =>
+    (r.channelName || "").toLowerCase().includes(q) ||
+    (r.accountName || "").toLowerCase().includes(q) ||  
+    (r.accountId || "").toLowerCase().includes(q) ||
+    String(r.subscribers || "").includes(q) ||
+    String(r.lastMonthRevenue || "").includes(q)
+  );
+}, [rows, search]);
+
 
 
   const getTopStats = () => {
@@ -364,6 +373,7 @@ export default function MCNManagement({ theme = "dark" }) {
                         {[
                           "YouTube Channel Name",
                           "Account ID",
+                          "Account Name",
                           "Subscribers",
                           "Submitted On",
                           "Total Views (28d)",
@@ -386,6 +396,7 @@ export default function MCNManagement({ theme = "dark" }) {
                         <tr key={r.id} className={`border-t ${borderColor} ${rowHover}`}>
                           <td className="px-4 py-3">{r.channelName}</td>
                           <td className="px-4 py-3">{r.accountId}</td>
+                          <td className="px-4 py-3">{r.accountName}</td>
                           <td className="px-4 py-3">{r.subscribers?.toLocaleString("en-IN")}</td>
                           <td className="px-4 py-3">{r.submittedAt}</td>
                           <td className="px-4 py-3 text-center">{r.totalViews28d?.toLocaleString("en-IN")}</td>

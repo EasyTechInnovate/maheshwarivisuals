@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Download, Eye } from "lucide-react";
-import ReleaseModal from "./ReleaseModal";
+import ReleaseModal from "../../components/release-management/ReleaseModal";
 import GlobalApi from "@/lib/GlobalApi"; // your API wrapper
 
 export default function ReleaseManagement({ theme }) {

@@ -75,25 +75,42 @@ export default function UserManagement({ theme }) {
 
 
 
-  const filteredUsers = users.filter((u) => {
-    const s = search.toLowerCase();
+const filteredUsers = users.filter((u) => {
+  const s = search.toLowerCase();
 
-    const stageName =
-      u.userType === "artist"
-        ? u?.artistData?.artistName
-        : u.userType === "label"
-          ? u?.labelData?.labelName
-          : u.userType === "aggregator"
-            ? u?.aggregatorData?.companyName
-            : "";
+  // Stage name logic
+  const stageName =
+    u.userType === "artist"
+      ? u?.artistData?.artistName
+      : u.userType === "label"
+        ? u?.labelData?.labelName
+        : u.userType === "aggregator"
+          ? u?.aggregatorData?.companyName
+          : "";
 
-    return (
-      u.emailAddress?.toLowerCase().includes(s) ||
-      stageName?.toLowerCase().includes(s) ||
-      u.userType?.toLowerCase().includes(s) ||
-      u.accountId?.toString().includes(s)
-    );
-  });
+  // Account Name (first + last)
+  const accountName = `${u.firstName || ""} ${u.lastName || ""}`.trim().toLowerCase();
+
+  return (
+    // 🔍 Search by accountId
+    u.accountId?.toLowerCase().includes(s) ||
+
+    // 🔍 Search by first name or last name or full name
+    accountName.includes(s) ||
+    (u.firstName || "").toLowerCase().includes(s) ||
+    (u.lastName || "").toLowerCase().includes(s) ||
+
+    // 🔍 Search by stage name
+    stageName?.toLowerCase().includes(s) ||
+
+    // 🔍 Search by email
+    u.emailAddress?.toLowerCase().includes(s) ||
+
+    // 🔍 Search by userType
+    u.userType?.toLowerCase().includes(s)
+  );
+});
+
 
 
   const totalUsers = users.length;
@@ -190,6 +207,7 @@ export default function UserManagement({ theme }) {
                   <tr>
                     {[
                       "User ID",
+                      "Account Name",
                       "Stage Name",
                       "Account Type",
                       "Status",
@@ -223,6 +241,9 @@ export default function UserManagement({ theme }) {
                           }`}
                       >
                         <td className="px-4 py-3">{u.accountId}</td>
+                        <td className="px-4 py-3">
+  {u.firstName || u.lastName ? `${u.firstName || ""} ${u.lastName || ""}`.trim() : "—"}
+</td>
                         <td className="px-4 py-3">{stageName}</td>
 
                         <td className="px-4 py-3">
@@ -385,8 +406,8 @@ export default function UserManagement({ theme }) {
   isOpen={isManageLabelsOpen}
   onClose={() => setIsManageLabelsOpen(false)}
   theme={theme}
-  userId={null}            // ✅ Always null → global label manager
-  userName="All Labels"    // ✅ Always global
+  userId={null}            
+  userName="All Labels"   
 />
 
      <AssignedSublabels
