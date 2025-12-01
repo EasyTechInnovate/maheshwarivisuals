@@ -300,3 +300,39 @@ export const getAnalyticsDashboard = async (params) => {
     const response = await servicesAxiosInstance.get(`/v1/reports/analytics/dashboard?${queryParams.toString()}`)
     return response.data
 }
+
+// Royalty APIs
+export const getRoyaltyDashboard = async (params) => {
+    const { timeframe = 'last_year' } = params
+    const queryParams = new URLSearchParams({ timeframe })
+
+    const response = await servicesAxiosInstance.get(`/v1/reports/royalty/dashboard?${queryParams.toString()}`)
+    return response.data
+}
+
+// Merch Store APIs
+export const createMerchStore = async (data) => {
+    const response = await servicesAxiosInstance.post('/v1/merch-store', data)
+    return response.data
+}
+
+export const getMerchStores = async (params) => {
+    const { page = 1, limit = 10 } = params
+    const queryParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    })
+
+    const response = await servicesAxiosInstance.get(`/v1/merch-store?${queryParams.toString()}`)
+    return response.data
+}
+
+export const submitMerchDesigns = async (storeId, designs) => {
+    const response = await servicesAxiosInstance.post(`/v1/merch-store/${storeId}/designs`, { designs })
+    return response.data
+}
+
+export const deleteMerchStore = async (storeId) => {
+    const response = await servicesAxiosInstance.delete(`/v1/merch-store/${storeId}`)
+    return response.data
+}

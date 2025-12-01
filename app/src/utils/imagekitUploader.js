@@ -17,7 +17,7 @@ export const uploadToImageKit = async (file, folder = 'uploads') => {
   const loadingToastId = showToast.loading(`Uploading ${file.name}...`);
 
   try {
-    const authResponse = await axios.get(`${apiBaseUrl}/upload/auth`);
+    const authResponse = await axios.get(`${apiBaseUrl}/v1/upload/auth`);
     const { token, expire, signature } = authResponse.data;
 
     if (!token || !expire || !signature) {
