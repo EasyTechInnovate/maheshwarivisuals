@@ -61,24 +61,14 @@ export default function UserManagement({ theme }) {
     fetchUsers();
   }, [currentPage]);
 
-
-
   const handleBack = () => setActivePage("list");
-
-
 
   const handleTopManageLabels = () => {
     setSelectedUser(null);
     setIsManageLabelsOpen(true);
   };
-
-
-
-
 const filteredUsers = users.filter((u) => {
   const s = search.toLowerCase();
-
-  // Stage name logic
   const stageName =
     u.userType === "artist"
       ? u?.artistData?.artistName
@@ -87,26 +77,15 @@ const filteredUsers = users.filter((u) => {
         : u.userType === "aggregator"
           ? u?.aggregatorData?.companyName
           : "";
-
-  // Account Name (first + last)
   const accountName = `${u.firstName || ""} ${u.lastName || ""}`.trim().toLowerCase();
 
   return (
-    // 🔍 Search by accountId
     u.accountId?.toLowerCase().includes(s) ||
-
-    // 🔍 Search by first name or last name or full name
     accountName.includes(s) ||
     (u.firstName || "").toLowerCase().includes(s) ||
     (u.lastName || "").toLowerCase().includes(s) ||
-
-    // 🔍 Search by stage name
     stageName?.toLowerCase().includes(s) ||
-
-    // 🔍 Search by email
     u.emailAddress?.toLowerCase().includes(s) ||
-
-    // 🔍 Search by userType
     u.userType?.toLowerCase().includes(s)
   );
 });
@@ -297,16 +276,13 @@ const filteredUsers = users.filter((u) => {
                               className="bg-purple-600 hover:bg-purple-700 text-white px-3 rounded-lg flex items-center gap-1"
                               onClick={() => {
                                 setSelectedUser(u);
-                                setIsAssignedLabelsOpen(true);   // OPEN assigned labels modal
+                                setIsAssignedLabelsOpen(true);   
                               }}
 
                             >
                               <FolderKanban className="h-4 w-4" />
                               Manage Label
                             </Button>
-
-
-
                             <Button
                               size="sm"
                               className="bg-purple-600 hover:bg-purple-700 text-white px-3 rounded-lg flex items-center gap-1"
@@ -398,10 +374,6 @@ const filteredUsers = users.filter((u) => {
           </>
         )}
       </div>
-
-
-
-
    <ManageLabelsModal
   isOpen={isManageLabelsOpen}
   onClose={() => setIsManageLabelsOpen(false)}
@@ -416,17 +388,12 @@ const filteredUsers = users.filter((u) => {
   userId={selectedUser?._id}
    theme={theme}  
 />
-
       <ResetPasswordModal
         isOpen={isResetPasswordOpen}
         onClose={() => setIsResetPasswordOpen(false)}
         userData={selectedUser}
         theme={theme}
       />
-
-
-
-
     </div>
   );
 }

@@ -18,9 +18,7 @@ import { Download } from "lucide-react";
 import AudioUploadSection from "./ReleaseModalAudio";
 import GlobalApi from "@/lib/GlobalApi";
 import StepThreeReview from "./ReleaseModalDeliveryDetails";
-// ----------------------------------------------------------
-// ✨ SMALL SKELETON LOADER
-// ----------------------------------------------------------
+
 function SkeletonBox({ className = "" }) {
   return (
     <div
@@ -32,7 +30,7 @@ function SkeletonBox({ className = "" }) {
 export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
   const isDark = theme === "dark";
 
-  // Parent now passes ONLY releaseId as defaultData
+
   const releaseId = defaultData;
 
   const [loading, setLoading] = useState(true);
@@ -57,9 +55,6 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
     if (file) setCoverArt(file);
   };
 
-  // ----------------------------------------------------------
-  //  FETCH RELEASE DETAILS USING releaseId
-  // ----------------------------------------------------------
   useEffect(() => {
     if (!releaseId) return;
 
@@ -70,7 +65,7 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
 
         if (!data) return;
 
-        // STEP 1
+        
         const info = data.step1?.releaseInfo || {};
 
         setReleaseData({
@@ -81,12 +76,11 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
           status: data.releaseStatus || "",
         });
 
-        // Cover art
+
         if (data.step1?.coverArt?.imageUrl) {
           setCoverArt(data.step1.coverArt.imageUrl);
         }
 
-        // STEP 2
         if (data.step2?.tracks) {
           setTrackData(data.step2.tracks);
         }
@@ -101,9 +95,6 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
     fetchDetails();
   }, [releaseId]);
 
-  // ----------------------------------------------------------
-  // CLEAN SKELETON UI (NO RAW TEXT)
-  // ----------------------------------------------------------
   if (loading) {
     return (
       <div
@@ -123,15 +114,12 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
     );
   }
 
-  // ----------------------------------------------------------
-  //  MAIN UI
-  // ----------------------------------------------------------
   return (
     <div
       className={`p-6 space-y-6 transition-colors duration-200 ${isDark ? "bg-[#111A22] text-gray-200" : "bg-gray-50 text-[#151F28]"
         }`}
     >
-      {/* HEADER */}
+      
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button
@@ -181,7 +169,7 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* STATUS SELECT */}
+          
           <Select
             value={releaseData.status}
             onValueChange={(v) => handleChange("status", v)}
@@ -204,10 +192,10 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
         </div>
       </div>
 
-      {/* COVER + INFO */}
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-       {/* COVER ART */}
+       
 <div
   className={`relative rounded-lg p-4 ${isDark
       ? "bg-[#151F28] border border-gray-700"
@@ -233,7 +221,7 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
           className="h-full w-full object-contain"
         />
 
-        {/* Download Button Overlay */}
+        
         <a
           href={
             typeof coverArt === "string"
@@ -262,7 +250,7 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
 
 
 
-        {/* RELEASE INFO */}
+        
         <div
           className={`md:col-span-2 rounded-lg p-6 ${isDark
               ? "bg-[#151F28] border border-gray-700"
@@ -272,7 +260,7 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
           <p className="font-medium mb-4">Track Information</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Release Name */}
+            
             <div className="md:col-span-2">
               <label className="text-xs mb-2 block">Release Name</label>
               <Input
@@ -287,7 +275,7 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
               />
             </div>
 
-            {/* Genre */}
+            
             <div>
               <label className="text-xs mb-2 block">Genre</label>
 
@@ -315,7 +303,7 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
               </Select>
             </div>
 
-            {/* Label */}
+            
             <div className="md:col-span-3">
               <label className="text-xs mb-2 block">Label Name</label>
               <Input
@@ -330,7 +318,7 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
               />
             </div>
 
-            {/* UPC */}
+            
             <div className="md:col-span-3">
               <label className="text-xs mb-2 block">UPC</label>
               <Input
@@ -346,7 +334,7 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
         </div>
       </div>
 
-      {/* TRACKS */}
+      
 
       {console.log("TRACK DATA IN PARENT:", trackData)}
       <AudioUploadSection
@@ -370,7 +358,7 @@ export default function ReleaseModal({ theme, defaultData, userId, onBack }) {
 />
 
 
-      {/* Step 3 */}
+      
       <StepThreeReview theme={theme} />
     </div>
   );

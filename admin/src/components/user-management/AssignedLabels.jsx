@@ -27,7 +27,7 @@ export default function AssignedSublabels({ isOpen, onClose, theme, userId }) {
     id: null,
   });
 
-  // Fetch assigned sublabels
+
   const fetchUserAssignedSublabels = async () => {
     try {
       setLoading(true);
@@ -36,7 +36,7 @@ export default function AssignedSublabels({ isOpen, onClose, theme, userId }) {
       const data = res.data.data;
       setUserName(data.user?.name || "User");
 
-      // API returns array with "id", not "_id"
+     
       setSublabels(data.sublabels || []);
     } catch (err) {
       console.error("❌ Error fetching assigned sublabels:", err);
@@ -50,10 +50,10 @@ export default function AssignedSublabels({ isOpen, onClose, theme, userId }) {
     if (isOpen) fetchUserAssignedSublabels();
   }, [isOpen]);
 
-  // Toggle display (using isDefault for now)
+
   const handleToggle = async (sublabelId, value) => {
     try {
-      // Adjust API call based on your backend need
+    
       await GlobalApi.assignUserToSubLabel(sublabelId, { userId });
 
       toast.success("Updated assignment");
@@ -69,7 +69,6 @@ export default function AssignedSublabels({ isOpen, onClose, theme, userId }) {
     }
   };
 
-  // Remove user from sublabel
   const handleRemove = async () => {
     try {
       await GlobalApi.removeSubLabelFromUser(deleteDialog.id, { userId });
@@ -116,7 +115,7 @@ export default function AssignedSublabels({ isOpen, onClose, theme, userId }) {
             </Button>
           </DialogHeader>
 
-          {/* Table */}
+       
           <div
             className={`mt-6 border ${
               isDark ? "border-gray-700" : "border-gray-200"
@@ -206,7 +205,7 @@ export default function AssignedSublabels({ isOpen, onClose, theme, userId }) {
             </table>
           </div>
 
-          {/* Remove Confirmation */}
+       
           {deleteDialog.open && (
             <ConfirmDialog
               theme={theme}
@@ -218,7 +217,7 @@ export default function AssignedSublabels({ isOpen, onClose, theme, userId }) {
             />
           )}
 
-          {/* Assign Sublabel Modal */}
+          
           <AssignSublabelModal
             isOpen={isAssignModalOpen}
             onClose={() => setIsAssignModalOpen(false)}

@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,19 +11,19 @@ import {
 } from "@/components/ui/select";
 import { Music, MoreHorizontal, Upload } from "lucide-react";
 import { toast } from "sonner";
-import GlobalApi from "@/lib/GlobalApi"; // your API wrapper
-import MVProductionUserPage from "@/components/mv-production/MVProductionUserPage"; // <-- create this modal like ReleaseModal
-
+import GlobalApi from "@/lib/GlobalApi"; 
+import MVProductionUserPage from "@/components/mv-production/MVProductionUserPage"; 
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 export default function MVProductionManagement({ theme = "dark" }) {
   const isDark = theme === "dark";
 
-  // visual classes
+  
   const containerBg = isDark ? "bg-[#111A22] text-gray-200" : "bg-gray-50 text-[#151F28]";
   const cardBg = isDark ? "bg-[#151F28]" : "bg-white";
   const inputCls = isDark ? "bg-[#151F28] border border-gray-700 text-gray-200" : "bg-white border border-gray-300 text-black";
   const tableBorder = isDark ? "border-gray-700" : "border-gray-200";
 
-  // data + UI state
+ 
   const [search, setSearch] = useState("");
   const [productions, setProductions] = useState([]);
   const [page, setPage] = useState(1);
@@ -36,12 +34,17 @@ export default function MVProductionManagement({ theme = "dark" }) {
   });
   const [loading, setLoading] = useState(false);
 
-  // view state (list or modal like ReleaseManagement)
+ 
   const [activePage, setActivePage] = useState("list");
   const [selectedProduction, setSelectedProduction] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
+ 
+const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+const [itemToDelete, setItemToDelete] = useState(null);
+const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // fetch list
+
+
   const fetchProductions = async (pageNo = 1) => {
     try {
       setLoading(true);
@@ -65,10 +68,10 @@ export default function MVProductionManagement({ theme = "dark" }) {
 
   useEffect(() => {
     fetchProductions(page);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [page]);
 
-  // client-side filtering (search + status)
+  
   const filteredProductions = useMemo(() => {
     const q = search.trim().toLowerCase();
     return productions.filter((p) => {
@@ -92,7 +95,7 @@ export default function MVProductionManagement({ theme = "dark" }) {
     });
   }, [productions, search, statusFilter]);
 
-  // stats (client-side)
+  
   const stats = [
     { label: "Total Productions", value: pagination?.totalCount ?? productions.length },
     { label: "Pending", value: productions.filter((p) => p.status === "pending").length },
@@ -100,7 +103,7 @@ export default function MVProductionManagement({ theme = "dark" }) {
     { label: "Rejected", value: productions.filter((p) => p.status === "reject").length },
   ];
 
-  // handlers
+ 
   const handleViewDetails = (prod) => {
     setSelectedProduction(prod);
     setActivePage("modal");
@@ -111,21 +114,48 @@ export default function MVProductionManagement({ theme = "dark" }) {
     setSelectedProduction(null);
   };
 
-  // If modal view, render modal component (pattern same as ReleaseManagement)
+  const handleRefreshAfterUpdate = () => {
+  fetchProductions(page); 
+};
+
+const handleDeleteConfirm = async () => {
+  if (!itemToDelete) return;
+  setDeleteLoading(true);
+
+  try {
+    await GlobalApi.deleteMVProduction(itemToDelete._id);
+
+    toast.success("MV Production deleted successfully");
+
+    setShowDeleteDialog(false);
+    setItemToDelete(null);
+
+    fetchProductions(page);
+  } catch (err) {
+    console.error("DELETE ERROR →", err);
+    toast.error(err?.response?.data?.message || "Failed to delete");
+  } finally {
+    setDeleteLoading(false);
+  }
+};
+
+
+  
   if (activePage === "modal") {
     return (
       <MVProductionUserPage
         theme={theme}
-        defaultData={selectedProduction} // you can pass the whole object or just _id
+        defaultData={selectedProduction} 
         onBack={handleBack}
+         onRefresh={handleRefreshAfterUpdate}
       />
     );
   }
 
-  // list view
+  
   return (
     <div className={`p-4 md:p-6 space-y-6 transition-colors duration-300 ${containerBg}`}>
-      {/* Header */}
+     
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
         <div>
           <h1 className="text-2xl font-semibold">MV Production Management</h1>
@@ -144,7 +174,7 @@ export default function MVProductionManagement({ theme = "dark" }) {
         </div>
       </div>
 
-      {/* Stats */}
+     
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((s, i) => (
           <div key={i} className={`rounded-lg p-4 shadow-md ${cardBg}`}>
@@ -154,7 +184,7 @@ export default function MVProductionManagement({ theme = "dark" }) {
         ))}
       </div>
 
-      {/* Search & Filters */}
+      
       <div className="flex flex-col md:flex-row gap-3 justify-between items-stretch md:items-center">
         <Input
           placeholder="Search by account id, account name, project title, or email..."
@@ -181,8 +211,7 @@ export default function MVProductionManagement({ theme = "dark" }) {
         </div>
       </div>
 
-      {/* Table */}
-      {/* Table */}
+  
 <div className={`rounded-lg shadow-md w-full overflow-x-auto ${cardBg}`}>
   <table className={`w-full min-w-full text-sm`}>
     <thead className={`${isDark ? "text-gray-400" : "text-gray-600"} text-left`}>
@@ -265,16 +294,31 @@ export default function MVProductionManagement({ theme = "dark" }) {
                 {new Date(p.createdAt).toLocaleDateString()}
               </td>
 
-              <td className="px-4 py-3 whitespace-nowrap">
-                <Button
-                  size="sm"
-                  className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2 rounded-full px-5"
-                  onClick={() => handleViewDetails(p)}
-                >
-                  <Music className="h-4 w-4" />
-                  MV Production
-                </Button>
-              </td>
+             <td className="px-4 py-3 whitespace-nowrap flex gap-2">
+
+  
+  <Button
+    size="sm"
+    className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2 rounded-full px-5"
+    onClick={() => handleViewDetails(p)}
+  >
+    <Music className="h-4 w-4" />
+    MV Production
+  </Button>
+
+  
+  <Button
+    size="sm"
+    className="bg-red-600 hover:bg-red-700 text-white rounded-full px-4"
+    onClick={() => {
+      setItemToDelete(p);
+      setShowDeleteDialog(true);
+    }}
+  >
+    Delete
+  </Button>
+</td>
+
             </tr>
           );
         })
@@ -284,7 +328,7 @@ export default function MVProductionManagement({ theme = "dark" }) {
 </div>
 
 
-      {/* Pagination (right aligned) */}
+   
       <div className="flex justify-end items-center gap-3 pt-4 pr-4">
         <Button
           variant="outline"
@@ -306,6 +350,23 @@ export default function MVProductionManagement({ theme = "dark" }) {
           Next
         </Button>
       </div>
+
+      {showDeleteDialog && (
+  <ConfirmDialog
+    theme={theme}
+    title="Delete MV Production"
+    message={`Are you sure you want to delete this MV Production?\nThis action cannot be undone.`}
+    confirmLabel="Delete"
+    cancelLabel="Cancel"
+    loading={deleteLoading}
+    
+    onConfirm={handleDeleteConfirm}
+    onCancel={() => {
+      setShowDeleteDialog(false);
+      setItemToDelete(null);
+    }}
+  />
+)}
     </div>
   );
 }

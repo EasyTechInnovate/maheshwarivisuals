@@ -127,7 +127,7 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
   }, [tracks]);
 
   console.log("Tracks received:", tracks);
-  // FILE UPLOAD
+
   const handleFileChange = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
@@ -137,7 +137,7 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
 
   };
 
-  // INPUT UPDATES
+
   const handleInfoChange = (key, value) => {
     setAudioInfo((prev) => {
       const next = { ...prev, [key]: value };
@@ -150,7 +150,7 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
     <div className="w-full">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        {/* LEFT UPLOAD CARD */}
+
         <div
           className={`rounded-lg p-4 ${isDark
             ? "bg-[#151F28] border border-gray-700"
@@ -196,7 +196,7 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {/* DOWNLOAD BUTTON */}
+
                     {(audioFile || audioUrl) && (
                       <a
                         href={audioFile ? URL.createObjectURL(audioFile) : audioUrl}
@@ -208,7 +208,7 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
                       </a>
                     )}
 
-                    {/* REMOVE */}
+
                     <button
                       onClick={() => {
                         setAudioFile(null);
@@ -274,7 +274,7 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
           </div>
         </div>
 
-        {/* RIGHT FORM */}
+
         <div
           className={`md:col-span-2 rounded-lg p-6 ${isDark
             ? "bg-[#151F28] border border-gray-700"
@@ -290,7 +290,7 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-            {/* SONG NAME */}
+
             <div>
               <label className="text-xs mb-2 block text-gray-400">Song Name</label>
               <Input
@@ -300,9 +300,6 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
                 className={isDark ? "bg-[#0f1724] border border-gray-700 text-gray-200" : ""}
               />
             </div>
-
-            {/* GENRE */}
-            {/* GENRE */}
             <div>
               <label className="text-xs mb-2 block text-gray-400">Genre</label>
 
@@ -332,8 +329,6 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
               </Select>
             </div>
 
-
-            {/* SINGER NAME */}
             <div>
               <label className="text-xs mb-2 block text-gray-400">Singer Name</label>
               <Input
@@ -344,7 +339,6 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
               />
             </div>
 
-            {/* COMPOSER */}
             <div>
               <label className="text-xs mb-2 block text-gray-400">Composer Name</label>
               <Input
@@ -355,7 +349,6 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
               />
             </div>
 
-            {/* LYRICIST */}
             <div>
               <label className="text-xs mb-2 block text-gray-400">Lyricist Name</label>
               <Input
@@ -366,7 +359,6 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
               />
             </div>
 
-            {/* PRODUCER */}
             <div>
               <label className="text-xs mb-2 block text-gray-400">Producer Name</label>
               <Input
@@ -377,7 +369,6 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
               />
             </div>
 
-            {/* ISRC */}
             <div>
               <label className="text-xs mb-2 block text-gray-400">ISRC</label>
               <Input
@@ -388,7 +379,6 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
               />
             </div>
 
-            {/* PREVIEW TIMING */}
             <div>
               <label className="text-xs mb-2 block text-gray-400">
                 Preview/Callertune Timing
@@ -401,8 +391,6 @@ export default function AudioUploadSection({ theme, tracks = [] }) {
               />
             </div>
 
-
-            {/* CALLERTUNE TIMING */}
             <div>
               <label className="text-xs mb-2 block text-gray-400">
                 CallerTune Timing

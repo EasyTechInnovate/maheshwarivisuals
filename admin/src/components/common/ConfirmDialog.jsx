@@ -24,10 +24,10 @@ export default function ConfirmDialog({
           isDark ? "bg-[#151F28] text-white" : "bg-white text-gray-900"
         }`}
       >
-        {/* Title */}
+        
         <h2 className="text-lg font-semibold mb-2">{title}</h2>
 
-        {/* Message */}
+       
         <p
           className={`text-sm mb-5 ${
             isDark ? "text-gray-400" : "text-gray-600"
@@ -36,7 +36,7 @@ export default function ConfirmDialog({
           {message}
         </p>
 
-        {/* Action buttons */}
+     
         <div className="flex justify-end gap-3">
           <Button
             variant="outline"

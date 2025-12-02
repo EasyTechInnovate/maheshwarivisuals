@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SquarePen } from "lucide-react";
 
-// ✅ Reusable Input Section
+
 function InputField({ label, value, onChange, readOnly = false, theme }) {
   const containerClasses =
     theme === "dark"
@@ -28,7 +28,7 @@ function InputField({ label, value, onChange, readOnly = false, theme }) {
         {label}
       </label>
       <div className="flex items-center">
-        {/* ✅ Correct: use Input here */}
+       
         <Input
           value={value}
           onChange={onChange}
@@ -110,7 +110,7 @@ export default function UserInfoPage({ theme, defaultData, onBack, onSave }) {
           : "bg-gray-50 text-[#151F28]"
       }`}
     >
-      {/* Header */}
+   
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">
           User Information - {formData.stageName || "New User"}
@@ -120,7 +120,7 @@ export default function UserInfoPage({ theme, defaultData, onBack, onSave }) {
         </Button>
       </div>
 
-      {/* Input Grid */}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {[
           { label: "User ID", key: "userId" },
@@ -141,13 +141,13 @@ export default function UserInfoPage({ theme, defaultData, onBack, onSave }) {
             label={label}
             value={formData[key]}
             readOnly={readOnly}
-            theme={theme} // ✅ pass theme
+            theme={theme} 
             onChange={(e) => handleChange(key, e.target.value)}
           />
         ))}
       </div>
 
-      {/* Modules Section */}
+    
       <div className="mt-6">
         <p
           className={`font-medium mb-2 ${
@@ -183,7 +183,7 @@ export default function UserInfoPage({ theme, defaultData, onBack, onSave }) {
         </div>
       </div>
 
-      {/* Buttons */}
+      
       <div className="flex justify-center space-x-4 mt-8">
         <Button
           variant="outline"
