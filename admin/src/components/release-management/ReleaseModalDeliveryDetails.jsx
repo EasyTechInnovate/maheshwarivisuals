@@ -19,16 +19,10 @@ export default function ReleaseModalDeliveryDetails({
   onReject,
 }) {
   const isDark = theme === "dark";
-
-  // Dates
   const [futureRelease, setFutureRelease] = useState("");
   const [previousRelease, setPreviousRelease] = useState("");
-
-  // Territory
   const [worldWide, setWorldWide] = useState(false);
-
   const [selectedTerritories, setSelectedTerritories] = useState([]);
-
   const toggleTerritory = (name) => {
     setSelectedTerritories((prev) =>
       prev.includes(name)
@@ -37,7 +31,6 @@ export default function ReleaseModalDeliveryDetails({
     );
   };
 
-  // Partners
   const [selectedPartners, setSelectedPartners] = useState([]);
   const [selectAllPartners, setSelectAllPartners] = useState(false);
 
@@ -58,11 +51,10 @@ export default function ReleaseModalDeliveryDetails({
     }
   };
 
-  // Copyright
+  
   const [proceedWithoutDocs, setProceedWithoutDocs] = useState(false);
   const [iOwnCopyright, setIOwnCopyright] = useState(false);
 
-  // Approve / Reject
   const [rejectionReason, setRejectionReason] = useState("");
   const [customNotes, setCustomNotes] = useState("");
 
@@ -102,7 +94,6 @@ export default function ReleaseModalDeliveryDetails({
     >
       <h2 className="text-lg font-semibold mb-6">Delivery Details</h2>
 
-      {/* Dates */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
           <label className="text-xs text-gray-400 mb-2 block">
@@ -139,7 +130,6 @@ export default function ReleaseModalDeliveryDetails({
         </div>
       </div>
 
-      {/* Territory Rights */}
       <div className="mb-6">
         <p className="text-sm font-medium mb-3">Territory Rights :</p>
 
@@ -197,7 +187,7 @@ export default function ReleaseModalDeliveryDetails({
         </div>
       </div>
 
-      {/* Partners */}
+    
       <div className="mb-6">
         <p className="text-sm font-medium mb-3">Partner Selection :</p>
 
@@ -236,7 +226,7 @@ export default function ReleaseModalDeliveryDetails({
         </div>
       </div>
 
-      {/* Copyright */}
+    
       <div className="mb-6">
         <label className="flex items-center gap-2 text-sm mb-2">
           <input
@@ -259,7 +249,7 @@ export default function ReleaseModalDeliveryDetails({
         </label>
       </div>
 
-    {/* Actions */}
+    
 <div className="flex flex-col items-center gap-4">
   <div className="flex items-center gap-4">
     <Button

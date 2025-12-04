@@ -21,22 +21,20 @@ export default function AssignSublabelModal({
   const [allSublabels, setAllSublabels] = useState([]);
   const [selectedId, setSelectedId] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // Normalize API response to an array safely
   const normalizeSublabels = (data) => {
     if (!data) return [];
     if (Array.isArray(data)) return data;
-    // common shapes: { data: [...] }, { sublabels: [...] }, { items: [...] }
+   
     if (Array.isArray(data.sublabels)) return data.sublabels;
     if (Array.isArray(data.items)) return data.items;
-    // if it's an object with numeric keys or values that are objects, try values
+    
     if (typeof data === "object") {
       const vals = Object.values(data).filter(Boolean);
-      // prefer array-valued properties
+      
       for (const v of vals) {
         if (Array.isArray(v)) return v;
       }
-      // fallback: if values look like single sublabel objects, return them
+      
       if (vals.length && typeof vals[0] === "object" && !Array.isArray(vals[0])) {
         return vals;
       }
@@ -44,11 +42,10 @@ export default function AssignSublabelModal({
     return [];
   };
 
-  // Fetch all sublabels (API exists on your backend)
   const fetchAll = async () => {
     try {
       const res = await GlobalApi.getAllSubLabels();
-      // defensive access: res?.data?.data or res?.data
+     
       const payload = res?.data?.data ?? res?.data ?? res;
       const list = normalizeSublabels(payload);
       setAllSublabels(list);
@@ -61,7 +58,7 @@ export default function AssignSublabelModal({
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedId(""); // reset selection when opening
+      setSelectedId("");
       fetchAll();
     }
   }, [isOpen]);
@@ -117,10 +114,9 @@ export default function AssignSublabelModal({
           >
             <option value="">Select...</option>
 
-            {/* guard: ensure allSublabels is an array before mapping */}
+          
             {Array.isArray(allSublabels) &&
-              allSublabels.map((s) => {
-                // handle both _id and id
+              allSublabels.map((s) => {  
                 const id = s._id ?? s.id ?? s.value ?? "";
                 const name = s.name ?? s.label ?? s.title ?? String(id);
                 return (

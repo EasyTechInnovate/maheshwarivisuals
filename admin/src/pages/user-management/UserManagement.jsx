@@ -61,39 +61,35 @@ export default function UserManagement({ theme }) {
     fetchUsers();
   }, [currentPage]);
 
-
-
   const handleBack = () => setActivePage("list");
-
-
 
   const handleTopManageLabels = () => {
     setSelectedUser(null);
     setIsManageLabelsOpen(true);
   };
+const filteredUsers = users.filter((u) => {
+  const s = search.toLowerCase();
+  const stageName =
+    u.userType === "artist"
+      ? u?.artistData?.artistName
+      : u.userType === "label"
+        ? u?.labelData?.labelName
+        : u.userType === "aggregator"
+          ? u?.aggregatorData?.companyName
+          : "";
+  const accountName = `${u.firstName || ""} ${u.lastName || ""}`.trim().toLowerCase();
 
+  return (
+    u.accountId?.toLowerCase().includes(s) ||
+    accountName.includes(s) ||
+    (u.firstName || "").toLowerCase().includes(s) ||
+    (u.lastName || "").toLowerCase().includes(s) ||
+    stageName?.toLowerCase().includes(s) ||
+    u.emailAddress?.toLowerCase().includes(s) ||
+    u.userType?.toLowerCase().includes(s)
+  );
+});
 
-
-
-  const filteredUsers = users.filter((u) => {
-    const s = search.toLowerCase();
-
-    const stageName =
-      u.userType === "artist"
-        ? u?.artistData?.artistName
-        : u.userType === "label"
-          ? u?.labelData?.labelName
-          : u.userType === "aggregator"
-            ? u?.aggregatorData?.companyName
-            : "";
-
-    return (
-      u.emailAddress?.toLowerCase().includes(s) ||
-      stageName?.toLowerCase().includes(s) ||
-      u.userType?.toLowerCase().includes(s) ||
-      u.accountId?.toString().includes(s)
-    );
-  });
 
 
   const totalUsers = users.length;
@@ -190,6 +186,7 @@ export default function UserManagement({ theme }) {
                   <tr>
                     {[
                       "User ID",
+                      "Account Name",
                       "Stage Name",
                       "Account Type",
                       "Status",
@@ -223,6 +220,9 @@ export default function UserManagement({ theme }) {
                           }`}
                       >
                         <td className="px-4 py-3">{u.accountId}</td>
+                        <td className="px-4 py-3">
+  {u.firstName || u.lastName ? `${u.firstName || ""} ${u.lastName || ""}`.trim() : "—"}
+</td>
                         <td className="px-4 py-3">{stageName}</td>
 
                         <td className="px-4 py-3">
@@ -276,16 +276,13 @@ export default function UserManagement({ theme }) {
                               className="bg-purple-600 hover:bg-purple-700 text-white px-3 rounded-lg flex items-center gap-1"
                               onClick={() => {
                                 setSelectedUser(u);
-                                setIsAssignedLabelsOpen(true);   // OPEN assigned labels modal
+                                setIsAssignedLabelsOpen(true);   
                               }}
 
                             >
                               <FolderKanban className="h-4 w-4" />
                               Manage Label
                             </Button>
-
-
-
                             <Button
                               size="sm"
                               className="bg-purple-600 hover:bg-purple-700 text-white px-3 rounded-lg flex items-center gap-1"
@@ -377,16 +374,12 @@ export default function UserManagement({ theme }) {
           </>
         )}
       </div>
-
-
-
-
    <ManageLabelsModal
   isOpen={isManageLabelsOpen}
   onClose={() => setIsManageLabelsOpen(false)}
   theme={theme}
-  userId={null}            // ✅ Always null → global label manager
-  userName="All Labels"    // ✅ Always global
+  userId={null}            
+  userName="All Labels"   
 />
 
      <AssignedSublabels
@@ -395,17 +388,12 @@ export default function UserManagement({ theme }) {
   userId={selectedUser?._id}
    theme={theme}  
 />
-
       <ResetPasswordModal
         isOpen={isResetPasswordOpen}
         onClose={() => setIsResetPasswordOpen(false)}
         userData={selectedUser}
         theme={theme}
       />
-
-
-
-
     </div>
   );
 }

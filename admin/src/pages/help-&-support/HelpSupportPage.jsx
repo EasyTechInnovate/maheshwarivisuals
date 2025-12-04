@@ -386,14 +386,11 @@ export default function HelpSupport({ theme = "dark" }) {
                       </span>
                     </td>
 
-
-                  <td className="py-3 px-4">
-  {typeof t.assignedTo === "object" && t.assignedTo !== null
-    ? `${t.assignedTo.firstName ?? ""} ${t.assignedTo.lastName ?? ""}`.trim()
-    : t.assignedTo || "Unassigned"}
-</td>
-
-
+                    <td className="py-3 px-4">
+                      {typeof t.assignedTo === "object" && t.assignedTo !== null
+                        ? `${t.assignedTo.firstName ?? ""} ${t.assignedTo.lastName ?? ""}`.trim()
+                        : t.assignedTo || "Unassigned"}
+                    </td>
 
                     <td className="py-3 px-4">
                       {new Date(t.createdAt).toLocaleDateString()}

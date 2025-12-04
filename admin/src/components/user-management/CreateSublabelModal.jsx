@@ -22,8 +22,8 @@ const ESublabelMembershipStatus = {
 export default function CreateSublabelModal({
   isOpen,
   onClose,
-  onSaved,      // create or update callback
-  editData = null,  // if provided → PUT mode
+  onSaved,     
+  editData = null,  
   theme = "dark",
 }) {
   if (!isOpen) return null;
@@ -41,7 +41,7 @@ export default function CreateSublabelModal({
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Prefill only if editData exists
+  
   useEffect(() => {
     if (!isOpen) return;
 
@@ -54,7 +54,7 @@ export default function CreateSublabelModal({
       setEmail(editData.email || "");
       setPhone(editData.phone || "");
     } else {
-      // Fresh clean modal for create
+    
       setName("");
       setMembershipStatus(ESublabelMembershipStatus.ACTIVE);
       setContractStartDate("");
@@ -115,7 +115,7 @@ export default function CreateSublabelModal({
             : "Fill details to add a new sublabel"}
         </p>
 
-        {/* NAME */}
+      
         <div className="mb-4">
           <label className="text-sm mb-1 block">Sublabel Name</label>
           <Input
@@ -126,7 +126,7 @@ export default function CreateSublabelModal({
           />
         </div>
 
-        {/* STATUS */}
+   
         <div className="mb-4">
           <label className="text-sm mb-1 block">Membership Status</label>
 
@@ -153,7 +153,7 @@ export default function CreateSublabelModal({
           </Select>
         </div>
 
-        {/* DATES */}
+   
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="text-sm mb-1 block">Contract Start Date</label>
@@ -175,7 +175,7 @@ export default function CreateSublabelModal({
           </div>
         </div>
 
-        {/* DESCRIPTION */}
+        
         <div className="mb-4">
           <label className="text-sm mb-1 block">Description</label>
           <Textarea
@@ -187,7 +187,7 @@ export default function CreateSublabelModal({
           />
         </div>
 
-        {/* CONTACT */}
+        
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="text-sm mb-1 block">Email</label>
@@ -210,7 +210,7 @@ export default function CreateSublabelModal({
           </div>
         </div>
 
-        {/* BUTTONS */}
+       
         <div className="flex justify-end gap-3 mt-6">
           <Button
             onClick={onClose}

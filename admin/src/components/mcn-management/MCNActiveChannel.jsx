@@ -43,18 +43,27 @@ const [selectedChannel, setSelectedChannel] = useState(null);
       const apiData = res?.data?.data?.channels || res?.data?.data || [];
       const totalCount = res?.data?.total || apiData.length;
 
-      const formatted = apiData.map((ch) => ({
-  id: ch._id,
-  name: ch.channelName,
-  youtubeId: ch.youtubeChannelId,
-  accountId: ch.userAccountId,
-  channelLink: ch.channelLink,
-  revenueShare: `${ch.revenueShare}%`,
-  manager: ch.channelManager || "-",
-  status: ch.status
-    ? ch.status.charAt(0).toUpperCase() + ch.status.slice(1).toLowerCase()
-    : "Unknown",
-}));
+   const formatted = apiData.map((ch) => {
+  const first = ch.userId?.firstName || "";
+  const last = ch.userId?.lastName || "";
+  const fullName = (first || last) ? `${first} ${last}`.trim() : "Unknown";
+
+  return {
+    id: ch._id,
+    name: ch.channelName,
+    youtubeId: ch.youtubeChannelId,
+    accountId: ch.userAccountId,
+    accountName: fullName, // ✅ added
+    channelLink: ch.channelLink,
+    revenueShare: `${ch.revenueShare}%`,
+    manager: ch.channelManager || "-",
+    status: ch.status
+      ? ch.status.charAt(0).toUpperCase() + ch.status.slice(1).toLowerCase()
+      : "Unknown",
+    raw: ch,
+  };
+});
+
 
 
       setChannels(formatted);
@@ -79,7 +88,11 @@ const [selectedChannel, setSelectedChannel] = useState(null);
       name: ch.channelName,
       youtubeId: ch.youtubeChannelId || "-",
       accountId: ch.userAccountId || "-",
-      accountName: ch.accountName || "Unknown",
+      accountName:
+  ch.userId
+    ? `${ch.userId.firstName || ""} ${ch.userId.lastName || ""}`.trim()
+    : "Unknown",
+
       channelLink: ch.channelLink,
       revenueShare: `${ch.revenueShare}%`,
       manager: ch.channelManager || "-",
@@ -102,8 +115,10 @@ const [selectedChannel, setSelectedChannel] = useState(null);
     const matchesSearch =
       channel.name.toLowerCase().includes(q) ||
       channel.manager.toLowerCase().includes(q) ||
-      channel.accountId.toLowerCase().includes(q) ||
-      channel.youtubeId.toLowerCase().includes(q);
+     channel.accountId.toLowerCase().includes(q) ||
+channel.accountName.toLowerCase().includes(q) ||   
+channel.youtubeId.toLowerCase().includes(q);
+
 
     const matchesStatus =
       statusFilter === "All Status" ||
@@ -169,7 +184,7 @@ const [selectedChannel, setSelectedChannel] = useState(null);
           <table className="min-w-[900px] w-full text-sm border-collapse">
             <thead className="text-gray-500">
               <tr>
-                {["MCN Channel", "Status", "Revenue Share", "YouTube ID", "Account ID", "Actions"].map(
+                {["MCN Channel", "Status", "Revenue Share", "YouTube ID", "Account ID", "Account Name", "Actions"].map(
                   (th, idx) => (
                     <th
                       key={idx}
@@ -223,6 +238,11 @@ const [selectedChannel, setSelectedChannel] = useState(null);
                         {channel.accountId}
                       </span>
                     </td>
+
+                    <td className="px-4 py-4 whitespace-nowrap">
+  <span className="text-blue-400 font-medium">{channel.accountName}</span>
+</td>
+
 
                    
                     <td className="px-4 py-4 whitespace-nowrap">

@@ -6,7 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Users, Rocket, IdCard, DollarSign, ChartColumnIncreasing, CalendarDays, Wallet , ShoppingBag , CreditCard ,Megaphone , BookOpen, Globe, Database , Bell, Headset, FileText, Package, Newspaper, Settings    } from "lucide-react";
+import { Users, Activity, Rocket, IdCard, DollarSign, ChartColumnIncreasing, CalendarDays, Wallet , ShoppingBag , CreditCard ,Megaphone , BookOpen, Globe, Database , Bell, Headset, FileText, Package, Newspaper, Settings    } from "lucide-react";
 
 export default function Sidebar({ isCollapsed = false, theme }) {
   const isDark = theme === "dark";
@@ -145,6 +145,7 @@ export default function Sidebar({ isCollapsed = false, theme }) {
               ),
               links: [
                 { label: "Playlist Pitching", icon: <BookOpen className="w-4 h-4" /> },
+                { label: "MV Production", icon: <Activity className="w-4 h-4" /> },
                 { label: "Advertisement Plans", icon: <Globe className="w-4 h-4" /> },
                 { label: "Synchronization (SYNC)", icon: <Database className="w-4 h-4" /> },
                 { label: "Merch Store Management", icon: <ShoppingBag className="w-4 h-4" /> },

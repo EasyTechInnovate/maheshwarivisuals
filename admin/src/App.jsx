@@ -32,6 +32,7 @@ import NewsManagement from "./pages/news-management/NewsManagement";
 import AdminLogin from "./auth/SignIn";
 import KycManagement from "./pages/kyc-management/KYCManagement";
 import UnifiedSettingsPage from "./pages/company-settings/CompanySettings"
+import MVProductionManagement from "./pages/mv-production/MvProductionManagement";
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [theme, setTheme] = useState("dark");
@@ -116,6 +117,7 @@ function App() {
             <Route path="/admin/blog-management" element={<BlogManagement theme={theme} />} />
             <Route path="/admin/news-management" element={<NewsManagement theme={theme} />} />
             <Route path="/admin/company-settings" element={<UnifiedSettingsPage theme={theme} />} />
+            <Route path="/admin/mv-production" element={<MVProductionManagement theme={theme} />} />
           </Routes>
         </main>
       </div>

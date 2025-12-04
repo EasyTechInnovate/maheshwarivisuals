@@ -381,7 +381,47 @@ const rejectRelease = (releaseId, payload) =>
   axiosClient.post(`/v1/admin/releases/${releaseId}/reject`, payload);
 
 
+// ---------------------- Merch Store Management (Admin) ----------------------
 
+export const getAllMerchStores = (page = 1, limit = 10) =>
+  axiosClient.get(`/v1/merch-store/admin?page=${page}&limit=${limit}`);
+
+export const getMerchStoreStats = () =>
+  axiosClient.get(`/v1/merch-store/admin/stats`);
+
+export const getMerchStoreById = (storeId) =>
+  axiosClient.get(`/v1/merch-store/admin/${storeId}`);
+
+export const updateMerchStoreStatus = (storeId, payload) =>
+  axiosClient.patch(`/v1/merch-store/admin/${storeId}/status`, payload);
+
+export const updateMerchStore = (storeId, payload) =>
+  axiosClient.patch(`/v1/merch-store/admin/${storeId}`, payload);
+
+export const deleteMerchStore = (storeId) =>
+  axiosClient.delete(`/v1/merch-store/admin/${storeId}`);
+
+
+
+// ---------------------- MV Production Management (Admin) ----------------------
+
+export const getAllMVProductions = (page = 1, limit = 10) =>
+  axiosClient.get(`/v1/mv-production/admin?page=${page}&limit=${limit}`);
+
+export const getMVProductionStats = () =>
+  axiosClient.get(`/v1/mv-production/admin/stats`);
+
+export const getMVProductionById = (productionId) =>
+  axiosClient.get(`/v1/mv-production/admin/${productionId}`);
+
+export const updateMVProduction = (productionId, payload) =>
+  axiosClient.patch(`/v1/mv-production/admin/${productionId}`, payload);
+
+export const updateMVProductionStatus = (productionId, payload) =>
+  axiosClient.patch(`/v1/mv-production/admin/${productionId}/status`, payload);
+
+export const deleteMVProduction = (productionId) =>
+  axiosClient.delete(`/v1/mv-production/admin/${productionId}`);
 
 
 export default {
@@ -478,6 +518,18 @@ export default {
   publishRelease,
   goLiveRelease,
   rejectRelease,
-  processTakedownRequest
+  processTakedownRequest,
+  getAllMerchStores,
+  getMerchStoreStats,
+  getMerchStoreById,
+  updateMerchStoreStatus,
+  updateMerchStore,
+  deleteMerchStore,
+  getAllMVProductions,
+  getMVProductionStats,
+  getMVProductionById,
+  updateMVProduction,
+  updateMVProductionStatus,
+  deleteMVProduction,
 
 };

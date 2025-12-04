@@ -22,29 +22,21 @@ export default function ManageLabelsModal({
   userName,
 }) {
   const isDark = theme === "dark";
-
-  // Modal states
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editData, setEditData] = useState(null);
-
-  // Data states
   const [sublabels, setSublabels] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // Delete dialog
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
     id: null,
   });
 
-  // Pagination
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({
     totalItems: 0,
     totalPages: 1,
   });
 
-  // Fetch all sublabels
   const fetchSublabels = async (currentPage = 1) => {
     try {
       setLoading(true);
@@ -65,26 +57,22 @@ export default function ManageLabelsModal({
     if (isOpen) fetchSublabels(page);
   }, [isOpen, page]);
 
-  // Open modal for create
   const handleOpenCreate = () => {
-    setEditData(null); // Force fresh modal
+    setEditData(null);
     setIsCreateModalOpen(true);
   };
 
-  // Open modal for edit
   const handleOpenEdit = (sublabel) => {
     setEditData(sublabel);
     setIsCreateModalOpen(true);
   };
 
-  // Close modal & refresh if needed
   const handleCloseCreate = (shouldRefresh = false) => {
     setIsCreateModalOpen(false);
     setEditData(null);
     if (shouldRefresh) fetchSublabels(page);
   };
 
-  // Delete sublabel
   const handleDelete = async () => {
     try {
       await GlobalApi.deleteSubLabel(deleteDialog.id);
@@ -99,7 +87,6 @@ export default function ManageLabelsModal({
     }
   };
 
-  // Toggle activation
   const handleToggle = async (id, value) => {
     try {
       await GlobalApi.updateSubLabel(id, { isActive: value });
@@ -123,7 +110,7 @@ export default function ManageLabelsModal({
               : "bg-white text-gray-900 border border-gray-200"
           }`}
         >
-          {/* Header */}
+          
           <DialogHeader className="flex flex-row items-center justify-between">
             <div>
               <DialogTitle className="text-lg font-semibold">
@@ -146,7 +133,7 @@ export default function ManageLabelsModal({
             </Button>
           </DialogHeader>
 
-          {/* Table */}
+          
           <div
             className={`mt-6 border ${
               isDark ? "border-gray-700" : "border-gray-200"
@@ -251,7 +238,7 @@ export default function ManageLabelsModal({
             </table>
           </div>
 
-          {/* Pagination */}
+          
           <div className="flex items-center justify-between mt-4 text-sm">
             <p className="text-gray-400">
               Showing {(page - 1) * 10 + 1}–
@@ -278,7 +265,7 @@ export default function ManageLabelsModal({
             </div>
           </div>
 
-          {/* Delete Confirmation */}
+          
           {deleteDialog.open && (
             <ConfirmDialog
               theme={theme}
@@ -290,12 +277,12 @@ export default function ManageLabelsModal({
             />
           )}
 
-          {/* Create + Edit Modal */}
+          
           <CreateSublabelModal
             isOpen={isCreateModalOpen}
             onClose={handleCloseCreate}
             onSaved={() => fetchSublabels(page)}
-            editData={editData} // <-- create = null, edit = object
+            editData={editData} 
             theme={theme}
           />
         </DialogContent>
