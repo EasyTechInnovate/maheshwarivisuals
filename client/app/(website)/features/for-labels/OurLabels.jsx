@@ -16,7 +16,6 @@ import ourlabel2 from '@/public/images/forlabels/ourlabel2.png';
 import ourlabel3 from '@/public/images/forlabels/ourlabel3.png';
 import ourlabel4 from '@/public/images/forlabels/ourlabel4.png';
 import ourlabel5 from '@/public/images/forlabels/ourlabel5.png';
-import { Anton } from 'next/font/google';
 
 const anton = Anton({
     weight: ['400'],    
