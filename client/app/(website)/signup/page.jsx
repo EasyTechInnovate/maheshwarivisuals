@@ -2,13 +2,16 @@
 
 import React, { useEffect, useState } from 'react'
 import { Country, State } from 'country-state-city'
+import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
 
 const App = () => {
+    const router = useRouter()
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         email: '',
-        phoneCode: '+91',
+        phoneCode: '91',
         phoneNumber: '',
         address: '',
         pincode: '',
@@ -40,6 +43,8 @@ const App = () => {
 
     const [isArtist, setIsArtist] = useState(false)
     const [isLabel, setIsLabel] = useState(false)
+    const [errors, setErrors] = useState({})
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     useEffect(() => {
         if (formData.country) {
@@ -68,10 +73,75 @@ const App = () => {
         }
     }
 
+    const validateForm = () => {
+        const newErrors = {}
+
+        // Basic fields validation
+        if (!formData.firstName.trim()) newErrors.firstName = 'First name is required'
+        if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required'
+        if (!formData.email.trim()) newErrors.email = 'Email is required'
+        if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Phone number is required'
+        if (!formData.address.trim()) newErrors.address = 'Address is required'
+        if (!formData.pincode.trim()) newErrors.pincode = 'Pincode is required'
+        if (!formData.state) newErrors.state = 'State is required'
+        if (!formData.country) newErrors.country = 'Country is required'
+        if (!formData.password) newErrors.password = 'Password is required'
+        if (!formData.confirmPassword) newErrors.confirmPassword = 'Confirm password is required'
+        if (formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = 'Passwords do not match'
+        }
+        if (!formData.userType) newErrors.userType = 'Please select user type'
+
+        // Artist-specific validation
+        if (isArtist) {
+            if (!formData.artistName.trim()) newErrors.artistName = 'Artist name is required'
+            if (!formData.youtube.trim()) newErrors.youtube = 'YouTube URL is required'
+            if (!formData.instagram.trim()) newErrors.instagram = 'Instagram URL is required'
+            if (!formData.facebook.trim()) newErrors.facebook = 'Facebook URL is required'
+        }
+
+        // Label-specific validation
+        if (isLabel) {
+            if (!formData.labelName.trim()) newErrors.labelName = 'Label name is required'
+            if (!formData.youtube.trim()) newErrors.youtube = 'YouTube URL is required'
+            if (!formData.instagram.trim()) newErrors.instagram = 'Instagram URL is required'
+            if (!formData.facebook.trim()) newErrors.facebook = 'Facebook URL is required'
+        }
+
+        if (!formData.acceptTerms) {
+            newErrors.acceptTerms = 'You must accept the terms and conditions'
+        }
+
+        setErrors(newErrors)
+        return Object.keys(newErrors).length === 0
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault()
-        console.log(formData)
-        // Add your API call here
+
+        if (!validateForm()) {
+            toast.error('Please fill in all required fields correctly')
+            return
+        }
+
+        setIsSubmitting(true)
+
+        try {
+            // Store form data in sessionStorage to pass to distribution-agreement page
+            sessionStorage.setItem('signupFormData', JSON.stringify(formData))
+
+            toast.success('Information saved! Proceed to accept agreement.')
+
+            // Navigate to distribution agreement page
+            setTimeout(() => {
+                router.push('/signup/distribution-agreement')
+            }, 800)
+        } catch (error) {
+            console.error('Error saving form data:', error)
+            toast.error('An error occurred. Please try again.')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     const MainHeadingText = ({ text }) => <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">{text}</h1>
@@ -326,9 +396,9 @@ const App = () => {
                         value={formData.phoneCode}
                         onChange={handleChange}
                         className="bg-[#151A27] border border-gray-500 rounded-md px-3 py-2">
-                        <option value="+91">+91</option>
-                        <option value="+1">+1</option>
-                        <option value="+44">+44</option>
+                        <option value="+91">91</option>
+                        <option value="+1">1</option>
+                        <option value="+44">44</option>
                     </select>
                     <input
                         type="tel"
@@ -494,8 +564,9 @@ const App = () => {
                 <div className="w-full flex justify-center items-center">
                     <Button
                         variant="blue"
-                        onClick={handleSubmit}>
-                        Submit
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}>
+                        {isSubmitting ? 'Processing...' : 'Next Step'}
                     </Button>
                 </div>
             </form>

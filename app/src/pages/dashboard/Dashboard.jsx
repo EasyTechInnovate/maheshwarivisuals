@@ -4,6 +4,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Responsive
 import {earningsData ,streamsData ,videoTutorials ,recentReleases ,quickActions ,performanceMetrics} from './Dashboard.config'
 import React, { useEffect } from 'react';
 import { getServerHealth } from '@/services/api.services';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   
@@ -184,8 +185,8 @@ const Dashboard = () => {
               {quickActions.map((action, index) => {
                 const Icon = action.icon;
                 return (
-                  <div key={index} className="flex items-center gap-5 p-3 rounded-lg  hover:bg-muted/50 cursor-pointer transition-colors">
-                    <div className="flex items-center space-x-3">
+                  <Link key={index} to={action.path} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+                    <div className="flex items-center space-x-3 gap-2">
                       <Icon className={`w-5 h-5 text-[#711CE9]`} />
                       <div>
                         <h4 className="font-medium ">{action.title}</h4>
@@ -193,7 +194,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <ArrowRight size='20' className="text-muted-foreground"></ArrowRight>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

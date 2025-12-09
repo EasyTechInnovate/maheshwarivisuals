@@ -1,8 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Country, State } from "country-state-city";
+import toast, { Toaster } from "react-hot-toast";
 import { MainHeadingText } from "@/components/FixedUiComponents";
 import { Button } from "@/components/ui/button";
+import { submitAggregatorApplication } from "@/services/api.services";
+import { Trash2 } from "lucide-react";
 
 const FormPage = () => {
   const [formData, setFormData] = useState({
@@ -25,15 +28,16 @@ const FormPage = () => {
     popularArtistLinks: [""],
     labels: [""],
     totalReleases: "",
-    releaseFrequency: "Daily",
+    releaseFrequency: "daily",
     monthlyReleaseCount: "5-20",
     companyInfo: "",
     services: [],
-    howKnowUs: [],
+    howKnowUs: "",
     otherClient: "",
     acceptTerms: false,
   });
 
+  const [loading, setLoading] = useState(false);
   const [countries] = useState(Country.getAllCountries());
   const [states, setStates] = useState([]);
 
@@ -41,7 +45,6 @@ const FormPage = () => {
     if (formData.country) {
       const newStates = State.getStatesOfCountry(formData.country);
       setStates(newStates);
-      // Reset selected state if country changes
       setFormData((prev) => ({ ...prev, state: "" }));
     } else {
       setStates([]);
@@ -53,19 +56,20 @@ const FormPage = () => {
     const { name, value, type, checked } = e.target;
 
     if (type === "checkbox") {
-      // special-case acceptTerms -> boolean
       if (name === "acceptTerms") {
         setFormData((prev) => ({ ...prev, acceptTerms: checked }));
         return;
       }
 
-      // otherwise treat as multi-value checkbox array (services, howKnowUs)
-      setFormData((prev) => ({
-        ...prev,
-        [name]: checked
-          ? [...prev[name], value]
-          : prev[name].filter((v) => v !== value),
-      }));
+      // For services checkboxes
+      if (name === "services") {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: checked
+            ? [...prev[name], value]
+            : prev[name].filter((v) => v !== value),
+        }));
+      }
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -86,14 +90,151 @@ const FormPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const removeArrayField = (field, index) => {
+    setFormData((prev) => {
+      const updated = prev[field].filter((_, i) => i !== index);
+      return { ...prev, [field]: updated.length > 0 ? updated : [""] };
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    // API call here
+    setLoading(true);
+
+    try {
+      // Map services to correct API format
+      const serviceMapping = {
+        "Music Marketing/Advertisement": "music_marketing",
+        "YouTube Channel CMS": "youtube_cms",
+        "Music Video Distribution": "music_video_distribution",
+      };
+
+      // Map howKnowUs to correct API format
+      const howKnowUsMapping = {
+        "Google": "advertisement",
+        "Facebook": "social_media",
+        "Instagram": "social_media",
+        "Our Existing Artist/Label": "friend",
+        "Others": "other",
+      };
+
+      const aggregatorData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        emailAddress: formData.email,
+        phoneNumber: `${formData.phoneCode}-${formData.phoneNumber}`,
+        companyName: formData.companyName,
+        websiteLink: formData.website,
+        instagramUrl: formData.instagram,
+        facebookUrl: formData.facebook,
+        youtubeLink: formData.youtube,
+        linkedinUrl: formData.linkedin,
+        popularReleaseLinks: formData.popularReleaseLinks.filter(link => link.trim()),
+        popularArtistLinks: formData.popularArtistLinks.filter(link => link.trim()),
+        associatedLabels: formData.labels.filter(label => label.trim()),
+        totalReleases: parseInt(formData.totalReleases) || 0,
+        releaseFrequency: formData.releaseFrequency,
+        monthlyReleasePlans: parseInt(formData.monthlyReleaseCount.split('-')[0]) || 0,
+        briefInfo: formData.companyInfo,
+        additionalServices: formData.services.map(s => serviceMapping[s] || s),
+        howDidYouKnow: howKnowUsMapping[formData.howKnowUs] || "social_media",
+        agreeToTerms: formData.acceptTerms,
+      };
+
+      const response = await submitAggregatorApplication(aggregatorData);
+      
+      toast.success("Application submitted successfully! 🎉", {
+        duration: 4000,
+        position: "top-center",
+        
+      });
+
+      console.log("Application submitted successfully:", response);
+      
+      // Reset form
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phoneCode: "+91",
+        phoneNumber: "",
+        address: "",
+        pincode: "",
+        state: "",
+        country: "",
+        companyName: "",
+        youtube: "",
+        instagram: "",
+        facebook: "",
+        linkedin: "",
+        website: "",
+        popularReleaseLinks: [""],
+        popularArtistLinks: [""],
+        labels: [""],
+        totalReleases: "",
+        releaseFrequency: "daily",
+        monthlyReleaseCount: "5-20",
+        companyInfo: "",
+        services: [],
+        howKnowUs: "",
+        otherClient: "",
+        acceptTerms: false,
+      });
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      
+      const errorMessage = error.response?.data?.message || error.message || "Failed to submit application";
+      
+      toast.error(`Error: ${errorMessage}`, {
+        duration: 4000,
+        position: "top-center",
+       
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderArrayField = (field, label, fieldNameInState) => {
+    return (
+      <div key={field}>
+        <label>{label} <span className="text-[#652CD6]">*</span> </label>
+        {formData[fieldNameInState].map((item, index) => (
+          <div key={index} className="flex gap-2 mt-2 items-center">
+            <input
+              type="text"
+              value={item}
+              onChange={(e) =>
+                handleArrayChange(index, fieldNameInState, e.target.value)
+              }
+              className="flex-1 bg-transparent border border-gray-500 rounded px-3 py-2"
+            />
+            {formData[fieldNameInState].length > 1 && (
+              <button
+                type="button"
+                onClick={() => removeArrayField(fieldNameInState, index)}
+                className="text-red-500 hover:text-red-700 transition"
+                title="Remove"
+              >
+                <Trash2 size={20} />
+              </button>
+            )}
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => addArrayField(fieldNameInState)}
+          className="text-purple-500 mt-2 hover:text-purple-600 transition"
+        >
+          + Add More
+        </button>
+      </div>
+    );
   };
 
   return (
     <div className="bg-[#151A27] min-h-screen flex flex-col w-full overflow-hidden items-center justify-center py-10 pt-[150px] ">
+      <Toaster />
       <MainHeadingText text="Apply form now for" text2="Aggregators" />
 
       <form
@@ -137,7 +278,7 @@ const FormPage = () => {
         </div>
 
         
-          <label>Phone Number <span className="text-[#652CD6]">*</span> </label>
+        <label>Phone Number <span className="text-[#652CD6]">*</span> </label>
         <div className="flex gap-2">
           <select
             name="phoneCode"
@@ -190,14 +331,14 @@ const FormPage = () => {
               name="country"
               value={formData.country}
               onChange={handleChange}
-              className="w-full bg-transparent border border-gray-500 rounded px-3 py-2"
+              className="w-full bg-transparent border border-gray-500 rounded px-3 py-2 custom-scroll"
             >
-              <option className="bg-[#151A27]  text-white" value="">
+              <option className="bg-[#151A27] text-white" value="">
                 Select Country
               </option>
               {countries.map((c) => (
                 <option
-                  className="bg-[#151A27]  text-white"
+                  className="bg-[#151A27] text-white"
                   key={c.isoCode}
                   value={c.isoCode}
                 >
@@ -208,16 +349,16 @@ const FormPage = () => {
           </div>
 
           <div>
-            <label>State <span className="text-[#652CD6]">*</span> </label>
+            <label>State <span className="text-[#652CD6] ">*</span> </label>
             <select
               name="state"
               value={formData.state}
               onChange={handleChange}
-              className="w-full bg-transparent border border-gray-500 rounded px-3 py-2"
+              className="w-full bg-transparent border border-gray-500 rounded px-3 py-2 custom-scroll"
             >
-              <option className="bg-[#151A27]  text-white" value="">Select State</option>
+              <option className="bg-[#151A27] text-white" value="">Select State</option>
               {states.map((s) => (
-                <option className="bg-[#151A27]  text-white" key={s.isoCode} value={s.isoCode}>
+                <option className="bg-[#151A27] text-white" key={s.isoCode} value={s.isoCode}>
                   {s.name}
                 </option>
               ))}
@@ -257,76 +398,11 @@ const FormPage = () => {
           </div>
         ))}
 
-        
-        <div>
-          <label>Your Popular Release Links <span className="text-[#652CD6]">*</span> </label>
-          {formData.popularReleaseLinks.map((link, index) => (
-            <input
-              key={index}
-              type="text"
-              value={link}
-              onChange={(e) =>
-                handleArrayChange(index, "popularReleaseLinks", e.target.value)
-              }
-              className="w-full bg-transparent border border-gray-500 rounded px-3 py-2 mt-2"
-            />
-          ))}
-          <button
-            type="button"
-            onClick={() => addArrayField("popularReleaseLinks")}
-            className="text-purple-500 mt-2"
-          >
-            + Add More link
-          </button>
-        </div>
+        {renderArrayField("Your Popular Release Links", "Your Popular Release Links", "popularReleaseLinks")}
 
-        
-        <div>
-          <label>Your Popular Artist Links <span className="text-[#652CD6]">*</span> </label>
-          {formData.popularArtistLinks.map((link, index) => (
-            <input
-              key={index}
-              type="text"
-              value={link}
-              onChange={(e) =>
-                handleArrayChange(index, "popularArtistLinks", e.target.value)
-              }
-              className="w-full bg-transparent border border-gray-500 rounded px-3 py-2 mt-2"
-            />
-          ))}
-          <button
-            type="button"
-            onClick={() => addArrayField("popularArtistLinks")}
-            className="text-purple-500 mt-2"
-          >
-            + Add More link
-          </button>
-        </div>
+        {renderArrayField("Your Popular Artist Links", "Your Popular Artist Links", "popularArtistLinks")}
 
-        
-        <div>
-          <label>Your Labels <span className="text-[#652CD6]">*</span> </label>
-          {formData.labels.map((label, index) => (
-            <input
-              key={index}
-              type="text"
-              value={label}
-              onChange={(e) =>
-                handleArrayChange(index, "labels", e.target.value)
-              }
-              className="w-full bg-transparent border border-gray-500 rounded px-3 py-2 mt-2"
-            />
-          ))}
-          <button
-            type="button"
-            onClick={() => addArrayField("labels")}
-            className="text-purple-500 mt-2"
-          >
-            + Add More Labels
-          </button>
-        </div>
-
-        
+        {renderArrayField("Your Labels", "Your Labels", "labels")}
 
         
         <div>
@@ -348,12 +424,12 @@ const FormPage = () => {
               name="releaseFrequency"
               value={formData.releaseFrequency}
               onChange={handleChange}
-              className="w-full bg-transparent border border-gray-500 rounded px-3 py-2"
+              className="w-full bg-[#191E2A] border border-gray-500 rounded px-3 py-2 custom-scroll"
             >
-              <option value="Daily">Daily</option>
-              <option value="Weekly">Weekly</option>
-              <option value="Monthly">Monthly</option>
-              <option value="Occasionally">Occasionally</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="occasionally">Occasionally</option>
             </select>
           </div>
 
@@ -363,7 +439,7 @@ const FormPage = () => {
               name="monthlyReleaseCount"
               value={formData.monthlyReleaseCount}
               onChange={handleChange}
-              className="w-full bg-transparent border border-gray-500 rounded px-3 py-2"
+              className="w-full bg-[#191E2A] border border-gray-500 rounded px-3 py-2 custom-scroll"
             >
               <option value="1-5">1-5</option>
               <option value="5-20">5-20</option>
@@ -387,43 +463,23 @@ const FormPage = () => {
         <div>
           <label>Are you interested in any of our additional services? <span className="text-[#652CD6]">*</span> </label>
           <div className="mt-3 space-y-3">
-            <label className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                name="services"
-                value="Music Marketing/Advertisement"
-                checked={formData.services.includes(
-                  "Music Marketing/Advertisement"
-                )}
-                onChange={handleChange}
-                className="h-5 w-5 accent-purple-500"
-              />
-              <span>Music Marketing/Advertisment</span>
-            </label>
-
-            <label className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                name="services"
-                value="YouTube Channel CMS"
-                checked={formData.services.includes("YouTube Channel CMS")}
-                onChange={handleChange}
-                className="h-5 w-5 accent-purple-500"
-              />
-              <span>YouTube Channel CMS</span>
-            </label>
-
-            <label className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                name="services"
-                value="Music Video Distribution"
-                checked={formData.services.includes("Music Video Distribution")}
-                onChange={handleChange}
-                className="h-5 w-5 accent-purple-500"
-              />
-              <span>Music Video Distribution</span>
-            </label>
+            {[
+              "Music Marketing/Advertisement",
+              "YouTube Channel CMS",
+              "Music Video Distribution",
+            ].map((service) => (
+              <label key={service} className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  name="services"
+                  value={service}
+                  checked={formData.services.includes(service)}
+                  onChange={handleChange}
+                  className="h-5 w-5 accent-purple-500"
+                />
+                <span>{service}</span>
+              </label>
+            ))}
           </div>
         </div>
 
@@ -440,10 +496,10 @@ const FormPage = () => {
             ].map((opt) => (
               <label key={opt} className="flex items-center gap-3">
                 <input
-                  type="checkbox"
+                  type="radio"
                   name="howKnowUs"
                   value={opt}
-                  checked={formData.howKnowUs.includes(opt)}
+                  checked={formData.howKnowUs === opt}
                   onChange={handleChange}
                   className="h-5 w-5 accent-purple-500"
                 />
@@ -479,7 +535,9 @@ const FormPage = () => {
 
         
         <div className="w-full flex justify-center items-center">
-            <Button variant="blue" onClick={handleSubmit} >Submit</Button>
+            <Button variant="blue" type="submit" disabled={loading}>
+              {loading ? "Submitting..." : "Submit"}
+            </Button>
         </div>
       </form>
     </div>

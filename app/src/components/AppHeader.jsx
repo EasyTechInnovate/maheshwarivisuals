@@ -3,9 +3,12 @@ import { SidebarTrigger } from './ui/sidebar'
 import { Bell, Moon, Music, Sun } from 'lucide-react'
 import { Button } from './ui/button'
 import { useTheme } from '@/contextapi/TheamContext'
+import { useAuthStore } from '@/store/authStore'
+import { Link } from 'react-router-dom'
 
 const AppHeader = () => {
   const {theme , toggleTheme } = useTheme()
+  const {user} = useAuthStore()
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
             <div className="flex h-16 items-center justify-between px-6">
@@ -36,10 +39,22 @@ const AppHeader = () => {
                 <Button variant="ghost" size="sm">
                   <Bell className="w-4 h-4" />
                 </Button>
+                <Link to='/app/settings'>
                 
-                <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-medium">MV</span>
+                <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center overflow-hidden">
+                  {user?.profilePicture ? (
+                    <img 
+                      src={user.profilePicture} 
+                      alt={user.firstname || 'User'} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-white text-sm font-medium">
+                      {`${user?.firstName?.[0] || ''}${user?.lastName?.[0] || ''}`.toUpperCase()}
+                    </span>
+                  )}
                 </div>
+                </Link>
               </div>
             </div>
           </header>

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Toaster } from "sonner";
+import "react-datepicker/dist/react-datepicker.css";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
+import Header from "./components/common/Header";
+import Sidebar from "./components/common/Sidebar";
 import Dashboard from "./pages/dashboard/Dashboard";
 import UserManagement from "./pages/user-management/UserManagement";
 import ReleaseManagement from "./pages/release-management/ReleaseManagement";
@@ -28,11 +29,10 @@ import TrendingLabelsManager from "./pages/trending-labels/TrendingLabels";
 import FaqManager from "./pages/faq-management/FAQManagement";
 import BlogManagement from "./pages/blog-management/BlogManagement";
 import NewsManagement from "./pages/news-management/NewsManagement";
-import SocialLinksEditor from "./pages/social-links/SocialLinks";
-import ContactPage from "./pages/contact-details/ContactDetails";
 import AdminLogin from "./auth/SignIn";
 import KycManagement from "./pages/kyc-management/KYCManagement";
-
+import UnifiedSettingsPage from "./pages/company-settings/CompanySettings"
+import MVProductionManagement from "./pages/mv-production/MvProductionManagement";
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [theme, setTheme] = useState("dark");
@@ -40,10 +40,10 @@ function App() {
 
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
-  // Check if we're on login page
+
   const isLoginPage = location.pathname === "/admin/login";
 
-  // If on login page, show only the login
+
   if (isLoginPage) {
     return (
       <div>
@@ -52,7 +52,7 @@ function App() {
     );
   }
 
-  // Otherwise, render dashboard layout
+
   return (
     <div className={`flex h-screen overflow-hidden ${theme === "dark" ? "bg-[#111A22] text-white" : "bg-gray-100 text-black"}`}>
       {sidebarOpen && (
@@ -63,7 +63,7 @@ function App() {
         />
       )}
 
-      {/* Sidebar */}
+
       <aside
         className={[
           "fixed inset-y-0 left-0 z-40 transform transition-transform duration-300",
@@ -78,7 +78,7 @@ function App() {
         <Sidebar isCollapsed={!sidebarOpen} theme={theme} />
       </aside>
 
-      {/* Main Content */}
+
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         <Header
           onToggleSidebar={() => setSidebarOpen((s) => !s)}
@@ -116,8 +116,8 @@ function App() {
             <Route path="/admin/faq-management" element={<FaqManager theme={theme} />} />
             <Route path="/admin/blog-management" element={<BlogManagement theme={theme} />} />
             <Route path="/admin/news-management" element={<NewsManagement theme={theme} />} />
-            <Route path="/admin/social-links" element={<SocialLinksEditor theme={theme} />} />
-            <Route path="/admin/contact-details" element={<ContactPage theme={theme} />} />
+            <Route path="/admin/company-settings" element={<UnifiedSettingsPage theme={theme} />} />
+            <Route path="/admin/mv-production" element={<MVProductionManagement theme={theme} />} />
           </Routes>
         </main>
       </div>

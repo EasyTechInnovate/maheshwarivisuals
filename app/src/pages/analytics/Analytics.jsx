@@ -1,55 +1,157 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import { Download, Play, DollarSign, Users, Globe, Music, IndianRupee } from 'lucide-react';
+import { Download, Play, Users, Globe, IndianRupee } from 'lucide-react';
+import { getAnalyticsDashboard } from '@/services/api.services';
 
-// Sample data for charts
-const streamsData = [
-  { month: 'Jan', streams: 50000 },
-  { month: 'Feb', streams: 220000 },
-  { month: 'Mar', streams: 120000 },
-  { month: 'Apr', streams: 230000 },
-  { month: 'May', streams: 290000 },
-  { month: 'Jun', streams: 400000 },
-  
-];
+// Country code to name mapping
+const COUNTRY_NAMES = {
+  'IN': 'India', 'PK': 'Pakistan', 'GB': 'United Kingdom', 'AE': 'UAE',
+  'US': 'United States', 'SA': 'Saudi Arabia', 'ZA': 'South Africa',
+  'NL': 'Netherlands', 'AU': 'Australia', 'MY': 'Malaysia', 'CA': 'Canada',
+  'NZ': 'New Zealand', 'TR': 'Turkey', 'FR': 'France', 'SG': 'Singapore',
+  'OM': 'Oman', 'JP': 'Japan', 'NO': 'Norway', 'DE': 'Germany',
+  'KW': 'Kuwait', 'IT': 'Italy', 'QA': 'Qatar', 'UA': 'Ukraine',
+  'YE': 'Yemen', 'ES': 'Spain', 'MX': 'Mexico', 'BE': 'Belgium',
+  'ID': 'Indonesia', 'BR': 'Brazil', 'RU': 'Russia', 'KR': 'South Korea',
+  'TH': 'Thailand', 'PH': 'Philippines', 'VN': 'Vietnam', 'EG': 'Egypt'
+};
 
-const revenueData = [
-  { month: 'Jan', revenue: 15000 },
-  { month: 'Feb', revenue: 18000 },
-  { month: 'Mar', revenue: 24000 },
-  { month: 'Apr', revenue: 28000 },
-  { month: 'May', revenue: 35000 },
-  { month: 'Jun', revenue: 40000 }
-];
-
-const topTracks = [
-  { id: 1, name: 'Midnight Dreams', streams: '456K', revenue: '₹45,600', change: '+16%', changeType: 'positive' },
-  { id: 2, name: 'Ocean Waves', streams: '321K', revenue: '₹32,100', change: '+8%', changeType: 'positive' },
-  { id: 3, name: 'City Lights', streams: '298K', revenue: '₹29,800', change: '+22%', changeType: 'positive' },
-  { id: 4, name: 'Silent Thunder', streams: '267K', revenue: '₹26,700', change: '-3%', changeType: 'negative' },
-  { id: 5, name: 'Golden Hour', streams: '234K', revenue: '₹23,400', change: '+12%', changeType: 'positive' }
-];
-
-const platformData = [
-  { name: 'Spotify', value: 45, color: 'hsl(142, 76%, 36%)' },
-  { name: 'Apple Music', value: 25, color: 'hsl(0, 84%, 60%)' },
-  { name: 'YouTube Music', value: 20, color: 'hsl(0, 84%, 60%)' },
-  { name: 'Amazon Music', value: 10, color: 'hsl(43, 74%, 66%)' }
-];
-
-// const audienceData = [
-//   { age: '18-24', listeners: 15000, percentage: 25 },
-//   { age: '25-34', listeners: 18000, percentage: 30 },
-//   { age: '35-44', listeners: 12000, percentage: 20 },
-//   { age: '45-54', listeners: 9000, percentage: 15 },
-//   { age: '55+', listeners: 6000, percentage: 10 }
-// ];
+const getCountryName = (code) => COUNTRY_NAMES[code] || code;
 
 export default function Analytics() {
+  const [timeframe, setTimeframe] = useState('last_30_days');
+  const [groupBy] = useState('day');
+
+  // Fetch analytics data
+  const { data: analyticsData, isLoading, error } = useQuery({
+    queryKey: ['analytics', timeframe, groupBy],
+    queryFn: () => getAnalyticsDashboard({
+      timeframe,
+      groupBy,
+      topTracksLimit: 10,
+      countriesLimit: 20
+    }),
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  // Map timeframe values for the select component
+  const timeframeMap = {
+    'last_7_days': '7days',
+    'last_30_days': '30days',
+    'last_3_months': '3months',
+    'last_6_months': '6months',
+    'last_year': '1year'
+  };
+
+  const reverseTimeframeMap = {
+    '7days': 'last_7_days',
+    '30days': 'last_30_days',
+    '3months': 'last_3_months',
+    '6months': 'last_6_months',
+    '1year': 'last_year'
+  };
+
+  // Handle timeframe change
+  const handleTimeframeChange = (value) => {
+    setTimeframe(reverseTimeframeMap[value]);
+  };
+
+  // Format number with K, M suffixes
+  const formatNumber = (num) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num?.toString() || '0';
+  };
+
+  // Format currency
+  const formatCurrency = (num) => {
+    return '₹' + (num || 0).toLocaleString('en-IN');
+  };
+
+  // Format period for chart display
+  const formatPeriod = (period) => {
+    if (!period) return '';
+    const { year, month, day, week } = period;
+    if (day) return `${month} ${day}`;
+    if (week) return `Week ${week}, ${year}`;
+    if (month) return `${month} ${year}`;
+    return `${year}`;
+  };
+
+  // Process and transform API data
+  const processedData = useMemo(() => {
+    if (!analyticsData?.data) return null;
+
+    const data = analyticsData.data;
+    const overview = data.overview || {};
+
+    // Transform chart data - add date field from period
+    const streamsChartData = data.charts?.streamsOverTime?.data?.map(item => ({
+      ...item,
+      date: formatPeriod(item.period),
+      streams: item.totalStreams
+    })) || [];
+
+    const revenueChartData = data.charts?.revenueOverTime?.data?.map(item => ({
+      ...item,
+      date: formatPeriod(item.period),
+      revenue: item.totalRevenue
+    })) || [];
+
+    // Transform top tracks data - map field names
+    const topTracks = data.topTracks?.tracks?.map(track => ({
+      trackName: track.trackTitle,
+      artistName: track.artistName,
+      albumName: track.albumTitle,
+      streams: track.totalStreams,
+      revenue: track.totalRevenue,
+      platforms: track.platforms,
+      platformCount: track.platformCount,
+      countryCount: track.countryCount
+    })) || [];
+
+    // Transform platforms data - calculate percentages
+    const totalStreams = data.distribution?.platforms?.reduce((sum, p) => sum + (p.totalStreams || 0), 0) || 1;
+    const platforms = data.distribution?.platforms?.map(platform => ({
+      platformName: platform.platform,
+      streams: platform.totalStreams,
+      revenue: platform.totalRevenue,
+      percentage: (platform.totalStreams / totalStreams) * 100,
+      trackCount: platform.trackCount
+    })) || [];
+
+    // Transform countries data - add country names
+    const countries = data.distribution?.countries?.data?.map(country => ({
+      countryCode: country.countryCode,
+      countryName: getCountryName(country.countryCode),
+      streams: country.totalStreams,
+      revenue: country.totalRevenue,
+      trackCount: country.trackCount
+    })) || [];
+
+    return {
+      overview,
+      streamsChartData,
+      revenueChartData,
+      topTracks,
+      platforms,
+      countries
+    };
+  }, [analyticsData]);
+
+  const overview = processedData?.overview || {};
+  const streamsChartData = processedData?.streamsChartData || [];
+  const revenueChartData = processedData?.revenueChartData || [];
+  const topTracksData = processedData?.topTracks || [];
+  const platformsData = processedData?.platforms || [];
+  const countriesData = processedData?.countries || [];
+
   return (
     <div className="min-h-screen bg-background text-foreground p-6">
       {/* Header */}
@@ -59,14 +161,18 @@ export default function Analytics() {
           <p className="text-muted-foreground">Detailed insights into your music performance and audience</p>
         </div>
         <div className="flex items-center gap-4">
-          <Select defaultValue="30days">
+          <Select
+            value={timeframeMap[timeframe]}
+            onValueChange={handleTimeframeChange}
+          >
             <SelectTrigger className="w-[140px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="7days">Last 7 days</SelectItem>
               <SelectItem value="30days">Last 30 days</SelectItem>
-              <SelectItem value="90days">Last 90 days</SelectItem>
+              <SelectItem value="3months">Last 3 months</SelectItem>
+              <SelectItem value="6months">Last 6 months</SelectItem>
               <SelectItem value="1year">Last year</SelectItem>
             </SelectContent>
           </Select>
@@ -77,153 +183,213 @@ export default function Analytics() {
         </div>
       </div>
 
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-muted-foreground">Loading analytics...</div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-red-500">Failed to load analytics data</div>
+        </div>
+      )}
+
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
-            <CardTitle className="text-sm font-medium">Total Streams</CardTitle>
-            <Play className="h-4 w-4 text-[#711CE9]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2.4M</div>
-            <div className="flex items-center text-xs text-muted-foreground ">
-             <h1> <span className='text-green-500'>+12%</span> vs last period</h1>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <IndianRupee className="h-4 w-4 text-[#711CE9]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹2,43,750</div>
-            <div className="flex items-center text-xs text-muted-foreground ">
-             <h1> <span className='text-green-500 '>+8.2%</span> vs last period</h1>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
-            <CardTitle className="text-sm font-medium">Active Listeners</CardTitle>
-            <Users className="h-4 w-4 text-[#711CE9]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">45.2K</div>
-            <div className="flex items-center text-xs text-muted-foreground ">
-              <h1> <span className='text-red-500'>-2.4% </span>vs last period</h1>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
-            <CardTitle className="text-sm font-medium">Countries Reached</CardTitle>
-            <Globe className="h-4 w-4 text-[#711CE9]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">23</div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              <span>+0 vs last period</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Tabs Section */}
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 ">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="tracks">Top Tracks</TabsTrigger>
-          {/* <TabsTrigger value="audience">Audience</TabsTrigger> */}
-          <TabsTrigger value="platforms">Platforms</TabsTrigger>
-        </TabsList>
-
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {!isLoading && !error && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card>
-              <CardHeader>
-                <CardTitle>Streams Over Time</CardTitle>
-                <CardDescription>Monthly streaming performance</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
+                <CardTitle className="text-sm font-medium">Total Streams</CardTitle>
+                <Play className="h-4 w-4 text-[#711CE9]" />
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={streamsData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" className="text-muted-foreground" />
-                    <YAxis className="text-muted-foreground " />
-                    <Area
-                      type="monotone"
-                      dataKey="streams"
-                      stroke="#711CE9"
-                      fill="#711CE9"
-                      fillOpacity={0.3}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                <div className="text-2xl font-bold">
+                  {formatNumber(overview?.totalStreams?.totalStreams || 0)}
+                </div>
+                <div className="flex items-center text-xs text-muted-foreground ">
+                  <h1>
+                    <span className={overview?.streamsGrowth >= 0 ? 'text-green-500' : 'text-red-500'}>
+                      {overview?.streamsGrowth >= 0 ? '+' : ''}{overview?.streamsGrowth?.toFixed(1) || 0}%
+                    </span> vs last period
+                  </h1>
+                </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>Revenue Trends</CardTitle>
-                <CardDescription>Monthly revenue performance</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
+                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                <IndianRupee className="h-4 w-4 text-[#711CE9]" />
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={revenueData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" className="text-muted-foreground" />
-                    <YAxis className="text-muted-foreground" />
-                    <Line
-                      type="monotone"
-                      dataKey="revenue"
-                      stroke="#711CE9"
-                      strokeWidth={3}
-                      dot={{ fill: 'hsl(var(--primary))' }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(overview?.totalRevenue || 0)}
+                </div>
+                <div className="flex items-center text-xs text-muted-foreground ">
+                  <h1>
+                    <span className={overview?.revenueGrowth >= 0 ? 'text-green-500' : 'text-red-500'}>
+                      {overview?.revenueGrowth >= 0 ? '+' : ''}{overview?.revenueGrowth?.toFixed(1) || 0}%
+                    </span> vs last period
+                  </h1>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
+                <CardTitle className="text-sm font-medium">Active Listeners</CardTitle>
+                <Users className="h-4 w-4 text-[#711CE9]" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {formatNumber(overview?.activeListeners || 0)}
+                </div>
+                <div className="flex items-center text-xs text-muted-foreground ">
+                  <span>Unique listeners this period</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
+                <CardTitle className="text-sm font-medium">Countries Reached</CardTitle>
+                <Globe className="h-4 w-4 text-[#711CE9]" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {overview?.countriesReached || 0}
+                </div>
+                <div className="flex items-center text-xs text-muted-foreground">
+                  <span>Countries streaming your music</span>
+                </div>
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
 
-        {/* Top Tracks Tab */}
-        <TabsContent value="tracks" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Performing Tracks</CardTitle>
-              <CardDescription>Your most successful releases this month</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {topTracks.map((track, index) => (
-                  <div key={track.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-semibold">
-                        {index + 1}
+          {/* Tabs Section */}
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-3 ">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="tracks">Top Tracks</TabsTrigger>
+              {/* <TabsTrigger value="audience">Audience</TabsTrigger> */}
+              <TabsTrigger value="platforms">Platforms</TabsTrigger>
+            </TabsList>
+
+            {/* Overview Tab */}
+            <TabsContent value="overview" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Streams Over Time</CardTitle>
+                    <CardDescription>Streaming performance over selected period</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {streamsChartData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <AreaChart data={streamsChartData}>
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                          <XAxis dataKey="date" className="text-muted-foreground" />
+                          <YAxis className="text-muted-foreground " />
+                          <Area
+                            type="monotone"
+                            dataKey="streams"
+                            stroke="#711CE9"
+                            fill="#711CE9"
+                            fillOpacity={0.3}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                        No streaming data available
                       </div>
-                      <div>
-                        <h3 className="font-semibold">{track.name}</h3>
-                        <p className="text-sm text-muted-foreground">{track.streams} streams</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Revenue Trends</CardTitle>
+                    <CardDescription>Revenue performance over selected period</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {revenueChartData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={revenueChartData}>
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                          <XAxis dataKey="date" className="text-muted-foreground" />
+                          <YAxis className="text-muted-foreground" />
+                          <Line
+                            type="monotone"
+                            dataKey="revenue"
+                            stroke="#711CE9"
+                            strokeWidth={3}
+                            dot={{ fill: 'hsl(var(--primary))' }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                        No revenue data available
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold">{track.revenue}</p>
-                      <p className={`text-sm ${track.changeType === 'positive' ? 'text-green-500' : 'text-red-500'}`}>
-                        {track.change}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                    )}
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </TabsContent>
+
+            {/* Top Tracks Tab */}
+            <TabsContent value="tracks" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top Performing Tracks</CardTitle>
+                  <CardDescription>Your most successful releases this period</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {topTracksData.length > 0 ? (
+                    <div className="space-y-4">
+                      {topTracksData.map((track, index) => (
+                        <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-semibold">
+                              {index + 1}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold">{track.trackName || 'Unknown Track'}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                {track.artistName}
+                              </p>
+                              <div className="flex gap-3 mt-1">
+                                <span className="text-xs text-muted-foreground">
+                                  {formatNumber(track.streams || 0)} streams
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  • {track.platformCount || 0} platforms
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  • {track.countryCount || 0} countries
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold">{formatCurrency(track.revenue || 0)}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-32 text-muted-foreground">
+                      No track data available
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
         {/* Audience Tab */}
         {/* <TabsContent value="audience" className="space-y-6">
@@ -289,75 +455,97 @@ export default function Analytics() {
           </div>
         </TabsContent> */}
 
-        {/* Platforms Tab */}
-        <TabsContent value="platforms" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Platform Distribution</CardTitle>
-                <CardDescription>Stream distribution across platforms</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={platformData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={40}
-                        outerRadius={80}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {platformData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Platforms Tab */}
+            <TabsContent value="platforms" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Platform Distribution</CardTitle>
+                    <CardDescription>Stream distribution across platforms</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {platformsData.length > 0 ? (
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={platformsData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={40}
+                              outerRadius={80}
+                              paddingAngle={5}
+                              dataKey="percentage"
+                            >
+                              {platformsData.map((entry, index) => {
+                                const colors = ['#1DB954', '#FA233B', '#FF0000', '#00D9FF', '#711CE9'];
+                                return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                              })}
+                            </Pie>
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center h-64 text-muted-foreground">
+                        No platform data available
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Platform Performance</CardTitle>
-                <CardDescription>Detailed breakdown by platform</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {platformData.map((platform) => (
-                    <div key={platform.name} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div 
-                          className="w-4 h-4 rounded"
-                          style={{ backgroundColor: platform.color }}
-                        ></div>
-                        <span className="font-medium">{platform.name}</span>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Platform Performance</CardTitle>
+                    <CardDescription>Detailed breakdown by platform</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {platformsData.length > 0 ? (
+                      <div className="space-y-4">
+                        {platformsData.map((platform, index) => {
+                          const colors = ['#1DB954', '#FA233B', '#FF0000', '#00D9FF', '#711CE9'];
+                          const color = colors[index % colors.length];
+                          return (
+                            <div key={platform.platformName || index} className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <div
+                                  className="w-4 h-4 rounded"
+                                  style={{ backgroundColor: color }}
+                                ></div>
+                                <span className="font-medium">{platform.platformName || 'Unknown'}</span>
+                              </div>
+                              <div className="flex items-center space-x-4">
+                                <span className="text-sm text-muted-foreground">
+                                  {formatNumber(platform.streams || 0)} streams
+                                </span>
+                                <div className="w-24 bg-muted rounded-full h-2">
+                                  <div
+                                    className="h-2 rounded-full"
+                                    style={{
+                                      width: `${platform.percentage || 0}%`,
+                                      backgroundColor: color
+                                    }}
+                                  ></div>
+                                </div>
+                                <span className="text-sm font-medium w-12 text-right">
+                                  {platform.percentage?.toFixed(1) || 0}%
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <div className="flex items-center space-x-4">
-                        <div className="w-24 bg-muted rounded-full h-2">
-                          <div
-                            className="h-2 rounded-full"
-                            style={{ 
-                              width: `${platform.value}%`,
-                              backgroundColor: platform.color 
-                            }}
-                          ></div>
-                        </div>
-                        <span className="text-sm font-medium w-12 text-right">
-                          {platform.value}%
-                        </span>
+                    ) : (
+                      <div className="flex items-center justify-center h-32 text-muted-foreground">
+                        No platform data available
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </>
+      )}
     </div>
   );
 }

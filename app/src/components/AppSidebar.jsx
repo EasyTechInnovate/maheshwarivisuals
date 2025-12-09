@@ -37,7 +37,7 @@ const AppSidebar = () => {
         { icon: Megaphone, label: "MV Marketing", url: "/app/mv-marketing" },
         { icon: Megaphone, label: "Advertisement", url: "/app/advertisement" },
         { icon: Video, label: "MV Production", url: "/app/mv-production" },
-        { icon: Wrench, label: "Fan Links Builder", url: "/app/fan-links" },
+        { icon: Wrench, label: "Fan Links Builder", url: "/app/fan-link" },
         { icon: Store, label: "Merch Store", url: "/app/merch" }
       ]
     },
@@ -68,7 +68,7 @@ const AppSidebar = () => {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
+      <SidebarContent className="px-2 pb-24">
         {sidebarSections.map((section) => (
           <SidebarGroup key={section.title}>
             <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-2">

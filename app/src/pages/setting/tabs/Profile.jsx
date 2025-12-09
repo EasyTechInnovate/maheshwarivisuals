@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -6,15 +7,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Camera, Link, Shield, CreditCard } from 'lucide-react';
+import { User, Camera, Link, Shield, CreditCard, Loader } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
+import { getMySubscription, getAllSubscriptionPlans } from '@/services/api.services';
 
 const Profile = () => {
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const { user } = useAuthStore();
 
   const fileInputRef = useRef(null);
-  
+
+  // Fetch current subscription
+  const { data: currentSubData, isLoading: currentSubLoading } = useQuery({
+    queryKey: ['mySubscription'],
+    queryFn: getMySubscription,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch all subscription plans
+  const { data: allPlansData, isLoading: allPlansLoading } = useQuery({
+    queryKey: ['allSubscriptionPlans'],
+    queryFn: getAllSubscriptionPlans,
+    staleTime: 5 * 60 * 1000,
+  });
+
   // Form data state
   const [formData, setFormData] = useState({
     profileImage: '',
@@ -22,6 +39,7 @@ const Profile = () => {
     lastName: '',
     artistName: '',
     phoneNumber: '',
+    emailAddress: '',
     bio: '',
     primaryGenre: '',
     location: '',
@@ -29,97 +47,121 @@ const Profile = () => {
       instagram: '',
       youtube: '',
       spotify: '',
-      website: ''
+      website: '',
+      tiktok: '',
+      linkedin: '',
+      facebook: '',
+      twitter: ''
     },
     kyc: {
-      aadhaarNumber: '',
-      panNumber: '',
-      bankNumber: '',
-      ifscCode: '',
-      status: 'approved'
+      documents: {
+        aadhaar: {
+          number: '',
+        },
+        pan: {
+          number: '',
+        }
+      },
+      bankDetails: {
+        accountNumber: '',
+        ifscCode: '',
+        accountHolderName: '',
+        bankName: '',
+      },
+      upiDetails: {
+        upiId: '',
+      },
+      status: 'unverified',
     },
     subscription: {
-      plan: 'Premium Plan',
-      price: '$99',
-      period: 'per year',
+      plan: '',
+      price: '',
+      period: 'per month',
       status: 'Active',
-      startDate: 'Jan 15, 2024',
-      endDate: 'Jan 15, 2025',
+      startDate: '',
+      endDate: '',
       paymentMethod: '•••• 1234',
-      nextBilling: 'Jan 15, 2025',
+      nextBilling: '',
       autoRenewal: true,
-      features: [
-        'Unlimited music releases',
-        'Advanced analytics dashboard',
-        'Priority customer support',
-        'Playlist pitching service',
-        'Custom artist profile'
-      ]
+      features: []
     }
   });
 
-  // Fetch profile data on component mount
-  useEffect(() => {
-    fetchProfileData();
-  }, []);
-
-  const fetchProfileData = async () => {
-    setLoading(true);
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     try {
-      // Simulate API call - replace with actual API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Fake data from API
-      const profileData = {
-        profileImage: '',
-        firstName: 'Artist',
-        lastName: 'Name',
-        artistName: 'Artist Name',
-        phoneNumber: '+91 98765 43210',
-        bio: 'Passionate musician creating unique sounds and connecting with fans worldwide.',
-        primaryGenre: 'pop',
-        location: 'Mumbai, India',
-        socialMedia: {
-          instagram: 'https://instagram.com/yourhandle',
-          youtube: 'https://youtube.com/yourchannel',
-          spotify: 'https://open.spotify.com/artist/...',
-          website: 'https://yourwebsite.com'
-        },
-        kyc: {
-          aadhaarNumber: '1234 5678 9012 3456',
-          panNumber: 'ABCDE1234F',
-          bankNumber: '1234567890123456',
-          ifscCode: 'HDFC0000123',
-          status: 'approved'
-        },
-        subscription: {
-          plan: 'Premium Plan',
-          price: '$99',
-          period: 'per year',
-          status: 'Active',
-          startDate: 'Jan 15, 2024',
-          endDate: 'Jan 15, 2025',
-          paymentMethod: '•••• 1234',
-          nextBilling: 'Jan 15, 2025',
-          autoRenewal: true,
-          features: [
-            'Unlimited music releases',
-            'Advanced analytics dashboard',
-            'Priority customer support',
-            'Playlist pitching service',
-            'Custom artist profile'
-          ]
-        }
-      };
-
-      setFormData(profileData);
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }).format(new Date(dateString));
     } catch (error) {
-      console.error('Error fetching profile data:', error);
-      alert('Error loading profile data');
-    } finally {
-      setLoading(false);
+      return dateString;
     }
   };
+
+  // Transform feature object to array
+  const transformFeatures = (features) => {
+    if (!features) return [];
+    return Object.entries(features)
+      .filter(([key, value]) => value === true || (typeof value === 'object' && value.description))
+      .map(([key]) => {
+        return key
+          .replace(/([A-Z])/g, ' $1')
+          .replace(/^./, (str) => str.toUpperCase())
+          .trim();
+      });
+  };
+
+  // Populate form data when user and subscription data is available
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        emailAddress: user.emailAddress || '',
+        artistName: user.artistName || '',
+        phoneNumber: user.phoneNumber?.internationalNumber || '',
+        bio: user.bio || '',
+        primaryGenre: user.primaryGenre || '',
+        location: user.location || '',
+        socialMedia: user.socialMedia || prev.socialMedia,
+        kyc: {
+          ...prev.kyc,
+          ...user.kyc,
+          documents: user.kyc?.documents || prev.kyc.documents,
+          bankDetails: user.kyc?.bankDetails || prev.kyc.bankDetails,
+          upiDetails: user.kyc?.upiDetails || prev.kyc.upiDetails,
+          status: user.kyc?.status || 'unverified'
+        },
+      }));
+    }
+  }, [user]);
+
+  // Update subscription data when API response is received
+  useEffect(() => {
+    if (currentSubData?.data && allPlansData?.data) {
+      const currentPlan = currentSubData.data.plan;
+      const subscription = currentSubData.data.subscription;
+
+      setFormData(prev => ({
+        ...prev,
+        subscription: {
+          plan: currentPlan.name || '',
+          price: `₹${currentPlan.price?.current || '0'}`,
+          period: 'per month',
+          status: subscription.status === 'active' ? 'Active' : 'Inactive',
+          startDate: formatDate(subscription.validFrom),
+          endDate: formatDate(subscription.validUntil),
+          paymentMethod: '•••• 1234',
+          nextBilling: formatDate(subscription.nextPaymentDate) || formatDate(subscription.validUntil),
+          autoRenewal: subscription.autoRenewal || false,
+          features: transformFeatures(currentPlan.features),
+        }
+      }));
+    }
+  }, [currentSubData, allPlansData]);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -138,49 +180,43 @@ const Profile = () => {
     }));
   };
 
-  const handleKycChange = (field, value) => {
+  const handleKycChange = (section, field, value) => {
     setFormData(prev => ({
       ...prev,
       kyc: {
         ...prev.kyc,
-        [field]: value
+        [section]: {
+          ...prev.kyc[section],
+          [field]: value
+        }
       }
     }));
   };
 
-const handleImageUpload = (event) => {
-  const file = event.target.files[0];
-  const maxSizeBytes = 5 * 1024 * 1024; // 5 MB in bytes
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    const maxSizeBytes = 5 * 1024 * 1024;
 
-  if (file) {
-    if (file.size > maxSizeBytes) {
-      alert('The selected image is too large. Please select an image less than 5 MB.');
-      return; // Stop the function if the file is too large
+    if (file) {
+      if (file.size > maxSizeBytes) {
+        alert('The selected image is too large. Please select an image less than 5 MB.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileImage(e.target.result);
+        handleInputChange('profileImage', e.target.result);
+      };
+      reader.readAsDataURL(file);
     }
+  };
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setProfileImage(e.target.result);
-      handleInputChange('profileImage', e.target.result);
-    };
-    reader.readAsDataURL(file);
-  }
-};
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
-      // Simulate API call - replace with actual API
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
       console.log('Saving profile data:', formData);
-      
-      // Here you would make the actual API call
-      // const response = await fetch('/api/profile', {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-      
       alert('Profile saved successfully!');
     } catch (error) {
       console.error('Error saving profile:', error);
@@ -217,17 +253,6 @@ const handleImageUpload = (event) => {
       setSaving(false);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p>Loading profile data...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8">
@@ -269,7 +294,7 @@ const handleImageUpload = (event) => {
             </div>
             <div className="space-y-2">
               <div className="flex gap-2">
-                <Button variant="outline" onClick={()=> fileInputRef.current.click()} className="border-slate-600">
+                <Button variant="outline" onClick={() => fileInputRef.current.click()} className="border-slate-600">
                   Upload New Photo
                 </Button>
                 <Button 
@@ -323,6 +348,16 @@ const handleImageUpload = (event) => {
                 onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                 placeholder="+91 98765 43210"
                 className="border-slate-700"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Email Address</label>
+              <Input
+                value={formData.emailAddress}
+                onChange={(e) => handleInputChange('emailAddress', e.target.value)}
+                placeholder="your@email.com"
+                className="border-slate-700"
+                disabled
               />
             </div>
           </div>
@@ -426,6 +461,42 @@ const handleImageUpload = (event) => {
               className="border-slate-700"
             />
           </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Facebook</label>
+            <Input
+              value={formData.socialMedia.facebook}
+              onChange={(e) => handleSocialMediaChange('facebook', e.target.value)}
+              placeholder="https://facebook.com/yourprofile"
+              className="border-slate-700"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Twitter / X</label>
+            <Input
+              value={formData.socialMedia.twitter}
+              onChange={(e) => handleSocialMediaChange('twitter', e.target.value)}
+              placeholder="https://twitter.com/yourhandle"
+              className="border-slate-700"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">TikTok</label>
+            <Input
+              value={formData.socialMedia.tiktok}
+              onChange={(e) => handleSocialMediaChange('tiktok', e.target.value)}
+              placeholder="https://tiktok.com/@yourhandle"
+              className="border-slate-700"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">LinkedIn</label>
+            <Input
+              value={formData.socialMedia.linkedin}
+              onChange={(e) => handleSocialMediaChange('linkedin', e.target.value)}
+              placeholder="https://linkedin.com/in/yourprofile"
+              className="border-slate-700"
+            />
+          </div>
         </CardContent>
       </Card>
 
@@ -436,7 +507,7 @@ const handleImageUpload = (event) => {
             <Shield className="w-5 h-5" />
             <CardTitle>KYC Details</CardTitle>
             <Badge className="bg-green-600 text-white">
-              {formData.kyc.status === 'approved' ? 'Approved' : 'Pending'}
+              {formData.kyc.status === 'verified' ? 'Verified' : formData.kyc.status.charAt(0).toUpperCase() + formData.kyc.status.slice(1)}
             </Badge>
           </div>
           <Button 
@@ -452,39 +523,61 @@ const handleImageUpload = (event) => {
             <div className="space-y-2">
               <label className="text-sm font-medium">Aadhaar Number</label>
               <Input
-                value={formData.kyc.aadhaarNumber}
-                onChange={(e) => handleKycChange('aadhaarNumber', e.target.value)}
+                value={formData.kyc.documents.aadhaar.number}
+                onChange={(e) => handleKycChange('documents', 'aadhaar', { ...formData.kyc.documents.aadhaar, number: e.target.value })}
                 placeholder="1234 5678 9012 3456"
                 className="border-slate-700"
-                disabled={formData.kyc.status === 'approved'}
+                disabled={formData.kyc.status === 'verified'}
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">PAN Card Number</label>
               <Input
-                value={formData.kyc.panNumber}
-                onChange={(e) => handleKycChange('panNumber', e.target.value)}
+                value={formData.kyc.documents.pan.number}
+                onChange={(e) => handleKycChange('documents', 'pan', { ...formData.kyc.documents.pan, number: e.target.value })}
                 placeholder="ABCDE1234F"
                 className="border-slate-700"
-                disabled={formData.kyc.status === 'approved'}
+                disabled={formData.kyc.status === 'verified'}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Account Holder Name</label>
+              <Input
+                value={formData.kyc.bankDetails.accountHolderName}
+                onChange={(e) => handleKycChange('bankDetails', 'accountHolderName', e.target.value)}
+                placeholder="John Doe"
+                className="border-slate-700"
+                disabled={formData.kyc.status === 'verified'}
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Bank Number</label>
               <Input
-                value={formData.kyc.bankNumber}
-                onChange={(e) => handleKycChange('bankNumber', e.target.value)}
+                value={formData.kyc.bankDetails.accountNumber}
+                onChange={(e) => handleKycChange('bankDetails', 'accountNumber', e.target.value)}
                 placeholder="1234567890123456"
                 className="border-slate-700"
+                disabled={formData.kyc.status === 'verified'}
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">IFSC Code</label>
               <Input
-                value={formData.kyc.ifscCode}
-                onChange={(e) => handleKycChange('ifscCode', e.target.value)}
+                value={formData.kyc.bankDetails.ifscCode}
+                onChange={(e) => handleKycChange('bankDetails', 'ifscCode', e.target.value)}
                 placeholder="HDFC0000123"
                 className="border-slate-700"
+                disabled={formData.kyc.status === 'verified'}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Bank Name</label>
+              <Input
+                value={formData.kyc.bankDetails.bankName}
+                onChange={(e) => handleKycChange('bankDetails', 'bankName', e.target.value)}
+                placeholder="HDFC Bank"
+                className="border-slate-700"
+                disabled={formData.kyc.status === 'verified'}
               />
             </div>
           </div>
@@ -501,171 +594,143 @@ const handleImageUpload = (event) => {
           <p className="text-sm text-muted-foreground">Manage your subscription plan and billing information</p>
         </CardHeader>
         <CardContent>
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg p-6 text-white mb-6">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="text-2xl font-bold">{formData.subscription.plan}</h3>
-                <p className="text-purple-100">Access to all premium features</p>
-              </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold">{formData.subscription.price}</div>
-                <div className="text-purple-100">{formData.subscription.period}</div>
-              </div>
+          {currentSubLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader className="w-6 h-6 animate-spin text-purple-600" />
             </div>
-            <div className="flex items-center gap-4 text-sm">
-              <span>Started: {formData.subscription.startDate}</span>
-              <span>Ends: {formData.subscription.endDate}</span>
-              <Badge className="bg-green-500 text-white">{formData.subscription.status}</Badge>
-            </div>
-          </div>
+          ) : (
+            <>
+              <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg p-6 text-white mb-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-2xl font-bold">{formData.subscription.plan}</h3>
+                    <p className="text-purple-100">Access to all premium features</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold">{formData.subscription.price}</div>
+                    <div className="text-purple-100">{formData.subscription.period}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 text-sm flex-wrap">
+                  <span>Started: {formData.subscription.startDate}</span>
+                  <span>Ends: {formData.subscription.endDate}</span>
+                  <Badge className="bg-green-500 text-white">{formData.subscription.status}</Badge>
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h4 className="font-semibold mb-4">Plan Features</h4>
-              <ul className="space-y-2 text-sm">
-                {formData.subscription.features.map((feature, index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Billing Information</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Payment Method:</span>
-                  <span>{formData.subscription.paymentMethod}</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h4 className="font-semibold mb-4">Plan Features</h4>
+                  <ul className="space-y-2 text-sm">
+                    {formData.subscription.features.slice(0, 8).map((feature, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        {feature}
+                      </li>
+                    ))}
+                    {formData.subscription.features.length > 8 && (
+                      <li className="text-purple-600 font-semibold">
+                        +{formData.subscription.features.length - 8} more features
+                      </li>
+                    )}
+                  </ul>
                 </div>
-                <div className="flex justify-between">
-                  <span>Next Billing:</span>
-                  <span>{formData.subscription.nextBilling}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Auto-renewal:</span>
-                  <span>{formData.subscription.autoRenewal ? 'Enabled' : 'Disabled'}</span>
+                <div>
+                  <h4 className="font-semibold mb-4">Billing Information</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Payment Method:</span>
+                      <span>{formData.subscription.paymentMethod}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Next Billing:</span>
+                      <span>{formData.subscription.nextBilling}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Auto-renewal:</span>
+                      <span>{formData.subscription.autoRenewal ? 'Enabled' : 'Disabled'}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="flex gap-4 mt-6">
-            <Button className="bg-purple-600 text-white hover:bg-purple-700 flex-1">
-              Upgrade Plan
-            </Button>
-            <Button variant="outline" className="border-slate-600">
-              Manage Billing
-            </Button>
-            <Button variant="outline" className="border-slate-600 text-red-400 hover:text-red-300">
-              Cancel Subscription
-            </Button>
-          </div>
+              <div className="flex gap-4 mt-6 flex-wrap">
+                <Button className="bg-purple-600 text-white hover:bg-purple-700 flex-1">
+                  Upgrade Plan
+                </Button>
+                <Button variant="outline" className="border-slate-600">
+                  Manage Billing
+                </Button>
+                <Button variant="outline" className="border-slate-600 text-red-400 hover:text-red-300">
+                  Cancel Subscription
+                </Button>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
-       <Card className="space-y-8">
+      {/* Available Plans Section */}
+      <Card className="border-slate-700">
         <CardHeader>
-            <h2 className="text-2xl font-bold">Available Plans</h2>
-            <p className="text-muted-foreground">Choose the plan that best fits your needs</p>
-            
+          <h2 className="text-2xl font-bold">Available Plans</h2>
+          <p className="text-muted-foreground">Choose the plan that best fits your needs</p>
         </CardHeader>
-
-      
-      <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Basic Plan Card */}
-        <Card className="border-slate-700 p-6">
-          <CardHeader className="p-0 mb-4">
-            <CardTitle className="text-xl font-semibold">Basic</CardTitle>
-            <p className="text-4xl font-bold text-purple-600">$29<span className="text-base font-normal text-muted-foreground"> per year</span></p>
-          </CardHeader>
-          <CardContent className="p-0 space-y-2">
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                5 releases per month
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                Basic analytics
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                Email support
-              </li>
-            </ul>
-            <Button className="w-full text-white bg-purple-600 hover:bg-purple-700 mt-4">
-              Upgrade
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Premium Plan Card (Current Plan) */}
-        <Card className="border-2 border-purple-600 p-6 relative">
-          <div className="absolute top-0 right-0 m-3 px-2 py-1 bg-purple-600 text-white text-xs font-semibold rounded-full">
-            Current Plan
-          </div>
-          <CardHeader className="p-0 mb-4">
-            <CardTitle className="text-xl font-semibold">Premium</CardTitle>
-            <p className="text-4xl font-bold text-purple-600">$99<span className="text-base font-normal text-muted-foreground"> per year</span></p>
-          </CardHeader>
-          <CardContent className="p-0 space-y-2">
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                Unlimited releases
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                Advanced analytics
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                Priority support
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                Playlist pitching
-              </li>
-            </ul>
-            <Button className="w-full text-white bg-slate-800  cursor-not-allowed mt-4" disabled>
-              Current Plan
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Enterprise Plan Card */}
-        <Card className="border-slate-700 p-6">
-          <CardHeader className="p-0 mb-4">
-            <CardTitle className="text-xl font-semibold">Enterprise</CardTitle>
-            <p className="text-4xl font-bold text-purple-600">$299<span className="text-base font-normal text-muted-foreground"> per year</span></p>
-          </CardHeader>
-          <CardContent className="p-0 space-y-2">
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                Everything in Premium
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                Label management
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                Team collaboration
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                Custom branding
-              </li>
-            </ul>
-            <Button className="w-full text-white bg-purple-600 hover:bg-purple-700 mt-4">
-              Upgrade
-            </Button>
-          </CardContent>
-        </Card>
-      </CardContent>
-    </Card>
+        <CardContent>
+          {allPlansLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader className="w-6 h-6 animate-spin text-purple-600" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {allPlansData?.data?.map((plan) => (
+                <Card key={plan.planId} className="border-slate-700 p-6 relative">
+                  {plan.isPopular && (
+                    <div className="absolute top-0 right-0 m-3 px-2 py-1 bg-purple-600 text-white text-xs font-semibold rounded-full">
+                      Popular
+                    </div>
+                  )}
+                  {plan.isBestValue && (
+                    <div className="absolute top-0 left-0 m-3 px-2 py-1 bg-green-600 text-white text-xs font-semibold rounded-full">
+                      Best Value
+                    </div>
+                  )}
+                  <CardHeader className="p-0 mb-4">
+                    <CardTitle className="text-xl font-semibold">{plan.name}</CardTitle>
+                    <p className="text-4xl font-bold text-purple-600">
+                      ₹{plan.price.current}
+                      <span className="text-base font-normal text-muted-foreground"> per {plan.interval}</span>
+                    </p>
+                  </CardHeader>
+                  <CardContent className="p-0 space-y-2">
+                    <ul className="space-y-2">
+                      {Object.entries(plan.features)
+                        .filter(([key, value]) => value === true)
+                        .slice(0, 5)
+                        .map(([key], index) => (
+                          <li key={index} className="flex items-center gap-2 text-sm">
+                            <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
+                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase()).trim()}
+                          </li>
+                        ))}
+                    </ul>
+                    <Button 
+                      className={`w-full mt-4 ${
+                        currentSubData?.data?.subscription?.planId === plan.planId
+                          ? 'bg-slate-800 cursor-not-allowed text-white'
+                          : 'bg-purple-600 hover:bg-purple-700 text-white'
+                      }`}
+                      disabled={currentSubData?.data?.subscription?.planId === plan.planId}
+                    >
+                      {currentSubData?.data?.subscription?.planId === plan.planId ? 'Current Plan' : 'Upgrade'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

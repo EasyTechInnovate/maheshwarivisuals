@@ -1,58 +1,108 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Download, MoreHorizontal, Music, Lock, Upload } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Download,
+  FolderKanban,
+  KeyRound,
+  MoreHorizontal,
+  Music,
+  Upload,
+} from "lucide-react";
 
-import { users as mockUsers } from "./UserData";
-import UserInfoPage from "./UserModal"; 
+import ManageLabelsModal from "../../components/user-management/ManageLabelsModal.jsx";
+import GlobalApi from "@/lib/GlobalApi";
+import { toast } from "sonner";
+import ResetPasswordModal from "@/components/user-management/ResetPasswordModal.jsx";
+import AssignedSublabels from "@/components/user-management/AssignedLabels.jsx";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 export default function UserManagement({ theme }) {
   const isDark = theme === "dark";
   const [search, setSearch] = useState("");
-  const [users, setUsers] = useState(mockUsers);
-
-  const [activePage, setActivePage] = useState("list"); // list | userInfo
+  const [users, setUsers] = useState([]);
+  const [isManageLabelsOpen, setIsManageLabelsOpen] = useState(false);
+  const [selectedLabelData, setSelectedLabelData] = useState([]);
+  const [activePage, setActivePage] = useState("list");
   const [selectedUser, setSelectedUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isAssignedLabelsOpen, setIsAssignedLabelsOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
 
-  const filteredUsers = users.filter(
-    (u) =>
-      u.stageName.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase()) ||
-      u.id.toLowerCase().includes(search.toLowerCase())
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+
+      const res = await GlobalApi.getUsers(
+        currentPage,
+        10,
+        "&role=user"
+      );
+
+      setUsers(res.data.data.users || []);
+      setTotalPages(res.data.data.pagination?.totalPages || 1);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load users");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [currentPage]);
+
+  const handleBack = () => setActivePage("list");
+
+  const handleTopManageLabels = () => {
+    setSelectedUser(null);
+    setIsManageLabelsOpen(true);
+  };
+const filteredUsers = users.filter((u) => {
+  const s = search.toLowerCase();
+  const stageName =
+    u.userType === "artist"
+      ? u?.artistData?.artistName
+      : u.userType === "label"
+        ? u?.labelData?.labelName
+        : u.userType === "aggregator"
+          ? u?.aggregatorData?.companyName
+          : "";
+  const accountName = `${u.firstName || ""} ${u.lastName || ""}`.trim().toLowerCase();
+
+  return (
+    u.accountId?.toLowerCase().includes(s) ||
+    accountName.includes(s) ||
+    (u.firstName || "").toLowerCase().includes(s) ||
+    (u.lastName || "").toLowerCase().includes(s) ||
+    stageName?.toLowerCase().includes(s) ||
+    u.emailAddress?.toLowerCase().includes(s) ||
+    u.userType?.toLowerCase().includes(s)
   );
+});
+
+
+
+  const totalUsers = users.length;
+  const aggregators = users.filter((u) => u.userType === "aggregator").length;
+  const artists = users.filter((u) => u.userType === "artist").length;
+  const labels = users.filter((u) => u.userType === "label").length;
 
   const stats = [
-    { label: "Total Users", value: users.length },
-    { label: "Active Users", value: users.filter((u) => u.status === "Active").length },
-    { label: "Artists", value: users.filter((u) => u.accountType === "Artist").length },
-    { label: "Labels", value: users.filter((u) => u.accountType === "Label").length },
+    { label: "Total Users", value: totalUsers },
+    { label: "Aggregators", value: aggregators },
+    { label: "Artists", value: artists },
+    { label: "Labels", value: labels },
   ];
-
-  const handleAddNewUser = () => {
-    setSelectedUser({});
-    setActivePage("userInfo");
-  };
-
-  const handleEditUser = (user) => {
-    setSelectedUser(user);
-    setActivePage("userInfo");
-  };
-
-  const handleBack = () => {
-    setActivePage("list");
-  };
-
-  const handleSave = (formData) => {
-    console.log("Saving user data:", formData);
-   
-    setActivePage("list");
-  };
 
   if (activePage === "userInfo") {
     return (
@@ -60,144 +110,290 @@ export default function UserManagement({ theme }) {
         theme={theme}
         defaultData={selectedUser}
         onBack={handleBack}
-        onSave={handleSave}
       />
     );
   }
 
   return (
-    <div className={`p-4 md:p-6 space-y-6 transition-colors duration-300 ${isDark ? "bg-[#111A22] text-gray-200" : "bg-gray-50 text-[#151F28]"}`}>
-      {/* Header */}
+    <div
+      className={`p-4 md:p-6 space-y-6 ${isDark ? "bg-[#111A22] text-gray-200" : "bg-gray-50 text-[#151F28]"
+        }`}
+    >
+
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
         <div>
           <h1 className="text-2xl font-semibold">User Management</h1>
-          <p className={`${isDark ? "text-gray-400" : "text-gray-600"} text-sm`}>
+          <p
+            className={`${isDark ? "text-gray-400" : "text-gray-600"
+              } text-sm`}
+          >
             Manage artists, labels, and aggregators in Maheshwari Visuals
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant={isDark ? "outline" : "secondary"} className="flex items-center gap-2 px-4">
+
+        <div className="flex flex-row gap-2 whitespace-nowrap">
+          <Button variant={isDark ? "outline" : "secondary"}>
             <Download className="h-4 w-4" /> Import CSV/Excel
           </Button>
-          <Button className="bg-purple-600 hover:bg-purple-700 text-white px-4" onClick={handleAddNewUser}>
-            Add New User
+
+          <Button
+            className="bg-purple-600 hover:bg-purple-700 text-white"
+            onClick={handleTopManageLabels}
+          >
+            Manage Labels
           </Button>
+
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((stat, i) => (
-          <div key={i} className={`rounded-lg p-4 shadow-md flex flex-col justify-center ${isDark ? "bg-[#151F28]" : "bg-white"}`}>
+          <div
+            key={i}
+            className={`rounded-lg p-4 shadow-md ${isDark ? "bg-[#151F28]" : "bg-white"
+              }`}
+          >
             <p className="text-sm mb-1">{stat.label}</p>
             <p className="text-2xl font-semibold">{stat.value}</p>
           </div>
         ))}
       </div>
 
-      {/* Search + Filters + Export */}
-      <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
-        <Input
-          placeholder="Search users by name, ID, or email..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className={`w-full md:w-1/3 ${isDark ? "bg-[#151F28] border-gray-700 text-gray-200" : "bg-white"}`}
-        />
-        <div className="flex flex-wrap gap-2 items-center">
-          <select className={`rounded-md px-3 py-2 text-sm ${isDark ? "bg-[#151F28] border border-gray-700 text-gray-200" : "bg-white border border-gray-300"}`}>
-            <option>All Status</option>
-            <option>Active</option>
-            <option>Inactive</option>
-          </select>
-          <select className={`rounded-md px-3 py-2 text-sm ${isDark ? "bg-[#151F28] border border-gray-700 text-gray-200" : "bg-white border border-gray-300"}`}>
-            <option>All Types</option>
-            <option>Artist</option>
-            <option>Label</option>
-            <option>Aggregator</option>
-          </select>
-          <Button variant={isDark ? "outline" : "secondary"} className="flex items-center gap-2 px-4">
-            <Download className="h-4 w-4" /> Export
-          </Button>
-        </div>
-      </div>
+      <Input
+        placeholder="Search users by email..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className={`w-full md:w-1/3 ${isDark ? "bg-[#151F28] border-gray-700 text-gray-200" : "bg-white"
+          }`}
+      />
 
-      {/* User Table */}
-      <div className={`rounded-lg overflow-x-auto shadow-md ${isDark ? "bg-[#151F28]" : "bg-white"}`}>
-        <table className="w-full text-sm min-w-[1000px]">
-          <thead className={`${isDark ? "text-gray-400" : "text-gray-600"} text-left`}>
-            <tr>
-              {["User ID", "Stage Name", "Account Type", "Status", "Membership Status", "Email", "Join Date", "Actions"].map((h) => (
-                <th key={h} className="px-4 py-3 font-medium whitespace-nowrap">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.map((user) => (
-              <tr key={user.id} className={`border-t ${isDark ? "border-gray-700" : "border-gray-200"}`}>
-                <td className="px-4 py-3">{user.id}</td>
-                <td className="px-4 py-3 cursor-pointer text-purple-500" onClick={() => handleEditUser(user)}>
-                  {user.stageName}
-                </td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.accountType === "Artist" ? "bg-purple-500/20 text-purple-400" : user.accountType === "Label" ? "bg-blue-500/20 text-blue-400" : "bg-orange-500/20 text-orange-400"}`}>
-                    {user.accountType}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.status === "Active" ? "bg-green-500/20 text-green-400" : "bg-gray-500/20 text-gray-400"}`}>
-                    {user.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.membership === "Active" ? "bg-green-500/20 text-green-400" : user.membership === "Not Applicable" ? "bg-gray-500/20 text-gray-400" : "bg-red-500/20 text-red-400"}`}>
-                    {user.membership}
-                  </span>
-                </td>
-                <td className="px-4 py-3">{user.email}</td>
-                <td className="px-4 py-3">{user.joinDate}</td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="flex gap-2 min-w-max">
-                    <Button size="sm" className="bg-purple-600 text-white flex items-center gap-1 rounded-full px-3">
-                      <Music className="h-4 w-4" /> Manage Release
-                    </Button>
-                    <Button size="sm" className="bg-purple-600 text-white rounded-full px-3">
-                      Manage Label
-                    </Button>
-                    <Button size="sm" className="bg-purple-600 text-white flex items-center gap-1 rounded-full px-3">
-                      <Lock className="h-4 w-4" /> Reset Password
-                    </Button>
-                    <Button size="sm" className="bg-purple-600 text-white flex items-center gap-1 rounded-full px-3">
-                      <Upload className="h-4 w-4" /> Upload Catalog
-                    </Button>
+      <div
+        className={`rounded-lg shadow-md ${isDark ? "bg-[#151F28]" : "bg-white"
+          }`}
+      >
+        {loading ? (
+          <div className="p-6 text-center text-gray-400">Loading users...</div>
+        ) : users.length === 0 ? (
+          <div className="p-6 text-center text-gray-400">No users found</div>
+        ) : (
+          <>
 
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[1500px]">
+                <thead
+                  className={`${isDark ? "text-gray-400" : "text-gray-600"} text-left`}
+                >
+                  <tr>
+                    {[
+                      "User ID",
+                      "Account Name",
+                      "Stage Name",
+                      "Account Type",
+                      "Status",
+                      "Membership",
+                      "Email",
+                      "Join Date",
+                      "Actions",
+                    ].map((header) => (
+                      <th key={header} className="px-4 py-3 font-medium">
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
 
-    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button size="icon" variant="ghost">
-                          <MoreHorizontal className="h-5 w-5" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        className={`${
-                          isDark
-                            ? "bg-[#151F28] border border-gray-700 text-gray-200"
-                            : "bg-white border border-gray-200 text-gray-800"
-                        } rounded-lg shadow-md`}
+                <tbody>
+                  {filteredUsers.map((u) => {
+                    const stageName =
+                      u.userType === "artist"
+                        ? u?.artistData?.artistName
+                        : u.userType === "label"
+                          ? u?.labelData?.labelName
+                          : u.userType === "aggregator"
+                            ? u?.aggregatorData?.companyName
+                            : "—";
+
+                    return (
+                      <tr
+                        key={u._id}
+                        className={`border-t ${isDark ? "border-gray-700" : "border-gray-200"
+                          }`}
                       >
-                        <DropdownMenuItem>KYC Details</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-500">
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                        <td className="px-4 py-3">{u.accountId}</td>
+                        <td className="px-4 py-3">
+  {u.firstName || u.lastName ? `${u.firstName || ""} ${u.lastName || ""}`.trim() : "—"}
+</td>
+                        <td className="px-4 py-3">{stageName}</td>
 
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`text-xs px-2 py-1 rounded-full ${u.userType === "artist"
+                              ? "bg-purple-500/20 text-purple-400"
+                              : u.userType === "label"
+                                ? "bg-blue-500/20 text-blue-400"
+                                : "bg-orange-500/20 text-orange-400"
+                              }`}
+                          >
+                            {u.userType}
+                          </span>
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs ${u.isActive
+                              ? "bg-green-500/20 text-green-400"
+                              : "bg-gray-500/20 text-gray-400"
+                              }`}
+                          >
+                            {u.isActive ? "Active" : "Inactive"}
+                          </span>
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <span className="bg-green-500/20 px-2 py-1 rounded-full text-xs text-green-400">
+                            Active
+                          </span>
+                        </td>
+
+                        <td className="px-4 py-3">{u.emailAddress}</td>
+
+                        <td className="px-4 py-3">
+                          {new Date(u.createdAt).toLocaleDateString()}
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-end gap-2 whitespace-nowrap">
+                            <Button
+                              size="sm"
+                              className="bg-purple-600 hover:bg-purple-700 text-white px-3 rounded-lg flex items-center gap-1"
+                            >
+                              <Music className="h-4 w-4" />
+                              Manage Release
+                            </Button>
+
+                            <Button
+                              size="sm"
+                              className="bg-purple-600 hover:bg-purple-700 text-white px-3 rounded-lg flex items-center gap-1"
+                              onClick={() => {
+                                setSelectedUser(u);
+                                setIsAssignedLabelsOpen(true);   
+                              }}
+
+                            >
+                              <FolderKanban className="h-4 w-4" />
+                              Manage Label
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="bg-purple-600 hover:bg-purple-700 text-white px-3 rounded-lg flex items-center gap-1"
+                              onClick={() => {
+                                setSelectedUser(u);
+                                setIsResetPasswordOpen(true);
+                              }}
+                            >
+                              <KeyRound className="h-4 w-4" />
+                              Reset Password
+                            </Button>
+
+
+                            <Button
+                              size="sm"
+                              className="bg-purple-600 hover:bg-purple-700 text-white px-3 rounded-lg flex items-center gap-1"
+                            >
+                              <Upload className="h-4 w-4" />
+                              Upload Catalog
+                            </Button>
+
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="rounded-lg border border-white/20"
+                                >
+                                  <MoreHorizontal className="h-5 w-5" />
+                                </Button>
+                              </DropdownMenuTrigger>
+
+                              <DropdownMenuContent
+                                className={`rounded-lg ${isDark
+                                  ? "bg-[#151F28] text-gray-200 border-gray-700"
+                                  : "bg-white text-gray-700 border-gray-200"
+                                  }`}
+                              >
+                                <DropdownMenuItem>KYC Details</DropdownMenuItem>
+                                <DropdownMenuItem className="text-red-500">
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex justify-end items-center gap-3 px-4 py-4">
+
+              <Button
+                disabled={currentPage === 1}
+                variant="outline"
+                onClick={() => setCurrentPage((p) => p - 1)}
+              >
+                Previous
+              </Button>
+
+              <div className="flex gap-1">
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`px-3 py-1 rounded-md text-sm ${currentPage === i + 1
+                      ? "bg-purple-600 text-white"
+                      : isDark
+                        ? "bg-[#151F28] text-gray-300"
+                        : "bg-gray-200 text-gray-700"
+                      }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+
+              <Button
+                disabled={currentPage === totalPages}
+                variant="outline"
+                onClick={() => setCurrentPage((p) => p + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          </>
+        )}
       </div>
+   <ManageLabelsModal
+  isOpen={isManageLabelsOpen}
+  onClose={() => setIsManageLabelsOpen(false)}
+  theme={theme}
+  userId={null}            
+  userName="All Labels"   
+/>
+
+     <AssignedSublabels
+  isOpen={isAssignedLabelsOpen}
+  onClose={() => setIsAssignedLabelsOpen(false)}
+  userId={selectedUser?._id}
+   theme={theme}  
+/>
+      <ResetPasswordModal
+        isOpen={isResetPasswordOpen}
+        onClose={() => setIsResetPasswordOpen(false)}
+        userData={selectedUser}
+        theme={theme}
+      />
     </div>
   );
 }

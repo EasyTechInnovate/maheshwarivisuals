@@ -1,72 +1,52 @@
-import { useState } from "react";
+"use client";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar, BarChart3, IndianRupee } from "lucide-react";
-import { mockMonthManagementData } from "./MonthManagementData";
-import AnalyticsMonthManagement from "./AnalyticsMonthManagement";
-import RoyaltyMonthManagement from "./RoyaltyMonthManagement";
-import BonusMonthManagement from "./BonusMonthManagement";
-import MCNMonthManagement from "./MCNMonthManagement";
+import { Calendar, CheckCircle2, BarChart3 } from "lucide-react";
+import GlobalApi from "@/lib/GlobalApi";
+
+import AnalyticsMonthManagement from "../../components/month-management/AnalyticsMonthManagement";
+import RoyaltyMonthManagement from "../../components/month-management/RoyaltyMonthManagement";
+import BonusMonthManagement from "../../components/month-management/BonusMonthManagement";
+import AddMonthModal from "../../components/month-management/MonthModal";
 
 export default function MonthManagement({ theme }) {
   const isDark = theme === "dark";
+
   const [search, setSearch] = useState("");
-  const [monthData] = useState(mockMonthManagementData);
+  const [stats, setStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const [showAnalyticsPage, setShowAnalyticsPage] = useState(false);
-  const [showRoyaltyPage, setShowRoyaltyPage] = useState(false); 
-  const [showBonusPage, setShowBonusPage] = useState(false); 
-  const [showMCNPage, setShowMCNPage] = useState(false); 
+  const [showRoyaltyPage, setShowRoyaltyPage] = useState(false);
+  const [showBonusPage, setShowBonusPage] = useState(false);
 
-  const stats = [
-    { label: "Total Months", value: monthData.totalMonths, icon: <Calendar className="h-5 w-5" /> },
-    { label: "Active Months", value: monthData.activeMonths, icon: <BarChart3 className="h-5 w-5" /> },
-    { label: "Total Royalties", value: `₹${monthData.totalRoyalties.toLocaleString()}`, icon: <IndianRupee className="h-5 w-5" />, color: "text-blue-400" },
-    { label: "Total Analytics Value", value: `₹${monthData.totalAnalyticsValue.toLocaleString()}`, icon: <IndianRupee className="h-5 w-5" />, color: "text-purple-400" },
-  ];
+  // 🔥 Fetch Stats From API
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await GlobalApi.getMonthsStats();
+        setStats(res.data.data);
+      } catch (err) {
+        console.log("Error loading stats:", err);
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
-  const filteredMonths = monthData.monthList.filter((m) =>
-    m.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  // ✅ Show Analytics Page
   if (showAnalyticsPage) {
-    return (
-      <AnalyticsMonthManagement
-        theme={theme}
-        onBack={() => setShowAnalyticsPage(false)}
-      />
-    );
+    return <AnalyticsMonthManagement theme={theme} onBack={() => setShowAnalyticsPage(false)} />;
   }
 
-  // ✅ Show Royalty Page
   if (showRoyaltyPage) {
-    return (
-      <RoyaltyMonthManagement
-        theme={theme}
-        onBack={() => setShowRoyaltyPage(false)}
-      />
-    );
+    return <RoyaltyMonthManagement theme={theme} onBack={() => setShowRoyaltyPage(false)} />;
   }
 
-  // ✅ Show Bonus Page
   if (showBonusPage) {
-    return (
-      <BonusMonthManagement
-        theme={theme}
-        onBack={() => setShowBonusPage(false)}
-      />
-    );
-  }
-
-  // ✅ Show MCN Page
-  if (showMCNPage) {
-    return (
-      <MCNMonthManagement
-        theme={theme}
-        onBack={() => setShowMCNPage(false)}
-      />
-    );
+    return <BonusMonthManagement theme={theme} onBack={() => setShowBonusPage(false)} />;
   }
 
   return (
@@ -75,96 +55,134 @@ export default function MonthManagement({ theme }) {
         isDark ? "bg-[#111A22] text-gray-200" : "bg-gray-50 text-[#151F28]"
       }`}
     >
+      {/* ---------------- Header ---------------- */}
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Month Management</h1>
-          <p
-            className={`text-sm ${
-              isDark ? "text-gray-400" : "text-gray-600"
-            }`}
-          >
-            Organize monthly data entries for royalty and analytics management
+          <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+            Organize monthly royalty and analytics data
           </p>
         </div>
-        <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-5">
+
+        <Button
+          className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-5"
+          onClick={() => setShowAddModal(true)}
+        >
           + Add New Month
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat, idx) => (
-          <div
-            key={idx}
-            className={`rounded-lg p-4 shadow-md flex items-center justify-between ${
-              isDark ? "bg-[#151F28]" : "bg-white"
-            }`}
-          >
-            <div>
-              <p
-                className={`text-sm ${
-                  isDark ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                {stat.label}
-              </p>
-              <p
-                className={`text-2xl font-semibold ${stat.color || ""}`}
-              >
-                {stat.value}
-              </p>
-            </div>
-            <div
-              className={`${isDark ? "text-gray-400" : "text-gray-600"}`}
-            >
-              {stat.icon}
-            </div>
-          </div>
-        ))}
+      {/* ---------------- Stats Section ---------------- */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* ---------- Overview Stats ---------- */}
+        <div
+          className={`rounded-lg p-4 shadow-md flex flex-col gap-2 ${
+            isDark ? "bg-[#151F28]" : "bg-white"
+          }`}
+        >
+          <Calendar className="h-6 w-6 opacity-70" />
+          <p className="text-sm opacity-70">Total Months</p>
+          <p className="text-2xl font-semibold">
+            {loadingStats ? "..." : stats?.overview?.totalMonths}
+          </p>
+        </div>
+
+        <div
+          className={`rounded-lg p-4 shadow-md flex flex-col gap-2 ${
+            isDark ? "bg-[#151F28]" : "bg-white"
+          }`}
+        >
+          <CheckCircle2 className="h-6 w-6 text-green-400" />
+          <p className="text-sm opacity-70">Active Months</p>
+          <p className="text-2xl font-semibold text-green-400">
+            {loadingStats ? "..." : stats?.overview?.activeMonths}
+          </p>
+        </div>
+
+        <div
+          className={`rounded-lg p-4 shadow-md flex flex-col gap-2 ${
+            isDark ? "bg-[#151F28]" : "bg-white"
+          }`}
+        >
+          <BarChart3 className="h-6 w-6 text-red-400" />
+          <p className="text-sm opacity-70">Inactive Months</p>
+          <p className="text-2xl font-semibold text-red-400">
+            {loadingStats ? "..." : stats?.overview?.inactiveMonths}
+          </p>
+        </div>
+
+        {/* ---------- Type-Based Summary ---------- */}
+        <div
+          className={`rounded-lg p-4 shadow-md flex flex-col gap-3 ${
+            isDark ? "bg-[#151F28]" : "bg-white"
+          }`}
+        >
+          <p className="text-sm opacity-70">By Type</p>
+
+          {loadingStats ? (
+            <p className="opacity-50 text-sm">Loading...</p>
+          ) : (
+            stats?.byType?.map((item, idx) => (
+              <div key={idx} className="flex justify-between text-sm">
+                <span className="capitalize">{item.type}</span>
+                <span className="font-semibold">
+                  {item.active}/{item.total} active
+                </span>
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
+      {/* ---------------- Search Bar ---------------- */}
       <Input
-        placeholder="Search months and years..."
+        placeholder="Search months..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className={`w-full ${
-          isDark
-            ? "bg-[#151F28] border-gray-700 text-gray-200"
-            : "bg-white"
+          isDark ? "bg-[#151F28] border-gray-700 text-gray-200" : "bg-white"
         }`}
       />
 
+      {/* ---------------- List of Month Types ---------------- */}
       <div
         className={`rounded-lg shadow-md p-4 ${
           isDark ? "bg-[#151F28]" : "bg-white"
         }`}
       >
-        <h2 className="text-sm font-semibold mb-3">Month Management</h2>
+        <h2 className="text-sm font-semibold mb-3">Month Types</h2>
+
         <ul className="divide-y divide-gray-700 dark:divide-gray-700">
-          {filteredMonths.map((month) => (
-            <li
-              key={month.id}
-              className={`p-3 text-sm cursor-pointer transition-colors ${
-                isDark
-                  ? "hover:bg-gray-700 divide-gray-700"
-                  : "hover:bg-gray-100 divide-gray-200"
-              }`}
-              onClick={() => {
-                if (month.name === "Analytics Month Management") {
-                  setShowAnalyticsPage(true);
-                } else if (month.name === "Royalty Month Management") {
-                  setShowRoyaltyPage(true); 
-                } else if (month.name === "Bonus Month Management") {
-                  setShowBonusPage(true); 
-                } else if (month.name === "MCN Month Management") {
-                  setShowMCNPage(true); 
-                } 
-              }}
-            >
-              {month.name}
-            </li>
-          ))}
+          <li
+            className="p-3 text-sm cursor-pointer hover:bg-gray-700/40"
+            onClick={() => setShowAnalyticsPage(true)}
+          >
+            Analytics Month Management
+          </li>
+
+          <li
+            className="p-3 text-sm cursor-pointer hover:bg-gray-700/40"
+            onClick={() => setShowRoyaltyPage(true)}
+          >
+            Royalty Month Management
+          </li>
+
+          <li
+            className="p-3 text-sm cursor-pointer hover:bg-gray-700/40"
+            onClick={() => setShowBonusPage(true)}
+          >
+            Bonus Month Management
+          </li>
         </ul>
       </div>
+
+      {showAddModal && (
+        <AddMonthModal
+          theme={theme}
+          onClose={() => setShowAddModal(false)}
+          onSuccess={() => {}}
+        />
+      )}
     </div>
   );
 }

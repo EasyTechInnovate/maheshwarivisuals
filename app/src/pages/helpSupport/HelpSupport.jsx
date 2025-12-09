@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Tabs, 
   TabsContent, 
@@ -17,6 +18,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
+  CardFooter,
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -50,111 +52,26 @@ import {
   Ticket,
   CheckCircle,
   AlertTriangle,
+  Star,
 } from 'lucide-react';
+import {
+  createSupportTicket,
+  getMyTickets,
+  getMyTicketStats,
+  getTicketById,
+  addTicketResponse,
+  addTicketRating,
+  getFaqs,
+  getContactInfo
+} from '@/services/api.services';
+import toast from 'react-hot-toast';
 
 const HelpSupport = () => {
-  const [activeTab, setActiveTab] = useState('faq');
-  const [selectedTicket, setSelectedTicket] = useState(null);
-  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('tickets');
+  const [modalState, setModalState] = useState({ type: null, ticket: null });
   const [openFAQ, setOpenFAQ] = useState(null);
-
-  // FAQ Data
-  const faqData = [
-    {
-      category: "Getting Started",
-      questions: [
-        {
-          id: 1,
-          question: "How do I upload my first release?",
-          answer: "To upload your first release, navigate to the 'Releases' section, click 'New Release', fill in all required information including track details, artwork, and distribution preferences, then submit for review."
-        },
-        {
-          id: 2,
-          question: "What audio formats are supported?",
-          answer: "We support WAV, FLAC, MP3 (320kbps), and AIFF formats. For best quality, we recommend uploading in WAV or FLAC format."
-        },
-        {
-          id: 3,
-          question: "How long does it take for my music to go live?",
-          answer: "Once approved, your music typically goes live across all platforms within 24-48 hours. Some platforms may take up to 5-7 business days."
-        }
-      ]
-    },
-    {
-      category: "Royalties & Payments",
-      questions: [
-        {
-          id: 4,
-          question: "When do I get paid?",
-          answer: "Royalty payments are processed monthly, typically by the 15th of each month for the previous month's earnings, provided you meet the minimum payout threshold."
-        },
-        {
-          id: 5,
-          question: "What is bonus royalty?",
-          answer: "Bonus royalty is an additional percentage of earnings you can receive based on your subscription tier and performance milestones."
-        },
-        {
-          id: 6,
-          question: "How are royalties calculated?",
-          answer: "Royalties are calculated based on streams, downloads, and other revenue sources minus platform fees. The exact percentage depends on your chosen plan."
-        }
-      ]
-    },
-    {
-      category: "Technical Issues",
-      questions: [
-        {
-          id: 7,
-          question: "My upload is stuck or failed",
-          answer: "If your upload fails, check your internet connection and file format. If the issue persists, try uploading during off-peak hours or contact support."
-        },
-        {
-          id: 8,
-          question: "I can't access my account",
-          answer: "Try resetting your password first. If you still can't access your account, contact our support team with your registered email address."
-        },
-        {
-          id: 9,
-          question: "Audio quality issues after upload",
-          answer: "Ensure your original file is high quality (WAV/FLAC recommended). Avoid multiple compressions and check that your master isn't clipping or distorted."
-        }
-      ]
-    }
-  ];
-
-  // Sample ticket data
-  const ticketData = [
-    {
-      id: 'TKT001',
-      subject: 'Payment not processed',
-      category: 'Billing',
-      status: 'Open',
-      priority: 'High',
-      agent: 'Support Team',
-      created: '1/15/2024',
-      description: 'My monthly royalty payment was not processed on the expected date. Please investigate and resolve this issue.'
-    },
-    {
-      id: 'TKT002',
-      subject: 'Upload issue with large files',
-      category: 'Technical',
-      status: 'In Progress',
-      priority: 'Medium',
-      agent: 'Tech Support',
-      created: '1/14/2024',
-      description: 'Having trouble uploading files larger than 100MB. The upload keeps failing at around 80% completion.'
-    },
-    {
-      id: 'TKT003',
-      subject: 'Question about MCN application',
-      category: 'General',
-      status: 'Resolved',
-      priority: 'Low',
-      agent: 'Account Manager',
-      created: '1/12/2024',
-      description: 'Need clarification about the Multi-Channel Network application process and requirements.'
-    }
-  ];
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [faqSearchQuery, setFaqSearchQuery] = useState('');
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
@@ -164,6 +81,8 @@ const HelpSupport = () => {
         return 'bg-yellow-500/10 text-yellow-700 border-yellow-500/10';
       case 'resolved':
         return 'bg-green-500/10 text-green-700 border-green-500/10';
+      case 'closed':
+        return 'bg-gray-500/10 text-gray-700 border-gray-500/10';
       case 'rejected':
         return 'bg-red-500/10 text-red-700 border-red-500/10';
       default:
@@ -183,6 +102,10 @@ const HelpSupport = () => {
         return 'bg-gray-500/10 text-gray-700 border-gray-500/10';
     }
   };
+
+  // React Query
+  const queryClient = useQueryClient();
+  const [ticketFilters, setTicketFilters] = useState({ page: 1, limit: 10, status: 'open' });
 
   const ClaimModal = ({ title, children, trigger }) => (
     <Dialog >
@@ -209,58 +132,263 @@ const HelpSupport = () => {
     </div>
   );
 
+  // API Integrations with React Query
+  const { data: ticketsData, isLoading: isLoadingTickets, isError: isTicketsError } = useQuery({
+    queryKey: ['myTickets', ticketFilters],
+    queryFn: () => getMyTickets(ticketFilters),
+    keepPreviousData: true,
+  });
+
+  const { data: ticketStats, isLoading: isLoadingStats } = useQuery({
+    queryKey: ['myTicketStats'],
+    queryFn: getMyTicketStats,
+  });
+
+  const { data: faqsData, isLoading: isLoadingFaqs, isError: isFaqsError } = useQuery({
+    queryKey: ['faqs'],
+    queryFn: getFaqs,
+  });
+
+  const { data: contactInfoData, isLoading: isLoadingContactInfo } = useQuery({
+    queryKey: ['contactInfo'],
+    queryFn: getContactInfo,
+  });
+
+  const { data: ticketDetails, isLoading: isLoadingTicketDetails } = useQuery({
+    queryKey: ['ticketDetails', modalState.ticket?.ticketId],
+    queryFn: () => getTicketById(modalState.ticket.ticketId),
+    enabled: !!modalState.ticket && modalState.type === 'details', // Only fetch when a ticket is selected and details modal is open
+  });
+
+  const createTicketMutation = useMutation({
+    mutationFn: createSupportTicket,
+    onSuccess: () => {
+      toast.success('Support ticket created successfully!');
+      queryClient.invalidateQueries(['myTickets']);
+      queryClient.invalidateQueries({ queryKey: ['myTicketStats'] });
+      // Optionally reset form state here
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to create ticket.');
+    },
+  });
+
+  const addResponseMutation = useMutation({
+    mutationFn: addTicketResponse,
+    onSuccess: (data, variables) => {
+      toast.success('Reply sent successfully!');
+      queryClient.invalidateQueries({ queryKey: ['ticketDetails', variables.ticketId] });
+      queryClient.invalidateQueries({ queryKey: ['myTickets'] });
+      setModalState({ type: null, ticket: null });
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to send reply.');
+    },
+  });
+
+  const addRatingMutation = useMutation({
+    mutationFn: addTicketRating,
+    onSuccess: (data, variables) => {
+      toast.success('Feedback submitted successfully!');
+      queryClient.invalidateQueries({ queryKey: ['ticketDetails', variables.ticketId] });
+      queryClient.invalidateQueries({ queryKey: ['myTickets'] });
+      setModalState({ type: null, ticket: null });
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to submit feedback.');
+    },
+  });
+
+  const filteredFaqs = React.useMemo(() => {
+    if (!faqsData?.data?.faqsByCategory) {
+      return {};
+    }
+
+    if (!faqSearchQuery) {
+      return faqsData.data.faqsByCategory;
+    }
+
+    const lowercasedQuery = faqSearchQuery.toLowerCase();
+    const filtered = {};
+
+    for (const category in faqsData.data.faqsByCategory) {
+      const questions = faqsData.data.faqsByCategory[category];
+      const filteredQuestions = questions.filter(faq =>
+        faq.question.toLowerCase().includes(lowercasedQuery) ||
+        faq.answer.toLowerCase().includes(lowercasedQuery)
+      );
+
+      if (filteredQuestions.length > 0) {
+        filtered[category] = filteredQuestions;
+      }
+    }
+    return filtered;
+  }, [faqsData, faqSearchQuery]);
+
+  const handleCreateTicket = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+    // Basic validation
+    if (!data.subject || !data.description || !data.category) {
+      toast.warning('Please fill all required fields.');
+      return;
+    }
+    createTicketMutation.mutate(data);
+  };
+
+  const tickets = ticketsData?.data?.tickets || [];
+  const pagination = ticketsData?.data?.pagination || {};
+
   const TicketDetailModal = ({ ticket }) => (
-    <Dialog open={isTicketModalOpen} onOpenChange={setIsTicketModalOpen}>
+    <Dialog open={modalState.type === 'details'} onOpenChange={() => setModalState({ type: null, ticket: null })}>
       <DialogContent className="max-w-2xl  border-slate-700">
         <DialogHeader>
           <DialogTitle>Ticket Details</DialogTitle>
         </DialogHeader>
         {ticket && (
-          <div className="space-y-4">
+          <div className="space-y-4 text-sm">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm">Ticket ID</p>
-                <p>{ticket.id}</p>
+                <p className="text-muted-foreground">Ticket ID</p>
+                <p className="font-semibold">{ticket.ticketId}</p>
               </div>
               <div>
-                <p className="text-sm">Status</p>
+                <p className="text-muted-foreground">Status</p>
                 <Badge className={getStatusColor(ticket.status)}>
                   {ticket.status}
                 </Badge>
               </div>
               <div>
-                <p className="text-sm">Priority</p>
+                <p className="text-muted-foreground">Priority</p>
                 <Badge className={getPriorityColor(ticket.priority)}>
                   {ticket.priority}
                 </Badge>
               </div>
               <div>
-                <p className="text-sm">Created</p>
-                <p>{ticket.created}</p>
+                <p className="text-muted-foreground">Created</p>
+                <p>{new Date(ticket.createdAt).toLocaleString()}</p>
               </div>
             </div>
-            <div>
-              <p className="text-sm mb-2">Subject</p>
-              <p>{ticket.subject}</p>
-            </div>
-            <div>
-              <p className="text-sm mb-2">Description</p>
-              <p>{ticket.description}</p>
-            </div>
+            {isLoadingTicketDetails && <p>Loading details...</p>}
+            {ticketDetails?.data && (
+              <div className="space-y-3 pt-2">
+                <div>
+                  <p className="text-muted-foreground mb-1">Subject</p>
+                  <p className="font-semibold">{ticketDetails.data.subject}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground mb-1">Description</p>
+                  <p className="p-3 bg-muted-foreground/10 rounded-md">{ticketDetails.data.description}</p>
+                </div>
+                {/* TODO: Render responses and attachments */}
+              </div>
+            )}
             <div className="flex gap-2 pt-4">
-              <Button className="bg-purple-600 text-white hover:bg-purple-700">
+              <Button 
+                className="bg-purple-600 text-white hover:bg-purple-700"
+                onClick={() => setModalState({ type: 'reply', ticket })}
+              >
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Reply
               </Button>
-              <Button variant="outline">
-                View Details
-              </Button>
+              {(ticket.status === 'resolved' || ticket.status === 'closed') && (
+                <Button 
+                  variant="outline"
+                  onClick={() => setModalState({ type: 'rating', ticket })}
+                >
+                  <Star className="w-4 h-4 mr-2" />
+                  Give Feedback
+                </Button>
+              )}
             </div>
           </div>
         )}
       </DialogContent>
     </Dialog>
   );
+
+  const ReplyModal = ({ ticket }) => {
+    const handleReplySubmit = (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const message = formData.get('message');
+      if (!message?.trim()) {
+        toast.error('Reply message cannot be empty.');
+        return;
+      }
+      addResponseMutation.mutate({
+        ticketId: ticket.ticketId,
+        responseData: { message },
+      });
+    };
+
+    return (
+      <Dialog open={modalState.type === 'reply'} onOpenChange={() => setModalState({ type: null, ticket: null })}>
+        <DialogContent className="max-w-lg border-slate-700">
+          <DialogHeader>
+            <DialogTitle>Reply to Ticket: {ticket?.ticketId}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleReplySubmit} className="space-y-4">
+            <FormField label="Your Message" required>
+              <Textarea
+                name="message"
+                placeholder="Type your reply here..."
+                className="border-slate-700 min-h-[150px]"
+              />
+            </FormField>
+            {/* TODO: Add attachment functionality if needed */}
+            <Button type="submit" disabled={addResponseMutation.isLoading} className="w-full bg-purple-600 text-white hover:bg-purple-700">
+              {addResponseMutation.isLoading ? 'Sending...' : 'Send Reply'}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
+  const RatingModal = ({ ticket }) => {
+    const [rating, setRating] = useState(0);
+
+    const handleRatingSubmit = (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const feedback = formData.get('feedback');
+      if (rating === 0) {
+        toast.error('Please select a rating.');
+        return;
+      }
+      addRatingMutation.mutate({
+        ticketId: ticket.ticketId,
+        ratingData: { rating, feedback },
+      });
+    };
+
+    return (
+      <Dialog open={modalState.type === 'rating'} onOpenChange={() => setModalState({ type: null, ticket: null })}>
+        <DialogContent className="max-w-lg border-slate-700">
+          <DialogHeader>
+            <DialogTitle>Rate Support for Ticket: {ticket?.ticketId}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleRatingSubmit} className="space-y-4">
+            <FormField label="Rating" required>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star key={star} className={`cursor-pointer ${rating >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-500'}`} onClick={() => setRating(star)} />
+                ))}
+              </div>
+            </FormField>
+            <FormField label="Feedback (Optional)">
+              <Textarea name="feedback" placeholder="Tell us about your experience..." className="border-slate-700 min-h-[120px]" />
+            </FormField>
+            <Button type="submit" disabled={addRatingMutation.isLoading} className="w-full bg-purple-600 text-white hover:bg-purple-700">
+              {addRatingMutation.isLoading ? 'Submitting...' : 'Submit Feedback'}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+    );
+  };
 
   return (
     <div className="min-h-screen p-6">
@@ -274,7 +402,16 @@ const HelpSupport = () => {
             </div>
             <Button 
               className="bg-purple-600 text-white hover:bg-purple-700"
-              onClick={() => setActiveTab('tickets')}
+              onClick={() => {
+                setActiveTab('tickets');
+                // Use a short timeout to ensure the tab content is rendered before scrolling
+                setTimeout(() => {
+                  document.getElementById('newticket')?.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                  });
+                }, 100);
+              }}
             >
               <Plus className="w-4 h-4 mr-2" />
               New Ticket
@@ -301,9 +438,10 @@ const HelpSupport = () => {
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="billing">Billing</SelectItem>
-                      <SelectItem value="technical">Technical</SelectItem>
-                      <SelectItem value="general">General</SelectItem>
+                      <SelectItem value="Billing">Billing</SelectItem>
+                      <SelectItem value="Technical">Technical</SelectItem>
+                      <SelectItem value="Account">Account</SelectItem>
+                      <SelectItem value="Content">Content</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormField>
@@ -313,6 +451,7 @@ const HelpSupport = () => {
                       <SelectValue placeholder="Select priority" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="critical">Critical</SelectItem>
                       <SelectItem value="low">Low</SelectItem>
                       <SelectItem value="medium">Medium</SelectItem>
                       <SelectItem value="high">High</SelectItem>
@@ -711,37 +850,45 @@ const HelpSupport = () => {
             <div className="mb-6">
               <Input
                 placeholder="Search frequently asked questions..."
+                value={faqSearchQuery}
+                onChange={(e) => setFaqSearchQuery(e.target.value)}
                 className="max-w-md border-slate-700"
               />
             </div>
 
-            {faqData.map((category, categoryIndex) => (
-              <Card key={categoryIndex} className=" border-slate-700">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
-                      {categoryIndex === 0 && <Play className="w-4 h-4 text-white" />}
-                      {categoryIndex === 1 && <FileText className="w-4 h-4 text-white" />}
-                      {categoryIndex === 2 && <AlertCircle className="w-4 h-4 text-white" />}
-                    </div>
-                    {category.category}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {category.questions.map((faq) => (
-                    <Collapsible key={faq.id} open={openFAQ === faq.id} onOpenChange={() => setOpenFAQ(openFAQ === faq.id ? null : faq.id)}>
-                      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 text-left rounded-lg transition-colors hover:bg-muted-foreground/10">
-                        <span>{faq.question}</span>
-                        <ChevronDown className={`h-4 w-4 transition-transform ${openFAQ === faq.id ? 'rotate-180' : ''}`} />
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="p-3 bg-muted-foreground/10 rounded-lg mt-1">
-                        {faq.answer}
-                      </CollapsibleContent>
-                    </Collapsible>
-                  ))}
-                </CardContent>
-              </Card>
-            ))}
+            {isLoadingFaqs && <p>Loading FAQs...</p>}
+            {isFaqsError && <p className="text-red-500">Error fetching FAQs.</p>}
+            {!isLoadingFaqs && Object.keys(filteredFaqs).length === 0 && <p>No matching FAQs found.</p>}
+            {filteredFaqs &&
+              Object.entries(filteredFaqs).map(([category, questions], categoryIndex) => (
+                <Card key={category} className=" border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                        {/* You can add more sophisticated icon logic if needed */}
+                        {categoryIndex === 0 && <Play className="w-4 h-4 text-white" />}
+                        {categoryIndex === 1 && <FileText className="w-4 h-4 text-white" />}
+                        {categoryIndex === 2 && <AlertCircle className="w-4 h-4 text-white" />}
+                        {categoryIndex > 2 && <CheckCircle className="w-4 h-4 text-white" />}
+                      </div>
+                      {category}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {questions.map((faq) => (
+                      <Collapsible key={faq._id} open={openFAQ === faq._id} onOpenChange={() => setOpenFAQ(openFAQ === faq._id ? null : faq._id)}>
+                        <CollapsibleTrigger className="flex items-center justify-between w-full p-3 text-left rounded-lg transition-colors hover:bg-muted-foreground/10">
+                          <span>{faq.question}</span>
+                          <ChevronDown className={`h-4 w-4 transition-transform ${openFAQ === faq._id ? 'rotate-180' : ''}`} />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="p-3 bg-muted-foreground/10 rounded-lg mt-1">
+                          {faq.answer}
+                        </CollapsibleContent>
+                      </Collapsible>
+                    ))}
+                  </CardContent>
+                </Card>
+              ))}
           </TabsContent>
 
           {/* My Tickets Tab */}
@@ -750,64 +897,70 @@ const HelpSupport = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <Card className=" py-2 border-slate-700">
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm">Total Tickets</p>
-                      <p className="text-2xl font-bold">{ticketData.length}</p>
+                  {isLoadingStats ? <p>Loading...</p> : (
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm">Total Tickets</p>
+                        <p className="text-2xl font-bold">{ticketStats?.data?.overallStats?.totalTickets || 0}</p>
+                      </div>
+                      <Ticket className="w-8 h-8" />
                     </div>
-                    <Ticket className="w-8 h-8" />
-                  </div>
+                  )}
                 </CardContent>
               </Card>
               <Card className=" py-2 border-slate-700">
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm">Open</p>
-                      <p className="text-2xl font-bold">
-                        {ticketData.filter(t => t.status === 'Open').length}
-                      </p>
+                  {isLoadingStats ? <p>Loading...</p> : (
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm">Open</p>
+                        <p className="text-2xl font-bold">{ticketStats?.data?.overallStats?.openTickets || 0}</p>
+                      </div>
+                      <FileText className="w-8 h-8 text-blue-500" />
                     </div>
-                    <FileText className="w-8 h-8 text-blue-500" />
-                  </div>
+                  )}
                 </CardContent>
               </Card>
               <Card className=" py-2 border-slate-700">
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm">In Progress</p>
-                      <p className="text-2xl font-bold">
-                        {ticketData.filter(t => t.status === 'In Progress').length}
-                      </p>
+                  {isLoadingStats ? <p>Loading...</p> : (
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm">In Progress</p>
+                        <p className="text-2xl font-bold">{ticketStats?.data?.overallStats?.pendingTickets || 0}</p>
+                      </div>
+                      <Clock className="w-8 h-8 text-yellow-500" />
                     </div>
-                    <Clock className="w-8 h-8 text-yellow-500" />
-                  </div>
+                  )}
                 </CardContent>
               </Card>
               <Card className=" py-2 border-slate-700">
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm">Resolved</p>
-                      <p className="text-2xl font-bold">
-                        {ticketData.filter(t => t.status === 'Resolved').length}
-                      </p>
+                  {isLoadingStats ? <p>Loading...</p> : (
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm">Resolved</p>
+                        <p className="text-2xl font-bold">{ticketStats?.data?.overallStats?.resolvedTickets || 0}</p>
+                      </div>
+                      <CheckCircle className="w-8 h-8 text-green-500" />
                     </div>
-                    <CheckCircle className="w-8 h-8 text-green-500" />
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
 
             {/* Ticket List (as cards) */}
             <Card className=" border-slate-700">
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Recent Tickets</CardTitle>
+                {/* TODO: Add filters for status */}
               </CardHeader>
               <CardContent className="space-y-4">
-                {ticketData.map((ticket) => (
-                  <div key={ticket.id} className="p-4 border border-slate-800 rounded-lg space-y-2">
+                {isLoadingTickets && <p>Loading tickets...</p>}
+                {isTicketsError && <p className="text-red-500">Error fetching tickets.</p>}
+                {!isLoadingTickets && tickets.length === 0 && <p>No tickets found.</p>}
+                {tickets.map((ticket) => (
+                  <div key={ticket._id} className="p-4 border border-slate-800 rounded-lg space-y-2">
                     <div className="flex flex-wrap gap-2 justify-between items-center">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold">{ticket.subject}</span>
@@ -821,86 +974,134 @@ const HelpSupport = () => {
                       <div className="flex gap-2">
                         <Button
                           size="sm"
+                          onClick={() => setModalState({ type: 'reply', ticket })}
                           className="bg-purple-600 text-white hover:bg-purple-700"
                         >
                           <MessageCircle className="w-4 h-4 mr-1" />
                           Reply
                         </Button>
+                        {(ticket.status === 'resolved' || ticket.status === 'closed') && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setModalState({ type: 'rating', ticket })}
+                            className="border-slate-600"
+                          >
+                            <Star className="w-4 h-4 mr-1" />
+                            Feedback
+                          </Button>
+                        )}
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            setSelectedTicket(ticket);
-                            setIsTicketModalOpen(true);
+                            setModalState({ type: 'details', ticket });
                           }}
                           className="border-slate-600"
                         >
                           <Eye className="w-4 h-4 mr-1" />
                           View Details
                         </Button>
+                        {(ticket.status === 'resolved' || ticket.status === 'closed') && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setModalState({ type: 'rating', ticket })}
+                            className="border-slate-600"
+                          >
+                            <Star className="w-4 h-4 mr-1" />
+                            Feedback
+                          </Button>
+                        )}
                       </div>
                     </div>
                     <div className="text-sm">
-                      <span>ID: {ticket.id}</span>
+                      <span>ID: {ticket.ticketId}</span>
                       <span className="mx-2">•</span>
                       <span>Category: {ticket.category}</span>
                       <span className="mx-2">•</span>
-                      <span>Created: {ticket.created}</span>
+                      <span>Created: {new Date(ticket.createdAt).toLocaleDateString()}</span>
                       <span className="mx-2">•</span>
                       <span>Agent: {ticket.agent}</span>
                     </div>
                   </div>
                 ))}
               </CardContent>
+              <CardFooter className="flex items-center justify-between pt-4">
+                <span className="text-sm text-muted-foreground">
+                  Page {pagination.currentPage || 0} of {pagination.totalPages || 0}
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setTicketFilters(prev => ({ ...prev, page: prev.page - 1 }))}
+                    disabled={!pagination.hasPrevPage}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setTicketFilters(prev => ({ ...prev, page: prev.page + 1 }))}
+                    disabled={!pagination.hasNextPage}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </CardFooter>
             </Card>
 
             {/* Submit New Support Ticket */}
-            <Card className=" border-slate-700">
+            <Card id='newticket' className=" border-slate-700">
               <CardHeader>
                 <CardTitle>Submit New Support Ticket</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <FormField label="Subject" required>
-                    <Input placeholder="Brief description of your issue" className=" border-slate-700" />
+              <CardContent>
+                <form onSubmit={handleCreateTicket} className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <FormField label="Subject" required>
+                      <Input name="subject" placeholder="Brief description of your issue" className=" border-slate-700" />
+                    </FormField>
+                    <FormField label="Category" required>
+                      <Select name="category">
+                        <SelectTrigger className=" border-slate-700">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Billing">Billing</SelectItem>
+                          <SelectItem value="Technical">Technical</SelectItem>
+                          <SelectItem value="General">General</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormField>
+                    <FormField label="Priority">
+                      <Select name="priority" defaultValue="medium">
+                        <SelectTrigger className=" border-slate-700">
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormField>
+                    <FormField label="Contact Email">
+                      <Input name="contactEmail" placeholder="your@email.com" className=" border-slate-700" />
+                    </FormField>
+                  </div>
+                  <FormField label="Description" required>
+                    <Textarea 
+                      name="description"
+                      placeholder="Please provide detailed information about your issue..." 
+                      className=" border-slate-700 min-h-[120px]"
+                    />
                   </FormField>
-                  <FormField label="Category" required>
-                    <Select>
-                      <SelectTrigger className=" border-slate-700">
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="billing">Billing</SelectItem>
-                        <SelectItem value="technical">Technical</SelectItem>
-                        <SelectItem value="general">General</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormField>
-                  <FormField label="Priority">
-                    <Select>
-                      <SelectTrigger className=" border-slate-700">
-                        <SelectValue placeholder="Select priority" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormField>
-                  <FormField label="Contact Email">
-                    <Input placeholder="your@email.com" className=" border-slate-700" />
-                  </FormField>
-                </div>
-                <FormField label="Description" required>
-                  <Textarea 
-                    placeholder="Please provide detailed information about your issue..." 
-                    className=" border-slate-700 min-h-[120px]"
-                  />
-                </FormField>
-                <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
-                  Submit Ticket
-                </Button>
+                  <Button type="submit" disabled={createTicketMutation.isLoading} className="w-full bg-purple-600 text-white hover:bg-purple-700">
+                    {createTicketMutation.isLoading ? 'Submitting...' : 'Submit Ticket'}
+                  </Button>
+                </form>
               </CardContent>
             </Card>
           </TabsContent>
@@ -915,11 +1116,25 @@ const HelpSupport = () => {
                     <MessageCircle className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Live Chat</h3>
-                  <p className="mb-3">Get instant help from our support team</p>
-                  <p className="text-sm mb-4">Mon-Fri: 9 AM - 6 PM IST</p>
-                  <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
-                    Start Chat
-                  </Button>
+                  <p className="mb-3">Chat with us on WhatsApp for instant help.</p>
+                  {/* <p className="text-sm mb-4">{contactInfoData?.data?.businessHours || 'Mon-Fri: 9 AM - 6 PM IST'}</p> */}
+                  <Dialog open={isQrModalOpen} onOpenChange={setIsQrModalOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
+                        Start Chat
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-xs border-slate-700">
+                      <DialogHeader>
+                        <DialogTitle>Scan to Chat on WhatsApp</DialogTitle>
+                      </DialogHeader>
+                      <div className="flex items-center justify-center p-4">
+                        {contactInfoData?.data?.whatsappQRCode ? (
+                          <img src={contactInfoData.data.whatsappQRCode} alt="WhatsApp QR Code" className="w-48 h-48" />
+                        ) : <p>QR Code not available.</p>}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </CardContent>
               </Card>
 
@@ -930,10 +1145,12 @@ const HelpSupport = () => {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Email Support</h3>
                   <p className="mb-3">Send us a detailed message</p>
-                  <p className="text-sm mb-4">Response within 24 hours</p>
-                  <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
-                    Send Email
-                  </Button>
+                  <p className="font-semibold mb-4">{contactInfoData?.data?.supportEmail || 'support@example.com'}</p>
+                  <a href={`mailto:${contactInfoData?.data?.supportEmail}`}>
+                    <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
+                      Send Email
+                    </Button>
+                  </a>
                 </CardContent>
               </Card>
 
@@ -944,13 +1161,55 @@ const HelpSupport = () => {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Phone Support</h3>
                   <p className="mb-3">Speak directly with our team</p>
-                  <p className="text-sm mb-4">Premium members only</p>
-                  <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
-                    Schedule Call
-                  </Button>
+                  <p className="font-semibold mb-4">{contactInfoData?.data?.primaryPhone || '+91-xxxxxxxxxx'}</p>
+                  <a href={`tel:${contactInfoData?.data?.primaryPhone}`}>
+                    <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
+                      Call Now
+                    </Button>
+                  </a>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Contact Information */}
+            <Card className=" border-slate-700">
+              <CardHeader>
+                <CardTitle>Contact Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoadingContactInfo ? <p>Loading contact information...</p> : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4">Email Addresses</h4>
+                      <div className="space-y-2">
+                        <p><span className="font-semibold">Primary:</span> {contactInfoData?.data?.primaryEmail}</p>
+                        <p><span className="font-semibold">Support:</span> {contactInfoData?.data?.supportEmail}</p>
+                        <p><span className="font-semibold">Business:</span> {contactInfoData?.data?.businessEmail}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4">Phone Numbers</h4>
+                      <div className="space-y-2">
+                        <p><span className="font-semibold">Primary:</span> {contactInfoData?.data?.primaryPhone}</p>
+                        <p><span className="font-semibold">Secondary:</span> {contactInfoData?.data?.secondaryPhone}</p>
+                      </div>
+                    </div>
+                    <div className="md:col-span-2">
+                      <h4 className="text-lg font-semibold mb-4">Physical Address</h4>
+                      {contactInfoData?.data?.physicalAddress ? (
+                        <p>
+                          {contactInfoData.data.physicalAddress.street}, <br />
+                          {contactInfoData.data.physicalAddress.city}, {contactInfoData.data.physicalAddress.state} - {contactInfoData.data.physicalAddress.zipCode}, <br />
+                          {contactInfoData.data.physicalAddress.country}
+                        </p>
+                      ) : (
+                        <p>Address not available.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Support Hours & Response Times */}
             <Card className=" border-slate-700">
@@ -961,20 +1220,7 @@ const HelpSupport = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
                     <h4 className="text-lg font-semibold mb-4">Support Hours</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span>Monday - Friday:</span>
-                        <span>9:00 AM - 6:00 PM IST</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Saturday:</span>
-                        <span>10:00 AM - 4:00 PM IST</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Sunday:</span>
-                        <span>Closed</span>
-                      </div>
-                    </div>
+                    <p>{contactInfoData?.data?.businessHours || 'Loading...'}</p>
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold mb-4">Response Times</h4>
@@ -1010,14 +1256,18 @@ const HelpSupport = () => {
                       For urgent issues affecting your releases or payments, contact our emergency support line.
                     </p>
                     <div className="flex gap-3">
-                      <Button variant="outline" className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white">
-                        <Phone className="w-4 h-4 mr-2" />
-                        Call Emergency Line
-                      </Button>
-                      <Button variant="outline" className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white">
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Priority Chat
-                      </Button>
+                      <a href={`tel:${contactInfoData?.data?.primaryPhone}`}>
+                        <Button variant="outline" className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white">
+                          <Phone className="w-4 h-4 mr-2" />
+                          Call Emergency Line
+                        </Button>
+                      </a>
+                      <a href={`mailto:${contactInfoData?.data?.supportEmail}`}>
+                        <Button variant="outline" className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white">
+                          <MessageCircle className="w-4 h-4 mr-2" />
+                          Priority Email
+                        </Button>
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -1127,7 +1377,9 @@ const HelpSupport = () => {
         </Tabs>
 
         {/* Ticket Detail Modal */}
-        <TicketDetailModal ticket={selectedTicket} />
+        <TicketDetailModal ticket={modalState.ticket} />
+        <ReplyModal ticket={modalState.ticket} />
+        <RatingModal ticket={modalState.ticket} />
       </div>
     </div>
   );

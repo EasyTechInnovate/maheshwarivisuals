@@ -21,8 +21,11 @@ export default function AdminLogin() {
 
     try {
       const res = await GlobalApi.login(credentials);
-    //   console.log("Login Response:", res.data);
-      localStorage.setItem("token", res.data.data.tokens.accessToken);
+
+localStorage.setItem("token", res.data.data.tokens.accessToken);
+localStorage.setItem("refreshToken", res.data.data.tokens.refreshToken);
+localStorage.setItem("user", JSON.stringify(res.data.data.user));
+
       navigate("/admin/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials");
@@ -45,7 +48,7 @@ export default function AdminLogin() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email */}
+       
           <div>
             <label className="text-gray-300 text-sm mb-2 block">Email</label>
             <div className="relative">
@@ -62,7 +65,7 @@ export default function AdminLogin() {
             </div>
           </div>
 
-          {/* Password */}
+         
           <div>
             <label className="text-gray-300 text-sm mb-2 block">Password</label>
             <div className="relative">

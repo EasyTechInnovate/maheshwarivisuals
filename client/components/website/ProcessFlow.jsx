@@ -6,7 +6,7 @@ import { motion, useInView } from 'framer-motion';
 // This is the main component that orchestrates the process flow.
 const ProcessFlow = ({ data }) => {
   return (
-    <div className='w-full p-20 relative'>
+    <div className='w-full p-8 md:p-20 relative'>
       {/* Central vertical line */}
       <div className='w-1 h-[85%] bg-[#652CD6] absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-0'></div>
 
@@ -38,7 +38,7 @@ const ProcessStep = ({ item, index }) => {
   return (
     <div
       ref={ref}
-      className={`flex justify-center items-center gap-20 mb-10 ${index % 2 === 1 ? 'flex-row-reverse' : ''}`}
+      className={`flex justify-center items-center gap-5 md:gap-20 mb-10 ${index % 2 === 1 ? 'flex-row-reverse' : ''}`}
     >
       {/* Content on the left side (or right side if reversed) */}
       <motion.div
@@ -51,7 +51,7 @@ const ProcessStep = ({ item, index }) => {
       </motion.div>
 
       {/* The step number dot in the center */}
-      <div className='w-12 h-12 rounded-full bg-[#652CD6] flex items-center justify-center relative text-white font-semibold z-10'>
+      <div className='md:w-12 w-8 md:h-12 h-8 rounded-full shrink-0 bg-[#652CD6] flex items-center justify-center relative text-white font-semibold z-10'>
         {index + 1}
       </div>
 

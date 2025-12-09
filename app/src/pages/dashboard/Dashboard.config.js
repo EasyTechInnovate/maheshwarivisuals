@@ -75,25 +75,29 @@ import { ArrowRight, BarChart3, DollarSign, IndianRupee, Megaphone, Music, Play,
       title: "Upload New Release",
       subtitle: "Share your music with the world",
       icon: Upload,
-      iconColor: "text-purple-500"
+      iconColor: "text-purple-500",
+      path: "/app/upload-release"
     },
     {
       title: "View Analytics",
       subtitle: "Track your performance",
       icon: BarChart3,
-      iconColor: "text-blue-500"
+      iconColor: "text-blue-500",
+      path: "/app/analytics"
     },
     {
       title: "Start Campaign",
       subtitle: "Promote your music",
       icon: Megaphone,
-      iconColor: "text-orange-500"
+      iconColor: "text-orange-500",
+      path: "/app/advertisement"
     },
     {
       title: "Join MCN",
       subtitle: "Boost your earnings",
       icon: DollarSign,
-      iconColor: "text-green-500"
+      iconColor: "text-green-500",
+      path: "/app/youtube-mcn"
     }
   ];
 

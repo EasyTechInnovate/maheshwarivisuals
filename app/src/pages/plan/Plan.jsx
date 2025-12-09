@@ -1,70 +1,88 @@
 import React, { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Check, CreditCard, Calendar, Users } from 'lucide-react'
+import { Check, CreditCard, Calendar, Users, Loader } from 'lucide-react'
+import { getMySubscription, getAllSubscriptionPlans } from '@/services/api.services'
 
 const Plan = () => {
-  const [currentPlan] = useState('premium')
+  // Fetch current subscription
+  const { data: currentSubData, isLoading: currentSubLoading, error: currentSubError } = useQuery({
+    queryKey: ['mySubscription'],
+    queryFn: getMySubscription,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
 
-  const plans = [
-    {
-      id: 'basic',
-      name: 'Basic',
-      price: '$29',
-      period: 'per year',
-      description: 'Perfect for independent artists starting their journey',
-      features: [
-        '5 releases per month',
-        'Basic analytics dashboard',
-        'Email support',
-        'Standard distribution',
-        'Basic royalty tracking'
-      ],
-      buttonText: 'Upgrade to Basic',
-      popular: false
-    },
-    {
-      id: 'premium',
-      name: 'Premium',
-      price: '$99',
-      period: 'per year',
-      description: 'Ideal for growing artists and small labels',
-      features: [
-        'Unlimited releases',
-        'Advanced analytics dashboard',
-        'Priority customer support',
-        'Playlist pitching service',
-        'Custom artist profile',
-        'Advanced royalty tracking',
-        'Social media integration'
-      ],
-      buttonText: 'Current Plan',
-      popular: true,
-      current: true
-    },
-    {
-      id: 'enterprise',
-      name: 'Enterprise',
-      price: '$299',
-      period: 'per year',
-      description: 'For established labels and music professionals',
-      features: [
-        'Everything in Premium',
-        'Label management tools',
-        'Team collaboration features',
-        'Custom branding options',
-        'API access',
-        'Dedicated account manager',
-        'White-label solutions',
-        'Advanced reporting'
-      ],
-      buttonText: 'Upgrade to Enterprise',
-      popular: false
+  // Fetch all subscription plans
+  const { data: allPlansData, isLoading: allPlansLoading, error: allPlansError } = useQuery({
+    queryKey: ['allSubscriptionPlans'],
+    queryFn: getAllSubscriptionPlans,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A'
+    try {
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }).format(new Date(dateString))
+    } catch (error) {
+      return dateString
     }
-  ]
+  }
 
-  const currentPlanDetails = plans.find(plan => plan.id === currentPlan)
+  const currentPlanId = currentSubData?.data?.subscription?.planId
+  const currentPlan = currentSubData?.data?.subscription
+  const allPlans = allPlansData?.data || []
+
+  // Map API response to component format
+  const transformedPlans = allPlans.map((plan) => ({
+    id: plan.planId,
+    name: plan.name,
+    price: `₹${plan.price.current}`,
+    period: `per ${plan.interval}`,
+    description: plan.description,
+    features: Object.entries(plan.features)
+      .filter(([key, value]) => value === true || (typeof value === 'object' && value.description))
+      .map(([key]) => {
+        // Convert camelCase to readable text
+        return key
+          .replace(/([A-Z])/g, ' $1')
+          .replace(/^./, (str) => str.toUpperCase())
+          .trim()
+      }),
+    buttonText: currentPlanId === plan.planId ? 'Current Plan' : 'Upgrade to ' + plan.name,
+    popular: plan.isPopular,
+    bestValue: plan.isBestValue,
+    current: currentPlanId === plan.planId,
+    originalPrice: plan.price.original,
+    discount: plan.price.original - plan.price.current,
+  }))
+
+  if (currentSubLoading || allPlansLoading) {
+    return (
+      <div className="flex items-center justify-center p-6 min-h-screen">
+        <Loader className="w-8 h-8 animate-spin text-purple-600" />
+      </div>
+    )
+  }
+
+  if (currentSubError || allPlansError) {
+    return (
+      <div className="p-6">
+        <Card className="border-red-600 bg-red-50 dark:bg-red-900/20">
+          <CardContent className="pt-6">
+            <p className="text-red-600 dark:text-red-400">
+              Error loading subscription plans. Please try again later.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 space-y-8">
@@ -77,50 +95,70 @@ const Plan = () => {
       </div>
 
       {/* Current Plan Summary */}
-      {currentPlanDetails && (
+      {currentPlan && (
         <Card className="border-purple-600 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <CreditCard className="w-6 h-6 text-purple-600" />
                 <div>
-                  <CardTitle className="text-xl">Current Plan: {currentPlanDetails.name}</CardTitle>
-                  <p className="text-muted-foreground">{currentPlanDetails.description}</p>
+                  <CardTitle className="text-xl">
+                    Current Plan: {currentPlan.planName}
+                  </CardTitle>
+                  <p className="text-muted-foreground">
+                    {currentSubData?.data?.plan?.name}
+                  </p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-purple-600">{currentPlanDetails.price}</div>
-                <div className="text-sm text-muted-foreground">{currentPlanDetails.period}</div>
+                <div className="text-2xl font-bold text-purple-600">
+                  ₹{currentSubData?.data?.plan?.price?.current}
+                </div>
+                <div className="text-sm text-muted-foreground">per month</div>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-6 text-sm">
+            <div className="flex items-center gap-6 text-sm flex-wrap">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                <span>Next billing: Jan 15, 2025</span>
+                <span>Valid until: {formatDate(currentPlan.validUntil)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
-                <span>Auto-renewal enabled</span>
+                <span>
+                  {currentPlan.autoRenewal ? 'Auto-renewal enabled' : 'Auto-renewal disabled'}
+                </span>
               </div>
-              <Badge className="bg-green-600 text-white">Active</Badge>
+              <Badge className="bg-green-600 text-white">
+                {currentPlan.status === 'active' ? 'Active' : 'Inactive'}
+              </Badge>
             </div>
           </CardContent>
         </Card>
       )}
 
       {/* Plan Comparison */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {plans.map((plan) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+        {transformedPlans.map((plan) => (
           <Card
             key={plan.id}
-            className={`relative ${plan.popular ? 'border-2 border-purple-600 shadow-lg' : 'border border-slate-200 dark:border-slate-700'}`}
+            className={`relative ${
+              plan.popular ? 'border-2 border-purple-600 shadow-lg' : 'border border-slate-200 dark:border-slate-700'
+            }`}
           >
             {plan.popular && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <Badge className="bg-purple-600 text-white px-3 py-1">
                   Most Popular
+                </Badge>
+              </div>
+            )}
+
+            {plan.bestValue && (
+              <div className="absolute -top-3 right-4">
+                <Badge className="bg-green-600 text-white px-3 py-1">
+                  Best Value
                 </Badge>
               </div>
             )}
@@ -133,17 +171,27 @@ const Plan = () => {
                   {plan.period}
                 </span>
               </div>
+              {plan.discount > 0 && (
+                <div className="text-sm text-green-600 font-semibold">
+                  Save ₹{plan.discount}
+                </div>
+              )}
               <p className="text-sm text-muted-foreground">{plan.description}</p>
             </CardHeader>
 
             <CardContent className="space-y-4">
               <ul className="space-y-3">
-                {plan.features.map((feature, index) => (
+                {plan.features.slice(0, 7).map((feature, index) => (
                   <li key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                     <span className="text-sm">{feature}</span>
                   </li>
                 ))}
+                {plan.features.length > 7 && (
+                  <li className="text-sm text-purple-600 font-semibold">
+                    +{plan.features.length - 7} more features
+                  </li>
+                )}
               </ul>
 
               <Button
@@ -162,7 +210,7 @@ const Plan = () => {
       </div>
 
       {/* FAQ Section */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Frequently Asked Questions</CardTitle>
         </CardHeader>
@@ -192,7 +240,7 @@ const Plan = () => {
             </p>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   )
 }

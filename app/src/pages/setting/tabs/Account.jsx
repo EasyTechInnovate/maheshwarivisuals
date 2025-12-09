@@ -16,6 +16,7 @@ import {
   Laptop,
   Phone
 } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
 
 const Account = () => {
   const [loading, setLoading] = useState(false);
@@ -23,6 +24,7 @@ const Account = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { user } = useAuthStore();
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -44,10 +46,22 @@ const Account = () => {
 
   // Fetch account data on component mount
   useEffect(() => {
-    fetchAccountData();
-  }, []);
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        accountDetails: {
+          email: user.emailAddress || '',
+          username: user.artistName || ''
+        }
+      }));
+    }
+    // This part can be adjusted to fetch session data separately if needed
+    // For now, I'm keeping the mock session data logic.
+    fetchSessionData();
+  }, [user]);
 
-  const fetchAccountData = async () => {
+  // Renamed from fetchAccountData to be more specific
+  const fetchSessionData = async () => {
     setLoading(true);
     try {
       // Simulate API call - replace with actual API
@@ -55,19 +69,6 @@ const Account = () => {
       
       // Fake data from API
       const accountData = {
-        accountDetails: {
-          email: 'artist@example.com',
-          username: 'artistname'
-        },
-        password: {
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
-        },
-        twoFactorAuth: {
-          enabled: false,
-          description: 'Add an extra layer of security to your account.'
-        },
         activeSessions: [
           {
             id: 1,
@@ -96,7 +97,10 @@ const Account = () => {
         ]
       };
 
-      setFormData(accountData);
+      setFormData(prev => ({
+        ...prev,
+        activeSessions: accountData.activeSessions
+      }));
     } catch (error) {
       console.error('Error fetching account data:', error);
       alert('Error loading account data');
@@ -270,6 +274,7 @@ const Account = () => {
               value={formData.accountDetails.email}
               onChange={(e) => handleAccountDetailsChange('email', e.target.value)}
               placeholder="artist@example.com"
+              disabled
               className="border-slate-700"
               type="email"
             />
