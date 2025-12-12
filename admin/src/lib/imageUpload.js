@@ -2,7 +2,7 @@ import ImageKit from 'imagekit-javascript';
 import axios from 'axios';
 import { toast } from "sonner";
 
-const apiBaseUrl = "https://mv.easytechinnovate.site";
+const apiBaseUrl = "https://api-mv.manishdashsharma.com";
 
 const imagekit = new ImageKit({
   publicKey: "public_IIhuu7gbjT1cTmhikcZ/iDKFSIw=",
